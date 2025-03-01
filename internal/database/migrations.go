@@ -51,6 +51,12 @@ func Migrate(db *gorm.DB) {
 				if err != nil {
 					return err
 				}
+				err = db.Exec(`
+					alter table public.settings add constraint fk_settings_user foreign key (user_id) references public.users(id);
+				`).Error
+				if err != nil {
+					return err
+				}
 				return nil
 			},
 			Rollback: func(tx *gorm.DB) error {
@@ -61,6 +67,12 @@ func Migrate(db *gorm.DB) {
 			ID: "20241214102915_create_categories_table",
 			Migrate: func(tx *gorm.DB) error {
 				err := tx.AutoMigrate(&models.Category{})
+				if err != nil {
+					return err
+				}
+				err = db.Exec(`
+					alter table public.categories add constraint fk_categories_user foreign key (user_id) references public.users(id);
+				`).Error
 				if err != nil {
 					return err
 				}
@@ -77,6 +89,12 @@ func Migrate(db *gorm.DB) {
 				if err != nil {
 					return err
 				}
+				err = db.Exec(`
+					alter table public.payment_methods add constraint fk_payment_methods_user foreign key (user_id) references public.users(id);
+				`).Error
+				if err != nil {
+					return err
+				}
 				return nil
 			},
 			Rollback: func(tx *gorm.DB) error {
@@ -87,6 +105,14 @@ func Migrate(db *gorm.DB) {
 			ID: "20241214103104_create_records_table",
 			Migrate: func(tx *gorm.DB) error {
 				err := tx.AutoMigrate(&models.Record{})
+				if err != nil {
+					return err
+				}
+				err = db.Exec(`
+					alter table public.records add constraint fk_records_user foreign key (user_id) references public.users(id);
+					alter table public.records add constraint fk_records_category foreign key (category_id) references public.categories(id);
+					alter table public.records add constraint fk_records_payment_method foreign key (payment_method_id) references public.payment_methods(id);
+				`).Error
 				if err != nil {
 					return err
 				}
