@@ -16,8 +16,12 @@ func main() {
 	log.Println("👍 [1] Environment variables loaded successfully")
 
 	// Connect database (rename the response below to 'db' for usage)
-	_ = database.ConnectDB()
+	db := database.ConnectDB()
 	log.Println("👍 [2] Database connected successfully")
+
+	// Apply migrations
+	database.Migrate(db)
+	log.Println("👍 [3] Migrations applied successfully")
 
 	// Init new echo client
 	e := echo.New()
