@@ -25,9 +25,9 @@ func main() {
 
 	// Init new echo client
 	e := echo.New()
-	log.Println("👍 [3] New Echo HTTP client initiated successfully")
+	log.Println("👍 [4] New Echo HTTP client initiated successfully")
 
 	// Start HTTP server
-	log.Println("👍 [4] Starting HTTP server...")
+	log.Println("👍 [5] Starting HTTP server...")
 	server.StartServer(e)
 }
