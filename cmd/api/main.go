@@ -5,6 +5,7 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/handlers"
 	"github.com/emilijan-koteski/monexa/internal/server"
 	"github.com/emilijan-koteski/monexa/internal/services"
+	"github.com/emilijan-koteski/monexa/internal/token"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -28,6 +29,8 @@ func main() {
 
 	// Init services
 	healthService := services.NewHealthService(db)
+	userService := services.NewUserService(db)
+	tokenMaker := token.NewJWTMaker()
 	log.Println("👍 [4] All services initiated successfully")
 
 	// Init new echo client
@@ -49,6 +52,7 @@ func main() {
 
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
+	handlers.RegisterAuthHandler(e, userService, tokenMaker)
 	log.Println("👍 [7] All handlers and routes registered successfully")
 
 	// Start HTTP server
