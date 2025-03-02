@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
+	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/requests"
 	"github.com/emilijan-koteski/monexa/internal/services"
@@ -29,12 +30,17 @@ func RegisterAuthHandler(
 		sessionService: sessionService,
 	}
 
+	// Unauthenticated group
 	v1 := e.Group("/api/v1/auth")
 
 	v1.POST("/login", handler.Login)
 	v1.POST("/logout/:id", handler.Logout) // fixme (emilijan): remove id param when auth middleware implemented
 	v1.POST("/tokens/renew", handler.RenewAccessToken)
 	v1.POST("/tokens/revoke/:id", handler.RevokeSession)
+
+	// Restricted group
+	r1 := v1.Group("")
+	r1.Use(middlewares.AuthMiddleware())
 }
 
 func (h *authHandler) Login(c echo.Context) error {
