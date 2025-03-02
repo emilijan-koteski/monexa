@@ -31,6 +31,7 @@ func main() {
 	healthService := services.NewHealthService(db)
 	userService := services.NewUserService(db)
 	tokenMaker := token.NewJWTMaker()
+	sessionService := services.NewSessionService(db)
 	log.Println("👍 [4] All services initiated successfully")
 
 	// Init new echo client
@@ -52,7 +53,7 @@ func main() {
 
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
-	handlers.RegisterAuthHandler(e, userService, tokenMaker)
+	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService)
 	log.Println("👍 [7] All handlers and routes registered successfully")
 
 	// Start HTTP server

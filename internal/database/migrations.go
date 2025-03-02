@@ -123,6 +123,25 @@ func Migrate(db *gorm.DB) {
 			},
 		},
 		{
+			ID: "20250302134055_create_sessions_table",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.AutoMigrate(&models.Session{})
+				if err != nil {
+					return err
+				}
+				err = db.Exec(`
+					alter table public.sessions add constraint fk_sessions_user foreign key (user_id) references public.users(id);
+				`).Error
+				if err != nil {
+					return err
+				}
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("sessions")
+			},
+		},
+		{
 			ID: "20241214104212_add_test_user",
 			Migrate: func(tx *gorm.DB) error {
 				hashedPassword, err := bcrypt.GenerateFromPassword([]byte("test"), bcrypt.DefaultCost)

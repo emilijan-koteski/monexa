@@ -14,14 +14,14 @@ func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{db: db}
 }
 
-func (s *UserService) GetUserByExample(ctx context.Context, example models.User) (models.User, error) {
+func (s *UserService) GetUserByExample(ctx context.Context, example models.User) (*models.User, error) {
 	var user models.User
 	if err := s.db.WithContext(ctx).
 		Where(&example).
 		First(&user).
 		Error; err != nil {
-		return models.User{}, err
+		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
