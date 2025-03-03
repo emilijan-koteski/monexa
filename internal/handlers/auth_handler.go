@@ -34,9 +34,9 @@ func RegisterAuthHandler(
 	v1 := e.Group("/api/v1/auth")
 
 	v1.POST("/login", handler.Login)
-	v1.POST("/logout/:id", handler.Logout) // fixme (emilijan): remove id param when auth middleware implemented
+	v1.POST("/logout", handler.Logout)
 	v1.POST("/tokens/renew", handler.RenewAccessToken)
-	v1.POST("/tokens/revoke/:id", handler.RevokeSession)
+	v1.POST("/sessions/revoke", handler.RevokeSession)
 
 	// Restricted group
 	r1 := v1.Group("")
@@ -93,12 +93,12 @@ func (h *authHandler) Login(c echo.Context) error {
 }
 
 func (h *authHandler) Logout(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return responses.BadRequestWithMessage(c, "invalid session id")
+	req := requests.RefreshTokenRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	err := h.sessionService.DeleteSession(c.Request().Context(), id)
+	err := h.sessionService.DeleteSession(c.Request().Context(), req)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error deleting session")
 	}
@@ -107,7 +107,7 @@ func (h *authHandler) Logout(c echo.Context) error {
 }
 
 func (h *authHandler) RenewAccessToken(c echo.Context) error {
-	req := requests.RenewAccessTokenRequest{}
+	req := requests.RefreshTokenRequest{}
 	if err := c.Bind(&req); err != nil {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
@@ -148,12 +148,12 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 }
 
 func (h *authHandler) RevokeSession(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return responses.BadRequestWithMessage(c, "invalid session id")
+	req := requests.RefreshTokenRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	err := h.sessionService.RevokeSession(c.Request().Context(), id)
+	err := h.sessionService.RevokeSession(c.Request().Context(), req)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error revoking session")
 	}

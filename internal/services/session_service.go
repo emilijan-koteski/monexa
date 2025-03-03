@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/emilijan-koteski/monexa/internal/models"
+	"github.com/emilijan-koteski/monexa/internal/requests"
 	"gorm.io/gorm"
 	"time"
 )
@@ -49,14 +50,14 @@ func (s *SessionService) CreateSessionFromExample(ctx context.Context, example m
 	return &example, nil
 }
 
-func (s *SessionService) RevokeSession(ctx context.Context, id string) error {
-	if id == "" {
-		return errors.New("id is required")
+func (s *SessionService) RevokeSession(ctx context.Context, req requests.RefreshTokenRequest) error {
+	if req.RefreshToken == "" {
+		return errors.New("refresh token is required")
 	}
 
 	result := s.db.WithContext(ctx).
 		Model(&models.Session{}).
-		Where("id = ?", id).
+		Where("refresh_token = ?", req.RefreshToken).
 		Update("is_revoked", true)
 
 	if result.Error != nil {
@@ -70,13 +71,13 @@ func (s *SessionService) RevokeSession(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *SessionService) DeleteSession(ctx context.Context, id string) error {
-	if id == "" {
-		return errors.New("id is required")
+func (s *SessionService) DeleteSession(ctx context.Context, req requests.RefreshTokenRequest) error {
+	if req.RefreshToken == "" {
+		return errors.New("refresh token is required")
 	}
 
 	result := s.db.WithContext(ctx).
-		Where("id = ?", id).
+		Where("refresh_token = ?", req.RefreshToken).
 		Delete(&models.Session{})
 
 	if result.Error != nil {

@@ -1,5 +1,5 @@
 package requests
 
-type RenewAccessTokenRequest struct {
+type RefreshTokenRequest struct {
 	RefreshToken string `json:"refreshToken" validate:"required"`
 }
