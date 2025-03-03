@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -34,6 +35,7 @@ func RegisterAuthHandler(
 	v1 := e.Group("/api/v1/auth")
 
 	v1.POST("/login", handler.Login)
+	v1.POST("/register", handler.Register)
 	v1.POST("/logout", handler.Logout)
 	v1.POST("/tokens/renew", handler.RenewAccessToken)
 	v1.POST("/sessions/revoke", handler.RevokeSession)
@@ -90,6 +92,20 @@ func (h *authHandler) Login(c echo.Context) error {
 	response["user"] = *user
 
 	return responses.SuccessWithData(c, response)
+}
+
+func (h *authHandler) Register(c echo.Context) error {
+	req := requests.RegisterRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
+	}
+
+	user, err := h.userService.CreateUser(c.Request().Context(), req)
+	if err != nil {
+		return responses.FailureWithError(c, fmt.Errorf("error creating user: %w", err))
+	}
+
+	return responses.SuccessWithData(c, user)
 }
 
 func (h *authHandler) Logout(c echo.Context) error {

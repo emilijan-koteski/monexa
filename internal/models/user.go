@@ -13,4 +13,7 @@ type User struct {
 	Email     string         `gorm:"not null" json:"email"`
 	Password  string         `gorm:"not null" json:"-"`
 	Name      string         `gorm:"not null" json:"name"`
+
+	Settings       *Setting         `json:"settings,omitempty"`
+	PaymentMethods *[]PaymentMethod `json:"paymentMethods,omitempty"`
 }
