@@ -53,7 +53,7 @@ func (h *authHandler) Login(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{Email: req.Email}, false)
+	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{Email: req.Email})
 	if err != nil {
 		return responses.UnauthorizedWithMessage(c, "invalid credentials")
 	}
