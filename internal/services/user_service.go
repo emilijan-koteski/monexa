@@ -18,12 +18,16 @@ func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{db: db}
 }
 
-func (s *UserService) GetUserByExample(ctx context.Context, example models.User) (*models.User, error) {
+func (s *UserService) GetUserByExample(ctx context.Context, example models.User, preload bool) (*models.User, error) {
 	var user models.User
-	if err := s.db.WithContext(ctx).
-		Where(&example).
-		First(&user).
-		Error; err != nil {
+
+	query := s.db.WithContext(ctx).Where(&example)
+
+	if preload {
+		query = query.Preload("Settings").Preload("PaymentMethods")
+	}
+
+	if err := query.First(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -95,4 +99,11 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 	user.PaymentMethods = &paymentMethods
 
 	return &user, nil
+}
+
+func (s *UserService) DeleteUser(ctx context.Context, userID uint) error {
+	if err := s.db.WithContext(ctx).Where("id = ?", userID).Delete(&models.User{}).Error; err != nil {
+		return err
+	}
+	return nil
 }

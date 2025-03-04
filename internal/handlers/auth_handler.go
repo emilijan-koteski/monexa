@@ -43,6 +43,8 @@ func RegisterAuthHandler(
 	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
+
+	r1.DELETE("/accounts", handler.DeleteAccount)
 }
 
 func (h *authHandler) Login(c echo.Context) error {
@@ -51,7 +53,7 @@ func (h *authHandler) Login(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{Email: req.Email})
+	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{Email: req.Email}, false)
 	if err != nil {
 		return responses.UnauthorizedWithMessage(c, "invalid credentials")
 	}
@@ -172,6 +174,21 @@ func (h *authHandler) RevokeSession(c echo.Context) error {
 	err := h.sessionService.RevokeSession(c.Request().Context(), req)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error revoking session")
+	}
+
+	return responses.Success(c)
+}
+
+func (h *authHandler) DeleteAccount(c echo.Context) error {
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+
+	userID := claims.UserID
+
+	if err = h.userService.DeleteUser(c.Request().Context(), userID); err != nil {
+		return responses.FailureWithError(c, fmt.Errorf("error deleting user: %w", err))
 	}
 
 	return responses.Success(c)
