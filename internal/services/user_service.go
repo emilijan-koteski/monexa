@@ -70,23 +70,44 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
-	setting := models.Setting{
+	defaultSetting := models.Setting{
 		UserID:   user.ID,
 		Language: types.EnglishLanguage,
 		Currency: types.MacedonianDenar,
 	}
 
-	if err = tx.Create(&setting).Error; err != nil {
+	if err = tx.Create(&defaultSetting).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	paymentMethods := []models.PaymentMethod{
+	defaultPaymentMethods := []models.PaymentMethod{
 		{UserID: user.ID, Name: "Cash"},
 		{UserID: user.ID, Name: "Card"},
 	}
 
-	if err = tx.Create(&paymentMethods).Error; err != nil {
+	if err = tx.Create(&defaultPaymentMethods).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	defaultCategories := []models.Category{
+		{UserID: user.ID, Name: "Food", Type: types.Expense, Description: utils.Ptr("Meals, dining out (restaurants, takeout, fast food, etc.)")},
+		{UserID: user.ID, Name: "Groceries", Type: types.Expense, Description: utils.Ptr("Supermarket purchases, fresh produce, household food supplies")},
+		{UserID: user.ID, Name: "Transportation", Type: types.Expense, Description: utils.Ptr("Gas, public transport, ride-sharing, parking fees")},
+		{UserID: user.ID, Name: "Housing", Type: types.Expense, Description: utils.Ptr("Rent, mortgage, property taxes, home maintenance")},
+		{UserID: user.ID, Name: "Medical", Type: types.Expense, Description: utils.Ptr("Doctor visits, medication, insurance co-pays")},
+		{UserID: user.ID, Name: "Shopping", Type: types.Expense, Description: utils.Ptr("Clothes, accessories, general retail purchases")},
+		{UserID: user.ID, Name: "Entertainment", Type: types.Expense, Description: utils.Ptr("Movies, concerts, gaming, hobbies, streaming services")},
+		{UserID: user.ID, Name: "Drinks", Type: types.Expense, Description: utils.Ptr("Coffee, soft drinks, alcohol, bottled water")},
+		{UserID: user.ID, Name: "Debt & Loans", Type: types.Expense, Description: utils.Ptr("Credit card payments, personal or student loans")},
+		{UserID: user.ID, Name: "Gifts & Donations", Type: types.Expense, Description: utils.Ptr("Charity contributions, birthday and wedding gifts")},
+		{UserID: user.ID, Name: "Pets", Type: types.Expense, Description: utils.Ptr("Pet food, vet visits, grooming, pet accessories")},
+		{UserID: user.ID, Name: "Others", Type: types.Expense, Description: utils.Ptr("Any expenses that don’t fit other categories")},
+		{UserID: user.ID, Name: "Income", Type: types.Income, Description: utils.Ptr("Salary, freelance, investments, gifts, refunds, and rebates")},
+	}
+
+	if err = tx.Create(&defaultCategories).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -95,8 +116,8 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
-	user.Settings = &setting
-	user.PaymentMethods = &paymentMethods
+	user.Settings = &defaultSetting
+	user.PaymentMethods = &defaultPaymentMethods
 
 	return &user, nil
 }

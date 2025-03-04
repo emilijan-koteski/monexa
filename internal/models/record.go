@@ -14,7 +14,6 @@ type Record struct {
 	UserID          uint               `gorm:"not null;index" json:"userId"`
 	CategoryID      uint               `gorm:"not null;index" json:"categoryId"`
 	PaymentMethodID uint               `gorm:"not null;index" json:"paymentMethodId"`
-	Type            string             `gorm:"not null" json:"type"`
 	Amount          float64            `gorm:"not null" json:"amount"`
 	Currency        types.CurrencyType `gorm:"not null" json:"currency"`
 	Description     *string            `json:"description"`
