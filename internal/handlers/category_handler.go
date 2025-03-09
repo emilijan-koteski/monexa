@@ -28,6 +28,7 @@ func RegisterCategoryHandler(e *echo.Echo, categoryService *services.CategorySer
 	r1.Use(middlewares.AuthMiddleware())
 
 	r1.GET("/:id", handler.Read)
+	r1.GET("", handler.ReadAll)
 	r1.POST("", handler.Create)
 	r1.PATCH("/:id", handler.Update)
 	r1.DELETE("/:id", handler.Delete)
@@ -61,6 +62,20 @@ func (h *categoryHandler) Read(c echo.Context) error {
 	}
 
 	return responses.SuccessWithData(c, category)
+}
+
+func (h *categoryHandler) ReadAll(c echo.Context) error {
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+
+	categories, err := h.categoryService.GetAllByExample(c.Request().Context(), models.Category{UserID: claims.UserID})
+	if err != nil {
+		return responses.FailureWithError(c, fmt.Errorf("error reading categories: %w", err))
+	}
+
+	return responses.SuccessWithData(c, categories)
 }
 
 func (h *categoryHandler) Create(c echo.Context) error {

@@ -28,6 +28,18 @@ func (s *PaymentMethodService) GetByExample(ctx context.Context, example models.
 	return &paymentMethod, nil
 }
 
+func (s *PaymentMethodService) GetAllByExample(ctx context.Context, example models.PaymentMethod) ([]models.PaymentMethod, error) {
+	var paymentMethods []models.PaymentMethod
+	if err := s.db.WithContext(ctx).
+		Where(&example).
+		Find(&paymentMethods).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return paymentMethods, nil
+}
+
 func (s *PaymentMethodService) Create(ctx context.Context, req requests.PaymentMethodRequest) (*models.PaymentMethod, error) {
 	if req.UserID == nil || *req.UserID == 0 {
 		return nil, errors.New("invalid user id")

@@ -29,6 +29,18 @@ func (s *CategoryService) GetByExample(ctx context.Context, example models.Categ
 	return &category, nil
 }
 
+func (s *CategoryService) GetAllByExample(ctx context.Context, example models.Category) ([]models.Category, error) {
+	var categories []models.Category
+	if err := s.db.WithContext(ctx).
+		Where(&example).
+		Find(&categories).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return categories, nil
+}
+
 func (s *CategoryService) Create(ctx context.Context, req requests.CategoryRequest) (*models.Category, error) {
 	if req.UserID == nil || *req.UserID == 0 {
 		return nil, errors.New("invalid user id")
