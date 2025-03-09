@@ -8,4 +8,5 @@ type Category struct {
 	Name        string             `gorm:"not null" json:"name"`
 	Type        types.CategoryType `gorm:"not null" json:"type"`
 	Description *string            `json:"description"`
+	Color       *string            `json:"color"`
 }

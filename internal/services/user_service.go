@@ -88,19 +88,19 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 	}
 
 	defaultCategories := []models.Category{
-		{UserID: user.ID, Name: "Food", Type: types.Expense, Description: utils.Ptr("Meals, dining out (restaurants, takeout, fast food, etc.)")},
-		{UserID: user.ID, Name: "Groceries", Type: types.Expense, Description: utils.Ptr("Supermarket purchases, fresh produce, household food supplies")},
-		{UserID: user.ID, Name: "Transportation", Type: types.Expense, Description: utils.Ptr("Gas, public transport, ride-sharing, parking fees")},
-		{UserID: user.ID, Name: "Housing", Type: types.Expense, Description: utils.Ptr("Rent, mortgage, property taxes, home maintenance")},
-		{UserID: user.ID, Name: "Medical", Type: types.Expense, Description: utils.Ptr("Doctor visits, medication, insurance co-pays")},
-		{UserID: user.ID, Name: "Shopping", Type: types.Expense, Description: utils.Ptr("Clothes, accessories, general retail purchases")},
-		{UserID: user.ID, Name: "Entertainment", Type: types.Expense, Description: utils.Ptr("Movies, concerts, gaming, hobbies, streaming services")},
-		{UserID: user.ID, Name: "Drinks", Type: types.Expense, Description: utils.Ptr("Coffee, soft drinks, alcohol, bottled water")},
-		{UserID: user.ID, Name: "Debt & Loans", Type: types.Expense, Description: utils.Ptr("Credit card payments, personal or student loans")},
-		{UserID: user.ID, Name: "Gifts & Donations", Type: types.Expense, Description: utils.Ptr("Charity contributions, birthday and wedding gifts")},
-		{UserID: user.ID, Name: "Pets", Type: types.Expense, Description: utils.Ptr("Pet food, vet visits, grooming, pet accessories")},
-		{UserID: user.ID, Name: "Others", Type: types.Expense, Description: utils.Ptr("Any expenses that don’t fit other categories")},
-		{UserID: user.ID, Name: "Income", Type: types.Income, Description: utils.Ptr("Salary, freelance, investments, gifts, refunds, and rebates")},
+		{UserID: user.ID, Name: "Food", Type: types.Expense, Description: utils.Ptr("Meals, dining out (restaurants, takeout, fast food, etc.)"), Color: utils.Ptr("#FF5733")},
+		{UserID: user.ID, Name: "Groceries", Type: types.Expense, Description: utils.Ptr("Supermarket purchases, fresh produce, household food supplies"), Color: utils.Ptr("#4EFF33")},
+		{UserID: user.ID, Name: "Transportation", Type: types.Expense, Description: utils.Ptr("Gas, public transport, ride-sharing, parking fees"), Color: utils.Ptr("#33CFFF")},
+		{UserID: user.ID, Name: "Housing", Type: types.Expense, Description: utils.Ptr("Rent, mortgage, property taxes, home maintenance"), Color: utils.Ptr("#FF33A8")},
+		{UserID: user.ID, Name: "Medical", Type: types.Expense, Description: utils.Ptr("Doctor visits, medication, insurance co-pays"), Color: utils.Ptr("#FF3333")},
+		{UserID: user.ID, Name: "Shopping", Type: types.Expense, Description: utils.Ptr("Clothes, accessories, general retail purchases"), Color: utils.Ptr("#FF9F33")},
+		{UserID: user.ID, Name: "Entertainment", Type: types.Expense, Description: utils.Ptr("Movies, concerts, gaming, hobbies, streaming services"), Color: utils.Ptr("#F433FF")},
+		{UserID: user.ID, Name: "Drinks", Type: types.Expense, Description: utils.Ptr("Coffee, soft drinks, alcohol, bottled water"), Color: utils.Ptr("#33FFD1")},
+		{UserID: user.ID, Name: "Debt & Loans", Type: types.Expense, Description: utils.Ptr("Credit card payments, personal or student loans"), Color: utils.Ptr("#A833FF")},
+		{UserID: user.ID, Name: "Gifts & Donations", Type: types.Expense, Description: utils.Ptr("Charity contributions, birthday and wedding gifts"), Color: utils.Ptr("#FFD733")},
+		{UserID: user.ID, Name: "Pets", Type: types.Expense, Description: utils.Ptr("Pet food, vet visits, grooming, pet accessories"), Color: utils.Ptr("#33FF57")},
+		{UserID: user.ID, Name: "Others", Type: types.Expense, Description: utils.Ptr("Any expenses that don’t fit other categories"), Color: utils.Ptr("#8A8A8A")},
+		{UserID: user.ID, Name: "Income", Type: types.Income, Description: utils.Ptr("Salary, freelance, investments, gifts, refunds, and rebates"), Color: utils.Ptr("#33FFB5")},
 	}
 
 	if err = tx.Create(&defaultCategories).Error; err != nil {

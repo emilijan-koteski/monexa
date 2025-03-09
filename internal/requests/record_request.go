@@ -6,6 +6,7 @@ import (
 )
 
 type RecordRequest struct {
+	ID              *uint
 	UserID          *uint
 	CategoryID      *uint               `json:"categoryId"`
 	PaymentMethodID *uint               `json:"paymentMethodId"`
