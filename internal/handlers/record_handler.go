@@ -28,6 +28,7 @@ func RegisterRecordHandler(e *echo.Echo, recordService *services.RecordService) 
 	r1.Use(middlewares.AuthMiddleware())
 
 	r1.GET("/:id", handler.Read)
+	r1.GET("", handler.ReadAll)
 	r1.POST("", handler.Create)
 	r1.PATCH("/:id", handler.Update)
 	r1.DELETE("/:id", handler.Delete)
