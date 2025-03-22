@@ -63,6 +63,28 @@ func (h *recordHandler) Read(c echo.Context) error {
 	return responses.SuccessWithData(c, record)
 }
 
+func (h *recordHandler) ReadAll(c echo.Context) error {
+	var filter requests.RecordFilterRequest
+
+	if err := c.Bind(&filter); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid query parameters")
+	}
+
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+
+	filter.UserID = &claims.UserID
+
+	records, err := h.recordService.GetAll(c.Request().Context(), filter)
+	if err != nil {
+		return responses.FailureWithError(c, fmt.Errorf("error reading records: %w", err))
+	}
+
+	return responses.SuccessWithData(c, records)
+}
+
 func (h *recordHandler) Create(c echo.Context) error {
 	req := requests.RecordRequest{}
 	if err := c.Bind(&req); err != nil {

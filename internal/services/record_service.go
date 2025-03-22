@@ -29,6 +29,29 @@ func (s *RecordService) GetByExample(ctx context.Context, example models.Record)
 	return &record, nil
 }
 
+func (s *RecordService) GetAll(ctx context.Context, filter requests.RecordFilterRequest) ([]models.Record, error) {
+	if filter.UserID == nil || *filter.UserID == 0 {
+		return []models.Record{}, errors.New("invalid user id")
+	}
+
+	var records []models.Record
+
+	query := s.db.WithContext(ctx).Where("user_id = ?", *filter.UserID)
+
+	if filter.StartDate != nil {
+		query = query.Where("date >= ?", *filter.StartDate)
+	}
+	if filter.EndDate != nil {
+		query = query.Where("date <= ?", *filter.EndDate)
+	}
+
+	if err := query.Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	return records, nil
+}
+
 func (s *RecordService) Create(ctx context.Context, req requests.RecordRequest) (*models.Record, error) {
 	if req.UserID == nil || *req.UserID == 0 {
 		return nil, errors.New("invalid user id")
