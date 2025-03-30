@@ -3,6 +3,7 @@ import {Button, CssBaseline, ThemeProvider} from '@mui/material';
 import {changeLanguage} from './i18n.ts';
 import {getLanguage} from './utils/storage.ts';
 import {useTranslation} from 'react-i18next';
+import {Language} from './enums/Language.ts';
 
 function App() {
   const {t} = useTranslation();
@@ -10,11 +11,11 @@ function App() {
   const toggleLanguage = () => {
     const lng = getLanguage();
     switch (lng) {
-      case 'en':
-        changeLanguage('mk');
+      case Language.EN:
+        changeLanguage(Language.MK);
         break;
       default:
-        changeLanguage('en');
+        changeLanguage(Language.EN);
         break;
     }
   };
