@@ -1,35 +1,12 @@
 import theme from './theme/theme.ts';
-import {Button, CssBaseline, ThemeProvider} from '@mui/material';
-import {changeLanguage} from './i18n.ts';
-import {getLanguage} from './utils/storage.ts';
-import {useTranslation} from 'react-i18next';
-import {Language} from './enums/Language.ts';
+import {CssBaseline, ThemeProvider} from '@mui/material';
+import AppRoutes from './routes/routes.tsx';
 
 function App() {
-  const {t} = useTranslation();
-
-  const toggleLanguage = () => {
-    const lng = getLanguage();
-    switch (lng) {
-      case Language.EN:
-        changeLanguage(Language.MK);
-        break;
-      default:
-        changeLanguage(Language.EN);
-        break;
-    }
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline/>
-      <div>
-        <h1>{t('WELCOME_MESSAGE')}</h1>
-        <p>{t('APP_TAGLINE')}</p>
-      </div>
-      <div>
-        <Button variant="contained" onClick={toggleLanguage}>{t('TOGGLE_LANGUAGE')}</Button>
-      </div>
+      <AppRoutes/>
     </ThemeProvider>
   );
 }
