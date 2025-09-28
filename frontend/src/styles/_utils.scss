@@ -1,0 +1,18 @@
+@import 'colors';
+
+// Utility classes for quick access to theme colors
+.bg-primary { background-color: $color-primary; }
+.bg-secondary { background-color: $color-secondary; }
+.bg-success { background-color: $color-success; }
+.bg-error { background-color: $color-error; }
+.bg-warning { background-color: $color-warning; }
+.bg-info { background-color: $color-info; }
+.bg-lighter { background-color: $color-background-lighter; }
+.bg-darker { background-color: $color-background-darker; }
+
+.text-primary { color: $color-primary; }
+.text-secondary { color: $color-secondary; }
+.text-success { color: $color-success; }
+.text-error { color: $color-error; }
+.text-warning { color: $color-warning; }
+.text-info { color: $color-info; }
