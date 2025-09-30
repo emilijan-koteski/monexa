@@ -56,7 +56,7 @@ const RegisterPage = () => {
   const registerMutation = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
-    const { confirmPassword, ...registerData } = data;
+    const { ...registerData } = data;
     registerMutation.mutate(registerData, {
       onSuccess: () => {
         navigate('/login');
@@ -209,9 +209,7 @@ const RegisterPage = () => {
                                 onClick={toggleConfirmPasswordVisibility}
                                 edge="end"
                               >
-                                <FontAwesomeIcon
-                                  icon={showConfirmPassword ? faEyeSlash : faEye}
-                                />
+                                <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye}/>
                               </IconButton>
                             </InputAdornment>
                           ),
