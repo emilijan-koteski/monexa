@@ -1,4 +1,4 @@
-import {createTheme} from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -38,6 +38,24 @@ const theme = createTheme({
       styleOverrides: {
         body: {
           backgroundColor: '#1b143d',
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: '#251e4e',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          color: '#ffffff',
+          fontSize: '0.875rem',
+          borderRadius: '8px',
+          padding: '8px 12px',
+        },
+        arrow: {
+          color: '#251e4e',
+          '&::before': {
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          },
         },
       },
     },

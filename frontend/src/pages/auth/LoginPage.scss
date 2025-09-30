@@ -1,0 +1,135 @@
+@import '../../styles/colors';
+@import '../../styles/variables';
+
+#login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gradient-background;
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .language-change-container {
+    align-self: flex-end;
+  }
+
+  .login-paper {
+    width: 100%;
+    padding: 3rem;
+    border-radius: 16px;
+    background: $color-background-lighter;
+    backdrop-filter: blur(10px);
+    border: 1px solid $color-border;
+    box-shadow: 0 20px 40px $shadow-dark;
+
+    @include sm-down {
+      padding: 2rem;
+    }
+  }
+
+  .login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    .app-title {
+      font-weight: 700;
+      background: $gradient-primary;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-title {
+      color: $color-text-primary;
+      font-weight: 500;
+    }
+  }
+
+  .login-button {
+    height: 56px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-transform: none;
+    border-radius: 12px;
+    background: $gradient-primary;
+    box-shadow: 0 8px 20px $shadow-primary;
+    transition: all $transition-normal;
+
+    &:hover {
+      background: $gradient-primary-hover;
+      box-shadow: 0 12px 25px $shadow-primary-hover;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background: $gradient-disabled;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+
+  .register-link-container {
+    text-align: center;
+
+    a {
+      color: $color-secondary;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color $transition-normal;
+
+      &:hover {
+        color: darken($color-secondary, 10%);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // Custom TextField styles
+  .MuiTextField-root {
+    .MuiInputLabel-root {
+      color: $color-text-secondary;
+
+      &.Mui-focused {
+        color: $color-secondary;
+      }
+    }
+
+    .MuiOutlinedInput-root {
+      background: $color-input-background;
+      border-radius: 12px;
+
+      .MuiOutlinedInput-notchedOutline {
+        border-color: $color-border-hover;
+      }
+
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: $color-border-focus;
+      }
+
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: $color-secondary;
+        border-width: 2px;
+      }
+
+      .MuiInputAdornment-root {
+        color: $color-text-secondary;
+      }
+    }
+
+    .MuiFormHelperText-root {
+      margin-left: 4px;
+      margin-top: 6px;
+    }
+  }
+}

@@ -16,3 +16,23 @@ $color-background-darker: #040023;
 // Text Colors
 $color-text-primary: #ffffff;
 $color-text-secondary: #777ab6;
+
+// Border Colors
+$color-border: rgba(255, 255, 255, 0.1);
+$color-border-hover: rgba(255, 255, 255, 0.2);
+$color-border-focus: rgba(255, 255, 255, 0.3);
+
+// Glass Effect Colors
+$color-glass-background: rgba(37, 30, 78, 0.95);
+$color-input-background: rgba(255, 255, 255, 0.05);
+
+// Gradients
+$gradient-primary: linear-gradient(45deg, $color-primary, $color-secondary);
+$gradient-primary-hover: linear-gradient(45deg, darken($color-primary, 5%), darken($color-secondary, 5%));
+$gradient-background: linear-gradient(135deg, $color-background-default 0%, $color-background-lighter 100%);
+$gradient-disabled: linear-gradient(45deg, #666, #888);
+
+// Shadow Colors
+$shadow-primary: rgba($color-primary, 0.3);
+$shadow-primary-hover: rgba($color-primary, 0.4);
+$shadow-dark: rgba(0, 0, 0, 0.3);
