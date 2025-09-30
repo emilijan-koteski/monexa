@@ -103,6 +103,10 @@
       &.Mui-focused {
         color: $color-secondary;
       }
+
+      &.Mui-error {
+        color: $color-error;
+      }
     }
 
     .MuiOutlinedInput-root {
@@ -119,6 +123,15 @@
 
       &.Mui-focused .MuiOutlinedInput-notchedOutline {
         border-color: $color-secondary;
+        border-width: 2px;
+      }
+
+      &.Mui-error .MuiOutlinedInput-notchedOutline {
+        border-color: $color-error;
+      }
+
+      &.Mui-error.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: $color-error;
         border-width: 2px;
       }
 
