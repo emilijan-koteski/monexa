@@ -1,6 +1,8 @@
 // Primary Colors
 $color-primary: #e63573;
+$color-primary-hover: darken($color-primary, 5%);
 $color-secondary: #6669ff;
+$color-secondary-hover: darken($color-secondary, 10%);
 
 // Semantic Colors
 $color-success: #93e700;

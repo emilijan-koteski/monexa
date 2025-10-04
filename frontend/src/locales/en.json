@@ -29,5 +29,6 @@
   "LOGIN_SUCCESS": "Successfully logged in!",
   "REGISTER_SUCCESS": "Account created successfully!",
   "LOGIN_ERROR": "Failed to login. Please check your credentials.",
-  "REGISTER_ERROR": "Failed to create account. Please try again."
+  "REGISTER_ERROR": "Failed to create account. Please try again.",
+  "HOME": "Home"
 }

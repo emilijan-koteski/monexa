@@ -1,0 +1,130 @@
+@import '../styles/colors';
+@import '../styles/variables';
+
+#nav-item {
+  .nav-item-button {
+    min-height: 48px;
+    padding-left: 16px;
+    padding-right: 16px;
+    color: $color-text-secondary;
+    transition: background-color $transition-fast;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      background-color: $color-primary;
+      color: $color-text-primary;
+
+      &:hover {
+        background-color: $color-primary-hover;
+      }
+
+      .nav-item-icon {
+        color: $color-text-primary;
+
+        .has-children-indicator {
+          color: $color-text-primary;
+        }
+      }
+    }
+
+    &.nested {
+      padding-left: 32px;
+
+      &.depth-2 {
+        padding-left: 48px;
+      }
+
+      &.depth-3 {
+        padding-left: 64px;
+      }
+    }
+  }
+
+  .nav-item-icon {
+    min-width: 30px;
+    width: 24px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $color-text-secondary;
+
+    &.collapsed {
+      margin-right: 0;
+    }
+
+    .icon-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+
+      .has-children-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        font-size: 6px;
+        color: $color-text-secondary;
+      }
+    }
+  }
+
+  .nav-item-expand-icon {
+    font-size: 0.875rem;
+  }
+
+  .nav-item-children {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.nav-item-menu {
+  .MuiPaper-root {
+    background: $color-background-darker;
+    border: 1px solid $color-border;
+    margin-left: 4px;
+    border-radius: 8px;
+  }
+
+  .nav-menu-item {
+    color: $color-text-secondary;
+    padding: 8px 16px;
+    min-width: 180px;
+    gap: 12px;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      background-color: $color-primary;
+      color: $color-text-primary;
+
+      .menu-item-icon {
+        color: $color-text-primary;
+      }
+    }
+
+    .menu-item-icon {
+      font-size: 1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .menu-item-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .menu-item-chevron {
+      margin-left: auto;
+      font-size: 0.75rem;
+    }
+  }
+}

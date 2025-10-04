@@ -1,0 +1,20 @@
+@import '../styles/colors';
+@import '../styles/variables';
+
+#app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  .layout-body {
+    display: flex;
+    margin-top: $header-height;
+    flex: 1;
+  }
+
+  .layout-main {
+    flex: 1;
+    padding: 24px;
+    overflow-x: auto;
+  }
+}

@@ -89,7 +89,7 @@
       transition: color $transition-normal;
 
       &:hover {
-        color: darken($color-secondary, 10%);
+        color: $color-secondary-hover;
         text-decoration: underline;
       }
     }
