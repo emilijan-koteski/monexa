@@ -1,4 +1,4 @@
-@import 'colors';
+@use 'colors' as *;
 
 // Utility classes for quick access to theme colors
 .bg-primary { background-color: $color-primary; }

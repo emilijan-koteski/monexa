@@ -1,8 +1,10 @@
+@use 'sass:color';
+
 // Primary Colors
 $color-primary: #e63573;
-$color-primary-hover: darken($color-primary, 5%);
+$color-primary-hover: color.adjust($color-primary, $lightness: -5%);
 $color-secondary: #6669ff;
-$color-secondary-hover: darken($color-secondary, 10%);
+$color-secondary-hover: color.adjust($color-secondary, $lightness: -10%);
 
 // Semantic Colors
 $color-success: #93e700;
@@ -30,7 +32,7 @@ $color-input-background: rgba(255, 255, 255, 0.05);
 
 // Gradients
 $gradient-primary: linear-gradient(45deg, $color-primary, $color-secondary);
-$gradient-primary-hover: linear-gradient(45deg, darken($color-primary, 5%), darken($color-secondary, 5%));
+$gradient-primary-hover: linear-gradient(45deg, color.adjust($color-primary, $lightness: -5%), color.adjust($color-secondary, $lightness: -5%));
 $gradient-background: linear-gradient(135deg, $color-background-default 0%, $color-background-lighter 100%);
 $gradient-disabled: linear-gradient(45deg, #666, #888);
 
