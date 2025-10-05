@@ -1,7 +1,7 @@
 import { AppBar, IconButton, Toolbar, Typography, Box } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import LanguageChange from '../components/language-change/LanguageChange';
+import UserAvatar from '../components/user-avatar/UserAvatar';
 import { useTranslation } from 'react-i18next';
 import './AppHeader.scss';
 
@@ -30,7 +30,7 @@ const AppHeader = ({ onMenuClick }: AppHeaderProps) => {
         </Box>
 
         <Box className="header-rhs">
-          <LanguageChange />
+          <UserAvatar />
         </Box>
       </Toolbar>
     </AppBar>

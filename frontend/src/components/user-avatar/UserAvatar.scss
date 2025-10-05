@@ -1,0 +1,89 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#user-avatar {
+  .avatar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    &:hover .avatar {
+      box-shadow: 0 0 0 2px $color-primary;
+      font-size: 1.125rem;
+    }
+
+     &:hover .user-name {
+      font-weight: 600;
+    }
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    background: $color-secondary;
+    transition: box-shadow $transition-fast;
+    color: $color-text-primary;
+  }
+
+  .user-name {
+    font-weight: 500;
+    color: $color-text-primary;
+  }
+}
+
+.avatar-menu {
+  .MuiPaper-root {
+    background-color: $color-background-lighter;
+    border: 1px solid $color-border;
+    border-radius: 8px;
+    min-width: 180px;
+    margin-top: 8px;
+  }
+
+  .menu-item {
+    padding: 12px 16px;
+    color: $color-text-secondary;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &.active {
+      background-color: $color-secondary;
+      color: $color-text-primary;
+
+      &:hover {
+        background-color: $color-secondary-hover;
+      }
+
+      .menu-icon,
+      .menu-text {
+        color: $color-text-primary;
+      }
+    }
+  }
+
+  .menu-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .menu-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+  }
+
+  .menu-text {
+    color: $color-text-primary;
+  }
+
+  .menu-divider {
+    margin: 4px 0;
+    border-color: $color-border;
+  }
+}

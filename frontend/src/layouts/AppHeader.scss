@@ -8,6 +8,7 @@
   right: 0;
   background: $color-background-darker;
   border-bottom: 1px solid $color-border;
+  z-index: 1201;
 
   .header-toolbar {
     display: flex;

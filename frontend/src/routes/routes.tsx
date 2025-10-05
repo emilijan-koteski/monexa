@@ -7,6 +7,8 @@ import AppLayout from '../layouts/AppLayout.tsx';
 const HomePage = lazy(() => import('../pages/home/HomePage.tsx'));
 const LoginPage = lazy(() => import('../pages/auth/LoginPage.tsx'));
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage.tsx'));
+const ProfilePage = lazy(() => import('../pages/profile/ProfilePage.tsx'));
+const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
 
 function AppRoutes() {
   return (
@@ -21,6 +23,8 @@ function AppRoutes() {
           {/* Protected routes with layout */}
           <Route element={<AppLayout/>}>
             <Route path="/home" element={<HomePage/>}/>
+            <Route path="/profile" element={<ProfilePage/>}/>
+            <Route path="/settings" element={<SettingsPage/>}/>
           </Route>
           <Route path="*" element={<Navigate to="/"/>}/>
         </Routes>
