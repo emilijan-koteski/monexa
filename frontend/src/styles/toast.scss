@@ -1,0 +1,46 @@
+@use './colors';
+
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+.Toastify__toast {
+  background-color: colors.$color-background-lighter;
+  border: 1px solid colors.$color-border;
+  border-radius: 8px;
+  font-family: 'Tilt Neon', Roboto, Helvetica, Arial, sans-serif;
+  color: colors.$color-text-primary;
+}
+
+.Toastify__toast--success {
+  .Toastify__progress-bar {
+    background: colors.$color-success;
+  }
+}
+
+.Toastify__toast--error {
+  .Toastify__progress-bar {
+    background: colors.$color-error;
+  }
+}
+
+.Toastify__toast--info {
+  .Toastify__progress-bar {
+    background: colors.$color-info;
+  }
+}
+
+.Toastify__toast--warning {
+  .Toastify__progress-bar {
+    background: colors.$color-warning;
+  }
+}
+
+.Toastify__close-button {
+  color: colors.$color-text-primary;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
