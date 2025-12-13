@@ -1,0 +1,115 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#record-item {
+  background-color: $color-background-lighter;
+  border: 1px solid $color-border;
+  border-radius: 12px;
+  transition: all $transition-normal;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: $color-border-hover;
+    box-shadow: 0 4px 12px $shadow-dark;
+  }
+
+  .category-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  .record-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 16px 16px 20px;
+    gap: 12px;
+
+    @include sm-down {
+      padding: 14px 12px 14px 18px;
+    }
+
+    .record-info {
+      flex: 1;
+      min-width: 0;
+
+      .record-name {
+        font-size: 1rem;
+        font-weight: 500;
+        color: $color-text-primary;
+        margin-bottom: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include sm-down {
+          font-size: 0.95rem;
+        }
+      }
+
+      .record-amount {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin: 0;
+
+        @include sm-down {
+          font-size: 1.2rem;
+        }
+
+        &.expense {
+          color: $color-error;
+        }
+
+        &.income {
+          color: $color-success;
+        }
+      }
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+
+      .MuiIconButton-root {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        transition: all $transition-normal;
+
+        @media (max-width: 600px) {
+          width: 44px;
+          height: 44px;
+        }
+
+        svg {
+          font-size: 1rem;
+        }
+      }
+
+      .edit-button {
+        color: $color-secondary;
+        background-color: $color-secondary-alpha-10;
+
+        &:hover {
+          background-color: $color-secondary-alpha-20;
+          color: $color-secondary-light;
+        }
+      }
+
+      .delete-button {
+        color: $color-error;
+        background-color: $color-error-alpha-10;
+
+        &:hover {
+          background-color: $color-error-alpha-20;
+          color: $color-error-light;
+        }
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ export interface User {
   name: string;
 }
 
-export interface Record {
+export interface FinancialRecord {
   id: number;
   createdAt: string;
   updatedAt: string;

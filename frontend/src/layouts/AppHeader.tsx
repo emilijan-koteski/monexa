@@ -18,7 +18,6 @@ const AppHeader = ({ onMenuClick }: AppHeaderProps) => {
         <Box className="header-lhs">
           <IconButton
             className="menu-button"
-            aria-label="toggle drawer"
             onClick={onMenuClick}
           >
             <FontAwesomeIcon icon={faBars} />

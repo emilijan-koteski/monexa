@@ -6,11 +6,26 @@ $color-primary-hover: color.adjust($color-primary, $lightness: -5%);
 $color-secondary: #6669ff;
 $color-secondary-hover: color.adjust($color-secondary, $lightness: -10%);
 
+// Primary color variants
+$color-primary-alpha-10: rgba(230, 53, 115, 0.1);
+$color-primary-alpha-20: rgba(230, 53, 115, 0.2);
+$color-primary-alpha-30: rgba(230, 53, 115, 0.3);
+
 // Semantic Colors
 $color-success: #93e700;
 $color-error: #ff6b35;
 $color-warning: #ffa726;
 $color-info: #26c6da;
+
+// Secondary color variants
+$color-secondary-alpha-10: rgba(102, 105, 255, 0.1);
+$color-secondary-alpha-20: rgba(102, 105, 255, 0.2);
+$color-secondary-light: #8a8dff;
+
+// Error color variants
+$color-error-alpha-10: rgba(255, 107, 53, 0.1);
+$color-error-alpha-20: rgba(255, 107, 53, 0.2);
+$color-error-light: #ff8a5e;
 
 // Background Colors
 $color-background-default: #1b143d;

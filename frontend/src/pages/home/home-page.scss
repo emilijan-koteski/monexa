@@ -1,3 +1,59 @@
-.home-page {
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
 
+#home-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+      padding: 0;
+    }
+
+  .records-section {
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background-color: $color-background-lighter;
+      border-radius: 16px;
+      border: 2px dashed $color-border;
+    }
+  }
+
+  .add-record-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 64px;
+    height: 64px;
+    box-shadow: 0 6px 20px $shadow-primary;
+
+    @include sm-down {
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+    }
+
+    svg {
+      font-size: 1.5rem;
+
+      @include sm-down {
+        font-size: 1.25rem;
+      }
+    }
+
+    &:hover {
+      box-shadow: 0 8px 24px $shadow-primary-hover;
+    }
+  }
 }
