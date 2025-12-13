@@ -35,6 +35,7 @@ func main() {
 	recordService := services.NewRecordService(db)
 	paymentMethodService := services.NewPaymentMethodService(db)
 	categoryService := services.NewCategoryService(db)
+	settingService := services.NewSettingService(db)
 	log.Println("👍 [4] All services initiated successfully")
 
 	// Init new echo client
@@ -60,6 +61,7 @@ func main() {
 	handlers.RegisterRecordHandler(e, recordService)
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
+	handlers.RegisterSettingHandler(e, settingService)
 	log.Println("👍 [7] All handlers and routes registered successfully")
 
 	// Start HTTP server
