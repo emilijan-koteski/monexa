@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
+
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -29,6 +30,7 @@ func RegisterRecordHandler(e *echo.Echo, recordService *services.RecordService) 
 
 	r1.GET("/:id", handler.Read)
 	r1.GET("", handler.ReadAll)
+	r1.GET("/summary", handler.GetSummary)
 	r1.POST("", handler.Create)
 	r1.PATCH("/:id", handler.Update)
 	r1.DELETE("/:id", handler.Delete)
@@ -172,4 +174,27 @@ func (h *recordHandler) Delete(c echo.Context) error {
 	}
 
 	return responses.Success(c)
+}
+
+func (h *recordHandler) GetSummary(c echo.Context) error {
+	var filter requests.RecordFilterRequest
+	if err := c.Bind(&filter); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid query parameters")
+	}
+
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+	filter.UserID = &claims.UserID
+
+	summary, err := h.recordService.GetSummary(c.Request().Context(), filter)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return responses.NotFound(c)
+		}
+		return responses.FailureWithError(c, fmt.Errorf("error calculating summary: %w", err))
+	}
+
+	return responses.SuccessWithData(c, summary)
 }

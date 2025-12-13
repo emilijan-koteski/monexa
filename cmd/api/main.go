@@ -32,10 +32,10 @@ func main() {
 	userService := services.NewUserService(db)
 	tokenMaker := token.NewJWTMaker()
 	sessionService := services.NewSessionService(db)
-	recordService := services.NewRecordService(db)
-	paymentMethodService := services.NewPaymentMethodService(db)
-	categoryService := services.NewCategoryService(db)
 	settingService := services.NewSettingService(db)
+	categoryService := services.NewCategoryService(db)
+	recordService := services.NewRecordService(db, settingService, categoryService)
+	paymentMethodService := services.NewPaymentMethodService(db)
 	log.Println("👍 [4] All services initiated successfully")
 
 	// Init new echo client

@@ -3,18 +3,26 @@ package services
 import (
 	"context"
 	"errors"
+
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 	"github.com/emilijan-koteski/monexa/internal/requests"
+	"github.com/emilijan-koteski/monexa/internal/responses"
 	"gorm.io/gorm"
 )
 
 type RecordService struct {
-	db *gorm.DB
+	db              *gorm.DB
+	settingService  *SettingService
+	categoryService *CategoryService
 }
 
-func NewRecordService(db *gorm.DB) *RecordService {
-	return &RecordService{db: db}
+func NewRecordService(db *gorm.DB, settingService *SettingService, categoryService *CategoryService) *RecordService {
+	return &RecordService{
+		db:              db,
+		settingService:  settingService,
+		categoryService: categoryService,
+	}
 }
 
 func (s *RecordService) GetByExample(ctx context.Context, example models.Record) (*models.Record, error) {
@@ -150,4 +158,49 @@ func (s *RecordService) IsOwner(ctx context.Context, userID uint, recordID uint)
 	}
 
 	return record.UserID == userID, nil
+}
+
+func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFilterRequest) (*responses.RecordSummaryResponse, error) {
+	if filter.UserID == nil || *filter.UserID == 0 {
+		return nil, errors.New("invalid user id")
+	}
+
+	records, err := s.GetAll(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	categories, err := s.categoryService.GetAllByExample(ctx, models.Category{UserID: *filter.UserID})
+	if err != nil {
+		return nil, err
+	}
+
+	categoryTypeMap := make(map[uint]types.CategoryType, len(categories))
+	for _, category := range categories {
+		categoryTypeMap[category.ID] = category.Type
+	}
+
+	var totalAmount float64
+	for _, record := range records {
+		categoryType, exists := categoryTypeMap[record.CategoryID]
+		if !exists {
+			continue
+		}
+
+		if categoryType == types.Income {
+			totalAmount += record.Amount
+		} else if categoryType == types.Expense {
+			totalAmount -= record.Amount
+		}
+	}
+
+	setting, err := s.settingService.GetByUserID(ctx, *filter.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &responses.RecordSummaryResponse{
+		Amount:   totalAmount,
+		Currency: setting.Currency,
+	}, nil
 }
