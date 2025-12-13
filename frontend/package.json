@@ -6,14 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint monexa",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@fontsource/roboto": "^5.2.5",
-    "@fontsource/tilt-neon": "^5.2.6",
+    "@fontsource/roboto": "^5.2.9",
+    "@fontsource/tilt-neon": "^5.2.10",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -46,6 +46,6 @@
     "globals": "^16.4.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.44.0",
-    "vite": "^7.1.7"
+    "vite": "7.1.11"
   }
 }
