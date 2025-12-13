@@ -54,3 +54,8 @@ export interface Session {
   isRevoked: boolean;
   expiresAt: string;
 }
+
+export interface RecordSummary {
+  amount: number;
+  currency: string;
+}

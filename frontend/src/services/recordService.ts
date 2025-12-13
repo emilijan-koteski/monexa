@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
-import type { FinancialRecord } from '../types/models';
+import type { FinancialRecord, RecordSummary } from '../types/models';
 import type { RecordRequest } from '../types/requests';
 import type { ApiResponse } from '../types/responses';
 import { getStoredToken } from './authService';
@@ -93,6 +93,25 @@ export const recordApi = {
       throw new Error(error.message || 'Failed to delete record');
     }
   },
+
+  getSummary: async (startDate?: string, endDate?: string): Promise<RecordSummary> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+
+    const response = await fetch(`${API_BASE_URL}/records/summary?${params.toString()}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch summary');
+    }
+
+    const result: ApiResponse<RecordSummary> = await response.json();
+    return result.data;
+  },
 };
 
 export const recordQueryKeys = {
@@ -102,6 +121,9 @@ export const recordQueryKeys = {
     [...recordQueryKeys.lists(), { startDate, endDate }] as const,
   details: () => [...recordQueryKeys.all, 'detail'] as const,
   detail: (id: number) => [...recordQueryKeys.details(), id] as const,
+  summaries: () => [...recordQueryKeys.all, 'summary'] as const,
+  summary: (startDate?: string, endDate?: string) =>
+    [...recordQueryKeys.summaries(), { startDate, endDate }] as const,
 };
 
 export const useRecords = (startDate?: string, endDate?: string) => {
@@ -118,6 +140,15 @@ export const useRecord = (id: number) => {
     queryKey: recordQueryKeys.detail(id),
     queryFn: () => recordApi.getById(id),
     enabled: !!id,
+  });
+};
+
+export const useRecordSummary = (startDate?: string, endDate?: string) => {
+  return useQuery({
+    queryKey: recordQueryKeys.summary(startDate, endDate),
+    queryFn: () => recordApi.getSummary(startDate, endDate),
+    staleTime: 0,
+    gcTime: 0,
   });
 };
 

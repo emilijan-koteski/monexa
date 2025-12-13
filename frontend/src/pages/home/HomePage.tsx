@@ -14,6 +14,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import DateSelector from '../../components/date-selector/DateSelector';
+import SummaryCard from '../../components/summary-card/SummaryCard';
 import RecordItem from '../../components/record-item/RecordItem';
 import RecordDialog, {
   type RecordFormData,
@@ -21,6 +22,7 @@ import RecordDialog, {
 import ConfirmationDialog from '../../components/confirmation-dialog/ConfirmationDialog';
 import {
   useRecords,
+  useRecordSummary,
   useCreateRecord,
   useUpdateRecord,
   useDeleteRecord,
@@ -51,6 +53,10 @@ function HomePage() {
     endDate
   );
   const { data: categories } = useCategories();
+  const { data: summary, isLoading: summaryLoading } = useRecordSummary(
+    startDate,
+    endDate
+  );
   const createRecordMutation = useCreateRecord();
   const updateRecordMutation = useUpdateRecord();
   const deleteRecordMutation = useDeleteRecord();
@@ -148,7 +154,14 @@ function HomePage() {
   return (
     <>
       <Container maxWidth='md' id='home-page'>
-        <DateSelector selectedDate={selectedDate} onChange={handleDateChange} />
+        <DateSelector
+          selectedDate={selectedDate}
+          onChange={handleDateChange}
+        />
+
+        {summary && summary.amount !== 0 && (
+          <SummaryCard summary={summary} isLoading={summaryLoading} />
+        )}
 
         <Box className='records-section'>
           {recordsLoading ? (

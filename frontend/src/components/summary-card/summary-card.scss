@@ -1,0 +1,44 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#summary-card {
+  background-color: $color-background-lighter;
+  border-radius: 12px;
+  border: 1px solid $color-border;
+  transition: box-shadow $transition-normal;
+
+  &:hover {
+    box-shadow: 0 4px 12px $shadow-dark;
+  }
+
+  .summary-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    .summary-label {
+      font-weight: 500;
+      color: $color-text-secondary;
+      text-transform: uppercase;
+      font-size: 0.875rem;
+    }
+
+    .summary-amount {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+
+      &.expense {
+        color: $color-error;
+      }
+
+      &.income {
+        color: $color-success;
+      }
+
+      @include sm-down {
+        font-size: 1.25rem;
+      }
+    }
+  }
+}
