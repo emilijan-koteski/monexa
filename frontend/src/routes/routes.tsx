@@ -11,6 +11,11 @@ const LoginPage = lazy(() => import('../pages/auth/LoginPage.tsx'));
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage.tsx'));
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage.tsx'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
+const AccountPage = lazy(() => import('../pages/settings/account/AccountPage.tsx'));
+const CategoriesPage = lazy(() => import('../pages/settings/categories/CategoriesPage.tsx'));
+const PaymentTypePage = lazy(() => import('../pages/settings/payment-type/PaymentTypePage.tsx'));
+const DisplayCurrencyPage = lazy(() => import('../pages/settings/display-currency/DisplayCurrencyPage.tsx'));
+const LanguagePage = lazy(() => import('../pages/settings/language/LanguagePage.tsx'));
 
 function AppRoutes() {
   return (
@@ -32,6 +37,11 @@ function AppRoutes() {
               <Route path="/home" element={<HomePage/>}/>
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/settings" element={<SettingsPage/>}/>
+              <Route path="/settings/account" element={<AccountPage/>}/>
+              <Route path="/settings/categories" element={<CategoriesPage/>}/>
+              <Route path="/settings/payment-type" element={<PaymentTypePage/>}/>
+              <Route path="/settings/display-currency" element={<DisplayCurrencyPage/>}/>
+              <Route path="/settings/language" element={<LanguagePage/>}/>
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/"/>}/>

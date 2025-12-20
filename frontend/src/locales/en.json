@@ -62,5 +62,18 @@
   "RECORD_UPDATED_SUCCESS": "Record updated successfully!",
   "RECORD_DELETED_SUCCESS": "Record deleted successfully!",
   "RECORD_SAVE_ERROR": "Failed to save record. Please try again.",
-  "RECORD_DELETE_ERROR": "Failed to delete record. Please try again."
+  "RECORD_DELETE_ERROR": "Failed to delete record. Please try again.",
+  "GENERAL": "General",
+  "RECORDS": "Records",
+  "APP_SETTINGS": "App Settings",
+  "ACCOUNT": "Account",
+  "CATEGORIES": "Categories",
+  "PAYMENT_TYPE": "Payment Methods",
+  "DISPLAY_CURRENCY": "Display Currency",
+  "LANGUAGE": "Language",
+  "ACCOUNT_COMING_SOON": "Account settings will be available soon.",
+  "CATEGORIES_COMING_SOON": "Category management will be available soon.",
+  "PAYMENT_TYPE_COMING_SOON": "Payment method management will be available soon.",
+  "DISPLAY_CURRENCY_COMING_SOON": "Currency settings will be available soon.",
+  "LANGUAGE_COMING_SOON": "Language settings will be available soon."
 }

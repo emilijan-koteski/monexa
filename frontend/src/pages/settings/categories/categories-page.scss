@@ -1,0 +1,53 @@
+@use '../../../styles/colors' as *;
+@use '../../../styles/variables' as *;
+
+#categories-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+    padding: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+
+    .back-button {
+      transition: all $transition-fast;
+
+      &:hover {
+        transform: translateX(-2px);
+      }
+
+      svg {
+        font-size: 1.25rem;
+      }
+    }
+
+    .page-title {
+
+      @include sm-down {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .page-content {
+    background-color: $color-background-lighter;
+    border: 1px solid $color-border;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+
+    @include sm-down {
+      padding: 1.5rem 1rem;
+    }
+  }
+}
