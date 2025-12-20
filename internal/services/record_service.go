@@ -179,6 +179,13 @@ func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFi
 		return nil, err
 	}
 
+	if len(records) == 0 {
+		return &responses.RecordSummaryResponse{
+			Amount:   0,
+			Currency: userCurrency,
+		}, nil
+	}
+
 	needsConversion := false
 	for _, record := range records {
 		if record.Currency != userCurrency {
