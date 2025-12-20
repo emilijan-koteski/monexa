@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
 import type { Setting } from '../types/models';
 import type { ApiResponse } from '../types/responses';
@@ -29,6 +29,22 @@ export const settingApi = {
     const result: ApiResponse<Setting> = await response.json();
     return result.data;
   },
+
+  update: async (data: Partial<Pick<Setting, 'currency' | 'language'>>): Promise<Setting> => {
+    const response = await fetch(`${API_BASE_URL}/settings`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update settings');
+    }
+
+    const result: ApiResponse<Setting> = await response.json();
+    return result.data;
+  },
 };
 
 export const settingQueryKeys = {
@@ -41,5 +57,16 @@ export const useSettings = () => {
     queryKey: settingQueryKeys.detail(),
     queryFn: settingApi.get,
     staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useUpdateSettings = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: settingApi.update,
+    onSuccess: (data) => {
+      queryClient.setQueryData(settingQueryKeys.detail(), data);
+    },
   });
 };

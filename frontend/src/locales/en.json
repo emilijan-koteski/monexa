@@ -75,5 +75,10 @@
   "CATEGORIES_COMING_SOON": "Category management will be available soon.",
   "PAYMENT_TYPE_COMING_SOON": "Payment method management will be available soon.",
   "DISPLAY_CURRENCY_COMING_SOON": "Currency settings will be available soon.",
-  "LANGUAGE_COMING_SOON": "Language settings will be available soon."
+  "LANGUAGE_COMING_SOON": "Language settings will be available soon.",
+  "CURRENCY_UPDATED_SUCCESS": "Currency updated successfully!",
+  "CURRENCY_UPDATE_ERROR": "Failed to update currency. Please try again.",
+  "CURRENCY_MKD": "Macedonian Denar",
+  "CURRENCY_EUR": "Euro",
+  "CURRENCY_USD": "US Dollar"
 }
