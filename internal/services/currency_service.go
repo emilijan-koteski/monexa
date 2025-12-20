@@ -8,6 +8,17 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 )
 
+// TODO (Emilijan): Database-Backend Exchange Rates
+//
+// 1. Move fallback exchange rates from const variables to a database table with timestamps
+//
+// 2. Implement a daily scheduler that calls the Exchange Rate API once per day for all implemented
+//    currencies and stores the results in the database. Update GetRatesForConversion() to fetch
+//    rates from the database instead of calling the API directly.
+//
+// 3. (Optional) Add historical exchange rate calculation functionality using the timestamped
+//    database records for accurate past conversions.
+
 type CurrencyService struct {
 	exchangeRateClient    *clients.ExchangeRateAPIClient
 	fallbackExchangeRates map[string]float64
