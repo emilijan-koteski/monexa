@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+
+	"github.com/emilijan-koteski/monexa/internal/clients"
 	"github.com/emilijan-koteski/monexa/internal/database"
 	"github.com/emilijan-koteski/monexa/internal/handlers"
 	"github.com/emilijan-koteski/monexa/internal/server"
@@ -9,7 +12,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"log"
 )
 
 func main() {
@@ -27,6 +29,10 @@ func main() {
 	database.Migrate(db)
 	log.Println("👍 [3] Migrations applied successfully")
 
+	// Init clients
+	exchangeRateClient := clients.NewExchangeRateAPIClient()
+	log.Println("👍 [4] Clients initiated successfully")
+
 	// Init services
 	healthService := services.NewHealthService(db)
 	userService := services.NewUserService(db)
@@ -34,13 +40,14 @@ func main() {
 	sessionService := services.NewSessionService(db)
 	settingService := services.NewSettingService(db)
 	categoryService := services.NewCategoryService(db)
-	recordService := services.NewRecordService(db, settingService, categoryService)
+	currencyService := services.NewCurrencyService(exchangeRateClient)
+	recordService := services.NewRecordService(db, settingService, categoryService, currencyService)
 	paymentMethodService := services.NewPaymentMethodService(db)
-	log.Println("👍 [4] All services initiated successfully")
+	log.Println("👍 [5] All services initiated successfully")
 
 	// Init new echo client
 	e := echo.New()
-	log.Println("👍 [5] New Echo HTTP client initiated successfully")
+	log.Println("👍 [6] New Echo HTTP client initiated successfully")
 
 	// Init middlewares
 	e.Use(middleware.Logger())
@@ -53,7 +60,7 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-	log.Println("👍 [6] All middlewares initiated successfully")
+	log.Println("👍 [7] All middlewares initiated successfully")
 
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
@@ -62,9 +69,9 @@ func main() {
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
 	handlers.RegisterSettingHandler(e, settingService)
-	log.Println("👍 [7] All handlers and routes registered successfully")
+	log.Println("👍 [8] All handlers and routes registered successfully")
 
 	// Start HTTP server
-	log.Println("👍 [8] Starting HTTP server...")
+	log.Println("👍 [9] Starting HTTP server...")
 	server.StartServer(e)
 }

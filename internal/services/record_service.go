@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
@@ -15,13 +16,15 @@ type RecordService struct {
 	db              *gorm.DB
 	settingService  *SettingService
 	categoryService *CategoryService
+	currencyService *CurrencyService
 }
 
-func NewRecordService(db *gorm.DB, settingService *SettingService, categoryService *CategoryService) *RecordService {
+func NewRecordService(db *gorm.DB, settingService *SettingService, categoryService *CategoryService, currencyService *CurrencyService) *RecordService {
 	return &RecordService{
 		db:              db,
 		settingService:  settingService,
 		categoryService: categoryService,
+		currencyService: currencyService,
 	}
 }
 
@@ -165,9 +168,31 @@ func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFi
 		return nil, errors.New("invalid user id")
 	}
 
+	setting, err := s.settingService.GetByUserID(ctx, *filter.UserID)
+	if err != nil {
+		return nil, err
+	}
+	userCurrency := setting.Currency
+
 	records, err := s.GetAll(ctx, filter)
 	if err != nil {
 		return nil, err
+	}
+
+	needsConversion := false
+	for _, record := range records {
+		if record.Currency != userCurrency {
+			needsConversion = true
+			break
+		}
+	}
+
+	var exchangeRates map[types.CurrencyType]float64
+	if needsConversion {
+		exchangeRates, err = s.currencyService.GetRatesForConversion(ctx, userCurrency)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get exchange rates: %w", err)
+		}
 	}
 
 	categories, err := s.categoryService.GetAllByExample(ctx, models.Category{UserID: *filter.UserID})
@@ -187,20 +212,23 @@ func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFi
 			continue
 		}
 
-		if categoryType == types.Income {
-			totalAmount += record.Amount
-		} else if categoryType == types.Expense {
-			totalAmount -= record.Amount
+		convertedAmount := record.Amount
+		if record.Currency != userCurrency {
+			convertedAmount, err = s.currencyService.ConvertWithRates(record.Amount, record.Currency, userCurrency, exchangeRates)
+			if err != nil {
+				return nil, fmt.Errorf("currency conversion failed for record %d: %w", record.ID, err)
+			}
 		}
-	}
 
-	setting, err := s.settingService.GetByUserID(ctx, *filter.UserID)
-	if err != nil {
-		return nil, err
+		if categoryType == types.Income {
+			totalAmount += convertedAmount
+		} else if categoryType == types.Expense {
+			totalAmount -= convertedAmount
+		}
 	}
 
 	return &responses.RecordSummaryResponse{
 		Amount:   totalAmount,
-		Currency: setting.Currency,
+		Currency: userCurrency,
 	}, nil
 }
