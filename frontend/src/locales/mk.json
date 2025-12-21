@@ -47,6 +47,7 @@
   "DELETE": "Избриши",
   "CREATE": "Креирај",
   "UPDATE": "Ажурирај",
+  "NEW": "Ново",
   "CATEGORY": "Категорија",
   "PAYMENT_METHOD": "Начин на плаќање",
   "AMOUNT": "Износ",
@@ -84,5 +85,19 @@
   "LANGUAGE_UPDATED_SUCCESS": "Јазикот е успешно ажуриран!",
   "LANGUAGE_UPDATE_ERROR": "Неуспешно ажурирање на јазикот. Обидете се повторно.",
   "LANGUAGE_EN": "Англиски",
-  "LANGUAGE_MK": "Македонски"
+  "LANGUAGE_MK": "Македонски",
+  "NEW_PAYMENT_TYPE": "Нов начин на плаќање",
+  "EDIT_PAYMENT_TYPE": "Измени начин на плаќање",
+  "PAYMENT_TYPE_NAME": "Име на начинот на плаќање",
+  "PAYMENT_TYPE_NAME_PLACEHOLDER": "на пр., Кредитна картичка, Готовина, Банкарски трансфер",
+  "PAYMENT_TYPE_NAME_REQUIRED": "Името на начинот на плаќање е задолжително",
+  "PAYMENT_TYPE_CREATED_SUCCESS": "Начинот на плаќање е успешно креиран!",
+  "PAYMENT_TYPE_UPDATED_SUCCESS": "Начинот на плаќање е успешно ажуриран!",
+  "PAYMENT_TYPE_DELETED_SUCCESS": "Начинот на плаќање е успешно избришан!",
+  "PAYMENT_TYPE_SAVE_ERROR": "Неуспешно зачувување на начинот на плаќање. Обидете се повторно.",
+  "PAYMENT_TYPE_DELETE_ERROR": "Неуспешно бришење на начинот на плаќање. Обидете се повторно.",
+  "NO_PAYMENT_TYPES_TITLE": "Сè уште нема начини на плаќање",
+  "NO_PAYMENT_TYPES_MESSAGE": "Креирајте го вашиот прв начин на плаќање за да започнете со следење на трансакциите!",
+  "DELETE_PAYMENT_TYPE_TITLE": "Избриши начин на плаќање?",
+  "DELETE_PAYMENT_TYPE_MESSAGE": "Дали сте сигурни дека сакате да го избришете овој начин на плаќање? Оваа акција не може да се врати."
 }

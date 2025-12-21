@@ -32,22 +32,109 @@
     }
 
     .page-title {
+      flex: 1;
 
       @include sm-down {
         font-size: 1.25rem;
       }
     }
+
+    .add-button {
+      text-transform: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      white-space: nowrap;
+
+      @include sm-down {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.875rem;
+      }
+
+      svg {
+        font-size: 1rem;
+
+        @include sm-down {
+          font-size: 0.875rem;
+        }
+      }
+    }
   }
 
-  .page-content {
-    background-color: $color-background-lighter;
-    border: 1px solid $color-border;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
 
-    @include sm-down {
-      padding: 1.5rem 1rem;
+  .payment-type-list {
+    padding: 0;
+    background-color: $color-background-lighter;
+    border-radius: 12px;
+    border: 1px solid $color-border;
+    overflow: hidden;
+
+    .payment-type-list-item {
+      border-bottom: 1px solid $color-border;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .payment-type-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        width: 100%;
+
+        @include sm-down {
+          padding: 1rem;
+        }
+
+        .payment-type-text {
+          flex: 1;
+          margin: 0;
+
+          .MuiListItemText-primary {
+            color: $color-text-primary;
+            font-weight: 500;
+            font-size: 1rem;
+
+            @include sm-down {
+              font-size: 0.95rem;
+            }
+          }
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 1rem;
+          flex-shrink: 0;
+
+          .edit-button,
+          .delete-button {
+            transition: all $transition-fast;
+
+            &:hover {
+              transform: scale(1.1);
+            }
+
+            svg {
+              font-size: 1rem;
+            }
+          }
+        }
+      }
     }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: $color-background-lighter;
+    border-radius: 16px;
+    border: 2px dashed $color-border;
   }
 }

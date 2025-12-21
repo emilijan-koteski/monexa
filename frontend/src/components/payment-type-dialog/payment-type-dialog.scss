@@ -1,0 +1,22 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#payment-type-dialog {
+
+  .dialog-content {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .dialog-actions {
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+
+    .cancel-button {
+      color: $color-text-secondary;
+    }
+
+    .submit-button {
+      min-width: 100px;
+    }
+  }
+}
