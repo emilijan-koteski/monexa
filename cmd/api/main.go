@@ -21,7 +21,7 @@ func main() {
 	}
 	log.Println("👍 [1] Environment variables loaded successfully")
 
-	// Connect database (rename the response below to 'db' for usage)
+	// Connect database
 	db := database.ConnectDB()
 	log.Println("👍 [2] Database connected successfully")
 
