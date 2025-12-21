@@ -25,7 +25,9 @@ export interface CategoryFormData {
 
 const categorySchema = z.object({
   name: z.string().min(1, 'CATEGORY_NAME_REQUIRED'),
-  type: z.enum([CategoryType.INCOME, CategoryType.EXPENSE], { errorMap: () => ({ message: 'CATEGORY_TYPE_REQUIRED' }), }),
+  type: z.enum([CategoryType.INCOME, CategoryType.EXPENSE], {
+    message: 'CATEGORY_TYPE_REQUIRED',
+  }),
   description: z.string().optional(),
   color: z.string().optional(),
 });
