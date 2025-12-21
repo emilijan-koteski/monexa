@@ -3,6 +3,7 @@ import { ENV } from '../config/env';
 import type { Setting } from '../types/models';
 import type { ApiResponse } from '../types/responses';
 import { getStoredToken } from './authService';
+import { apiClient } from '../api/apiClient';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
@@ -16,7 +17,7 @@ const getAuthHeaders = () => {
 
 export const settingApi = {
   get: async (): Promise<Setting> => {
-    const response = await fetch(`${API_BASE_URL}/settings`, {
+    const response = await apiClient(`${API_BASE_URL}/settings`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -31,7 +32,7 @@ export const settingApi = {
   },
 
   update: async (data: Partial<Pick<Setting, 'currency' | 'language'>>): Promise<Setting> => {
-    const response = await fetch(`${API_BASE_URL}/settings`, {
+    const response = await apiClient(`${API_BASE_URL}/settings`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),

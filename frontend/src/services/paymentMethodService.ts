@@ -3,6 +3,7 @@ import { ENV } from '../config/env';
 import type { PaymentMethod } from '../types/models';
 import type { ApiResponse } from '../types/responses';
 import { getStoredToken } from './authService';
+import { apiClient } from '../api/apiClient';
 
 const getAuthHeaders = () => {
   const token = getStoredToken();
@@ -14,7 +15,7 @@ const getAuthHeaders = () => {
 
 export const paymentMethodApi = {
   getAll: async (): Promise<PaymentMethod[]> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/payment-methods`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -29,7 +30,7 @@ export const paymentMethodApi = {
   },
 
   create: async (data: { name: string }): Promise<PaymentMethod> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/payment-methods`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -45,7 +46,7 @@ export const paymentMethodApi = {
   },
 
   update: async (id: number, data: { name: string }): Promise<PaymentMethod> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/payment-methods/${id}`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods/${id}`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -61,7 +62,7 @@ export const paymentMethodApi = {
   },
 
   delete: async (id: number): Promise<void> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/payment-methods/${id}`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });

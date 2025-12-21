@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
 import { ENV } from '../config/env';
 import type { User } from '../types/models';
 import type { LoginRequest, RegisterRequest } from '../types/requests';
 import type { AuthResponse } from '../types/responses';
+import { apiClient } from '../api/apiClient';
 
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/login`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +26,7 @@ export const authApi = {
   },
 
   register: async (data: RegisterRequest): Promise<User> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/register`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +44,7 @@ export const authApi = {
   },
 
   logout: async (refreshToken: string): Promise<void> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/logout`, {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,6 +87,7 @@ export const useRegister = () => {
 
 export const useLogout = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: authApi.logout,
@@ -94,6 +97,15 @@ export const useLogout = () => {
       localStorage.removeItem('user');
 
       queryClient.clear();
+      navigate('/login');
+    },
+    onError: () => {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+
+      queryClient.clear();
+      navigate('/login');
     },
   });
 };

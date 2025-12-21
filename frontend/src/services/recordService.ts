@@ -4,6 +4,7 @@ import type { FinancialRecord, RecordSummary } from '../types/models';
 import type { RecordRequest } from '../types/requests';
 import type { ApiResponse } from '../types/responses';
 import { getStoredToken } from './authService';
+import { apiClient } from '../api/apiClient';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
@@ -21,7 +22,7 @@ export const recordApi = {
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
 
-    const response = await fetch(`${API_BASE_URL}/records?${params.toString()}`, {
+    const response = await apiClient(`${API_BASE_URL}/records?${params.toString()}`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -36,7 +37,7 @@ export const recordApi = {
   },
 
   getById: async (id: number): Promise<FinancialRecord> => {
-    const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+    const response = await apiClient(`${API_BASE_URL}/records/${id}`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -51,7 +52,7 @@ export const recordApi = {
   },
 
   create: async (data: RecordRequest): Promise<FinancialRecord> => {
-    const response = await fetch(`${API_BASE_URL}/records`, {
+    const response = await apiClient(`${API_BASE_URL}/records`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -67,7 +68,7 @@ export const recordApi = {
   },
 
   update: async (id: number, data: RecordRequest): Promise<FinancialRecord> => {
-    const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+    const response = await apiClient(`${API_BASE_URL}/records/${id}`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -83,7 +84,7 @@ export const recordApi = {
   },
 
   delete: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+    const response = await apiClient(`${API_BASE_URL}/records/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
@@ -99,7 +100,7 @@ export const recordApi = {
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
 
-    const response = await fetch(`${API_BASE_URL}/records/summary?${params.toString()}`, {
+    const response = await apiClient(`${API_BASE_URL}/records/summary?${params.toString()}`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
