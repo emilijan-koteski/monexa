@@ -80,5 +80,9 @@
   "CURRENCY_UPDATE_ERROR": "Failed to update currency. Please try again.",
   "CURRENCY_MKD": "Macedonian Denar",
   "CURRENCY_EUR": "Euro",
-  "CURRENCY_USD": "US Dollar"
+  "CURRENCY_USD": "US Dollar",
+  "LANGUAGE_UPDATED_SUCCESS": "Language updated successfully!",
+  "LANGUAGE_UPDATE_ERROR": "Failed to update language. Please try again.",
+  "LANGUAGE_EN": "English",
+  "LANGUAGE_MK": "Macedonian"
 }

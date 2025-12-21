@@ -80,5 +80,9 @@
   "CURRENCY_UPDATE_ERROR": "Неуспешно ажурирање на валутата. Обидете се повторно.",
   "CURRENCY_MKD": "Македонски денар",
   "CURRENCY_EUR": "Евро",
-  "CURRENCY_USD": "Американски долар"
+  "CURRENCY_USD": "Американски долар",
+  "LANGUAGE_UPDATED_SUCCESS": "Јазикот е успешно ажуриран!",
+  "LANGUAGE_UPDATE_ERROR": "Неуспешно ажурирање на јазикот. Обидете се повторно.",
+  "LANGUAGE_EN": "Англиски",
+  "LANGUAGE_MK": "Македонски"
 }
