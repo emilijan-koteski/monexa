@@ -19,3 +19,11 @@ export interface RecordRequest {
   description?: string;
   date: string;
 }
+
+// Category Requests
+export interface CategoryRequest {
+  name: string;
+  type: string;
+  description?: string;
+  color?: string;
+}
