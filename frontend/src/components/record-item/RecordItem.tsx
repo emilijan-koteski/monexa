@@ -28,7 +28,10 @@ function RecordItem({
 
   return (
     <Card id="record-item">
-      <Box className="category-indicator" style={{ backgroundColor: categoryColor }} />
+      <Box
+        className="category-indicator"
+        sx={{ backgroundColor: categoryColor }}
+      />
       <CardContent className="record-content">
         <Box className="record-info">
           <Typography variant="h6" className="record-name">

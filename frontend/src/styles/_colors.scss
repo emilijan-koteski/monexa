@@ -1,57 +1,137 @@
 @use 'sass:color';
 
-// Primary Colors
+// ========================================
+// PRIMARY COLORS
+// ========================================
 $color-primary: #e63573;
+$color-primary-light: color.adjust($color-primary, $lightness: 10%);
+$color-primary-dark: color.adjust($color-primary, $lightness: -10%);
 $color-primary-hover: color.adjust($color-primary, $lightness: -5%);
-$color-secondary: #6669ff;
-$color-secondary-hover: color.adjust($color-secondary, $lightness: -10%);
 
-// Primary color variants
+// Primary alpha variants
 $color-primary-alpha-10: rgba(230, 53, 115, 0.1);
 $color-primary-alpha-20: rgba(230, 53, 115, 0.2);
 $color-primary-alpha-30: rgba(230, 53, 115, 0.3);
+$color-primary-alpha-50: rgba(230, 53, 115, 0.5);
 
-// Semantic Colors
-$color-success: #93e700;
-$color-error: #ff6b35;
-$color-warning: #ffa726;
-$color-info: #26c6da;
+// ========================================
+// SECONDARY COLORS
+// ========================================
+$color-secondary: #6669ff;
+$color-secondary-light: color.adjust($color-secondary, $lightness: 10%);
+$color-secondary-dark: color.adjust($color-secondary, $lightness: -10%);
+$color-secondary-hover: color.adjust($color-secondary, $lightness: -5%);
 
-// Secondary color variants
+// Secondary alpha variants
 $color-secondary-alpha-10: rgba(102, 105, 255, 0.1);
 $color-secondary-alpha-20: rgba(102, 105, 255, 0.2);
-$color-secondary-light: #8a8dff;
+$color-secondary-alpha-30: rgba(102, 105, 255, 0.3);
+$color-secondary-alpha-50: rgba(102, 105, 255, 0.5);
 
-// Error color variants
-$color-error-alpha-10: rgba(255, 107, 53, 0.1);
-$color-error-alpha-20: rgba(255, 107, 53, 0.2);
-$color-error-light: #ff8a5e;
+// ========================================
+// SUCCESS COLORS
+// ========================================
+$color-success: #93e700;
+$color-success-light: color.adjust($color-success, $lightness: 10%);
+$color-success-dark: color.adjust($color-success, $lightness: -10%);
+$color-success-hover: color.adjust($color-success, $lightness: -5%);
 
-// Background Colors
+// Success alpha variants
+$color-success-alpha-10: rgba(147, 231, 0, 0.1);
+$color-success-alpha-20: rgba(147, 231, 0, 0.2);
+$color-success-alpha-30: rgba(147, 231, 0, 0.3);
+$color-success-alpha-50: rgba(147, 231, 0, 0.5);
+
+// ========================================
+// ERROR COLORS
+// ========================================
+$color-error: #e53c38;
+$color-error-light: color.adjust($color-error, $lightness: 10%);
+$color-error-dark: color.adjust($color-error, $lightness: -10%);
+$color-error-hover: color.adjust($color-error, $lightness: -5%);
+
+// Error alpha variants
+$color-error-alpha-10: rgba(229, 60, 56, 0.1);
+$color-error-alpha-20: rgba(229, 60, 56, 0.2);
+$color-error-alpha-30: rgba(229, 60, 56, 0.3);
+$color-error-alpha-50: rgba(229, 60, 56, 0.5);
+
+// ========================================
+// WARNING COLORS
+// ========================================
+$color-warning: #f3e600;
+$color-warning-light: color.adjust($color-warning, $lightness: 10%);
+$color-warning-dark: color.adjust($color-warning, $lightness: -10%);
+$color-warning-hover: color.adjust($color-warning, $lightness: -5%);
+
+// Warning alpha variants
+$color-warning-alpha-10: rgba(243, 230, 0, 0.1);
+$color-warning-alpha-20: rgba(243, 230, 0, 0.2);
+$color-warning-alpha-30: rgba(243, 230, 0, 0.3);
+$color-warning-alpha-50: rgba(243, 230, 0, 0.5);
+
+// ========================================
+// INFO COLORS
+// ========================================
+$color-info: #55ead4;
+$color-info-light: color.adjust($color-info, $lightness: 10%);
+$color-info-dark: color.adjust($color-info, $lightness: -10%);
+$color-info-hover: color.adjust($color-info, $lightness: -5%);
+
+// Info alpha variants
+$color-info-alpha-10: rgba(85, 234, 212, 0.1);
+$color-info-alpha-20: rgba(85, 234, 212, 0.2);
+$color-info-alpha-30: rgba(85, 234, 212, 0.3);
+$color-info-alpha-50: rgba(85, 234, 212, 0.5);
+
+// ========================================
+// BACKGROUND COLORS
+// ========================================
 $color-background-default: #1b143d;
 $color-background-lighter: #251e4e;
+$color-background-dark: #160f34;
 $color-background-darker: #040023;
 
-// Text Colors
+// Background alpha variants
+$color-background-alpha-50: rgba(27, 20, 61, 0.5);
+$color-background-alpha-70: rgba(27, 20, 61, 0.7);
+$color-background-alpha-90: rgba(27, 20, 61, 0.9);
+
+// ========================================
+// TEXT COLORS
+// ========================================
 $color-text-primary: #ffffff;
 $color-text-secondary: #777ab6;
 
-// Border Colors
+// ========================================
+// BORDER COLORS
+// ========================================
 $color-border: rgba(255, 255, 255, 0.1);
 $color-border-hover: rgba(255, 255, 255, 0.2);
 $color-border-focus: rgba(255, 255, 255, 0.3);
 
-// Glass Effect Colors
+// ========================================
+// GLASS EFFECT COLORS
+// ========================================
 $color-glass-background: rgba(37, 30, 78, 0.95);
 $color-input-background: rgba(255, 255, 255, 0.05);
 
-// Gradients
+// ========================================
+// GRADIENTS
+// ========================================
 $gradient-primary: linear-gradient(45deg, $color-primary, $color-secondary);
-$gradient-primary-hover: linear-gradient(45deg, color.adjust($color-primary, $lightness: -5%), color.adjust($color-secondary, $lightness: -5%));
+$gradient-primary-hover: linear-gradient(45deg, $color-primary-hover, $color-secondary-hover);
 $gradient-background: linear-gradient(135deg, $color-background-default 0%, $color-background-lighter 100%);
 $gradient-disabled: linear-gradient(45deg, #666, #888);
 
-// Shadow Colors
-$shadow-primary: rgba($color-primary, 0.3);
-$shadow-primary-hover: rgba($color-primary, 0.4);
+// ========================================
+// SHADOW COLORS
+// ========================================
+$shadow-primary: rgba(230, 53, 115, 0.3);
+$shadow-primary-hover: rgba(230, 53, 115, 0.4);
+$shadow-secondary: rgba(102, 105, 255, 0.3);
+$shadow-success: rgba(147, 231, 0, 0.3);
+$shadow-error: rgba(229, 60, 56, 0.3);
+$shadow-warning: rgba(243, 230, 0, 0.3);
+$shadow-info: rgba(85, 234, 212, 0.3);
 $shadow-dark: rgba(0, 0, 0, 0.3);

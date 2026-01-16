@@ -10,7 +10,7 @@ const ProfilePage = () => {
         <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
           {t('PROFILE')}
         </Typography>
-        <Paper sx={{ p: 3, backgroundColor: 'rgba(37, 30, 78, 0.95)' }}>
+        <Paper sx={(theme) => ({ p: 3, backgroundColor: theme.palette.background.paper })}>
           <Typography variant="body1" color="text.secondary">
             Profile page content will be implemented here.
           </Typography>
