@@ -116,12 +116,14 @@ const RegisterPage = () => {
                         placeholder={t('ENTER_NAME')}
                         error={!!errors.name}
                         helperText={errors.name?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FontAwesomeIcon icon={faUser}/>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FontAwesomeIcon icon={faUser}/>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}
@@ -139,12 +141,14 @@ const RegisterPage = () => {
                         type="email"
                         error={!!errors.email}
                         helperText={errors.email?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FontAwesomeIcon icon={faEnvelope}/>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FontAwesomeIcon icon={faEnvelope}/>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}
@@ -162,24 +166,26 @@ const RegisterPage = () => {
                         type={showPassword ? 'text' : 'password'}
                         error={!!errors.password}
                         helperText={errors.password?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FontAwesomeIcon icon={faLock}/>
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={togglePasswordVisibility}
-                                edge="end"
-                              >
-                                <FontAwesomeIcon
-                                  icon={showPassword ? faEyeSlash : faEye}
-                                />
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FontAwesomeIcon icon={faLock}/>
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={togglePasswordVisibility}
+                                  edge="end"
+                                >
+                                  <FontAwesomeIcon
+                                    icon={showPassword ? faEyeSlash : faEye}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}
@@ -197,22 +203,24 @@ const RegisterPage = () => {
                         type={showConfirmPassword ? 'text' : 'password'}
                         error={!!errors.confirmPassword}
                         helperText={errors.confirmPassword?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FontAwesomeIcon icon={faLock}/>
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={toggleConfirmPasswordVisibility}
-                                edge="end"
-                              >
-                                <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye}/>
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FontAwesomeIcon icon={faLock}/>
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={toggleConfirmPasswordVisibility}
+                                  edge="end"
+                                >
+                                  <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye}/>
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}

@@ -93,12 +93,14 @@ const LoginPage = () => {
                         type="email"
                         error={!!errors.email}
                         helperText={errors.email?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FontAwesomeIcon icon={faEnvelope}/>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FontAwesomeIcon icon={faEnvelope}/>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}
@@ -116,24 +118,26 @@ const LoginPage = () => {
                         type={showPassword ? 'text' : 'password'}
                         error={!!errors.password}
                         helperText={errors.password?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FontAwesomeIcon icon={faLock}/>
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={togglePasswordVisibility}
-                                edge="end"
-                              >
-                                <FontAwesomeIcon
-                                  icon={showPassword ? faEyeSlash : faEye}
-                                />
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FontAwesomeIcon icon={faLock}/>
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={togglePasswordVisibility}
+                                  edge="end"
+                                >
+                                  <FontAwesomeIcon
+                                    icon={showPassword ? faEyeSlash : faEye}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}
