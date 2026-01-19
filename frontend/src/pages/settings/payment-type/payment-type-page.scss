@@ -43,7 +43,7 @@
       text-transform: none;
       font-weight: 500;
       padding: 0.5rem 1rem;
-      border-radius: 8px;
+      border-radius: $border-radius-sm;
       white-space: nowrap;
 
       @include sm-down {
@@ -71,7 +71,7 @@
   .payment-type-list {
     padding: 0;
     background-color: $color-background-lighter;
-    border-radius: 12px;
+    border-radius: $border-radius-md;
     border: 1px solid $color-border;
     overflow: hidden;
 
@@ -134,7 +134,7 @@
     text-align: center;
     padding: 60px 20px;
     background-color: $color-background-lighter;
-    border-radius: 16px;
+    border-radius: $border-radius-lg;
     border: 2px dashed $color-border;
   }
 }

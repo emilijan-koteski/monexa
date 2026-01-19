@@ -4,7 +4,7 @@
 #record-item {
   background-color: $color-background-lighter;
   border: 1px solid $color-border;
-  border-radius: 12px;
+  border-radius: $border-radius-md;
   transition: all $transition-normal;
   position: relative;
   overflow: hidden;
@@ -78,7 +78,7 @@
       .MuiIconButton-root {
         width: 40px;
         height: 40px;
-        border-radius: 8px;
+        border-radius: $border-radius-sm;
         transition: all $transition-normal;
 
         @media (max-width: 600px) {

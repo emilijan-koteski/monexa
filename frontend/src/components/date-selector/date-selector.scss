@@ -3,7 +3,7 @@
 
 #date-selector {
   background: $gradient-primary;
-  border-radius: 16px;
+  border-radius: $border-radius-lg;
   padding: 20px;
   cursor: pointer;
   transition: transform $transition-normal, box-shadow $transition-normal;
