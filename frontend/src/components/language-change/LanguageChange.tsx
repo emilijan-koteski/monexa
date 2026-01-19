@@ -1,12 +1,6 @@
+import './language-change.scss';
 import { useState } from 'react';
-import {
-  IconButton,
-  Menu,
-  MenuItem,
-  Box,
-  Typography,
-  Tooltip
-} from '@mui/material';
+import { IconButton, Menu, MenuItem, Box, Typography, Tooltip } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLanguage, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +23,8 @@ const LanguageChange = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const currentLanguage = languageOptions.find(lang => lang.code === i18n.language) || languageOptions[0];
+  const currentLanguage =
+    languageOptions.find((lang) => lang.code === i18n.language) || languageOptions[0];
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -45,26 +40,12 @@ const LanguageChange = () => {
   };
 
   return (
-    <>
+    <Box id="language-change">
       <Tooltip title={t('CHANGE_LANGUAGE')}>
-        <IconButton
-          onClick={handleClick}
-          sx={{
-            minHeight: '46px',
-            color: 'text.primary',
-            border: '1px solid',
-            borderColor: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '8px',
-            padding: '8px 12px',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              borderColor: 'rgba(255, 255, 255, 0.2)',
-            },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <IconButton onClick={handleClick} className="language-button">
+          <Box className="button-content">
             <FontAwesomeIcon icon={faLanguage} size="sm" />
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            <Typography variant="body2" fontWeight={600}>
               {currentLanguage.displayCode}
             </Typography>
             <FontAwesomeIcon icon={faChevronDown} size="xs" />
@@ -72,6 +53,7 @@ const LanguageChange = () => {
         </IconButton>
       </Tooltip>
       <Menu
+        id="language-menu"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
@@ -83,47 +65,24 @@ const LanguageChange = () => {
           vertical: 'top',
           horizontal: 'right',
         }}
-        sx={(theme) => ({
-          '& .MuiPaper-root': {
-            backgroundColor: theme.palette.background.paper,
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '8px',
-            minWidth: '140px',
-            mt: 1,
-          },
-        })}
       >
         {languageOptions.map((language) => (
           <MenuItem
             key={language.code}
             onClick={() => handleLanguageSelect(language.code)}
             selected={language.code === i18n.language}
-            sx={{
-              py: 1.5,
-              px: 2,
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              },
-              '&.Mui-selected': {
-                backgroundColor: 'rgba(102, 105, 255, 0.2)',
-                '&:hover': {
-                  backgroundColor: 'rgba(102, 105, 255, 0.3)',
-                },
-              },
-            }}
+            className="language-option"
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                {language.nativeName}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', ml: 1 }}>
+            <Box className="option-content">
+              <Typography variant="body2">{language.nativeName}</Typography>
+              <Typography variant="caption" color="text.secondary">
                 {language.displayCode}
               </Typography>
             </Box>
           </MenuItem>
         ))}
       </Menu>
-    </>
+    </Box>
   );
 };
 
