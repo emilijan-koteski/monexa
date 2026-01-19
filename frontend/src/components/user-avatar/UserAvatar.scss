@@ -37,7 +37,7 @@
   .MuiPaper-root {
     background-color: $color-background-lighter;
     border: 1px solid $color-border;
-    border-radius: 8px;
+    border-radius: $border-radius-sm;
     min-width: 180px;
     margin-top: 8px;
   }

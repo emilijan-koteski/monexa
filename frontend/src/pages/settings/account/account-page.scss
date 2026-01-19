@@ -42,7 +42,7 @@
   .page-content {
     background-color: $color-background-lighter;
     border: 1px solid $color-border;
-    border-radius: 12px;
+    border-radius: $border-radius-md;
     padding: 2rem;
     text-align: center;
 

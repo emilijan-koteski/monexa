@@ -24,7 +24,7 @@
       text-align: center;
       padding: 60px 20px;
       background-color: $color-background-lighter;
-      border-radius: 16px;
+      border-radius: $border-radius-lg;
       border: 2px dashed $color-border;
     }
   }

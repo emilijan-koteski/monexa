@@ -87,7 +87,7 @@
     background: $color-background-darker;
     border: 1px solid $color-border;
     margin-left: 4px;
-    border-radius: 8px;
+    border-radius: $border-radius-sm;
   }
 
   .nav-menu-item {
