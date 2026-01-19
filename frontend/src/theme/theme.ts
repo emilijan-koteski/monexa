@@ -1,4 +1,5 @@
 import { createTheme, alpha } from '@mui/material/styles';
+import '@mui/x-date-pickers/themeAugmentation';
 
 const palette = {
   primary: {
@@ -275,6 +276,129 @@ const theme = createTheme({
           padding: 16,
           '&:last-child': {
             paddingBottom: 16,
+          },
+        },
+      },
+    },
+    MuiPickersOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: alpha('#ffffff', 0.05),
+          borderRadius: borderRadius.md,
+          '& .MuiPickersOutlinedInput-notchedOutline': {
+            borderColor: borders.hover,
+          },
+          '&:hover:not(.Mui-focused) .MuiPickersOutlinedInput-notchedOutline': {
+            borderColor: borders.focus,
+          },
+          '&.Mui-focused .MuiPickersOutlinedInput-notchedOutline': {
+            borderColor: `${palette.secondary.main} !important`,
+            borderWidth: '2px',
+          },
+        },
+      },
+    },
+    MuiPickersInputBase: {
+      styleOverrides: {
+        root: {
+          backgroundColor: alpha('#ffffff', 0.05),
+          borderRadius: borderRadius.md,
+        },
+      },
+    },
+    MuiPickerPopper: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: palette.background.paper,
+          border: borders.subtle,
+          borderRadius: borderRadius.md,
+        },
+      },
+    },
+    MuiDateCalendar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'transparent',
+        },
+      },
+    },
+    MuiPickersCalendarHeader: {
+      styleOverrides: {
+        root: {
+          color: palette.text.primary,
+        },
+        label: {
+          color: palette.text.primary,
+        },
+        switchViewButton: {
+          color: palette.text.secondary,
+          '&:hover': {
+            backgroundColor: alpha(palette.primary.main, 0.1),
+          },
+        },
+      },
+    },
+    MuiPickersArrowSwitcher: {
+      styleOverrides: {
+        button: {
+          color: palette.text.secondary,
+          '&:hover': {
+            backgroundColor: alpha(palette.primary.main, 0.1),
+          },
+        },
+      },
+    },
+    MuiDayCalendar: {
+      styleOverrides: {
+        weekDayLabel: {
+          color: palette.text.secondary,
+        },
+      },
+    },
+    MuiPickersDay: {
+      styleOverrides: {
+        root: {
+          color: palette.text.primary,
+          '&:hover': {
+            backgroundColor: alpha(palette.primary.main, 0.1),
+          },
+          '&.Mui-selected': {
+            backgroundColor: palette.primary.main,
+            color: palette.primary.contrastText,
+            '&:hover': {
+              backgroundColor: palette.primary.dark,
+            },
+          },
+          '&.MuiPickersDay-today': {
+            borderColor: palette.secondary.main,
+          },
+        },
+      },
+    },
+    MuiYearCalendar: {
+      styleOverrides: {
+        button: {
+          color: palette.text.primary,
+          '&:hover': {
+            backgroundColor: alpha(palette.primary.main, 0.1),
+          },
+          '&.Mui-selected': {
+            backgroundColor: palette.primary.main,
+            color: palette.primary.contrastText,
+          },
+        },
+      },
+    },
+    MuiMonthCalendar: {
+      styleOverrides: {
+        button: {
+          color: palette.text.primary,
+          '&:hover': {
+            backgroundColor: alpha(palette.primary.main, 0.1),
+          },
+          '&.Mui-selected': {
+            backgroundColor: palette.primary.main,
+            color: palette.primary.contrastText,
           },
         },
       },
