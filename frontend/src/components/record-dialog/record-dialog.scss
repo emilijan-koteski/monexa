@@ -3,28 +3,13 @@
 
 #record-dialog {
   .MuiDialog-paper {
-    background-color: $color-background-lighter;
-    border: 1px solid $color-border;
-    border-radius: 16px;
-    padding: 8px;
-
     @include sm-down {
-      margin: 0;
-      max-width: 100%;
-      max-height: 100%;
-      height: 100%;
-      width: 100%;
       border-radius: 0;
       border: none;
     }
   }
 
   .MuiDialogTitle-root {
-    color: $color-text-primary;
-    font-size: 1.5rem;
-    font-weight: 600;
-    padding: 20px 24px 16px;
-
     @include sm-down {
       font-size: 1.25rem;
       padding: 16px 20px 12px;
@@ -32,8 +17,6 @@
   }
 
   .MuiDialogContent-root {
-    padding: 16px 24px;
-
     @include sm-down {
       padding: 12px 20px;
     }
@@ -48,66 +31,12 @@
     #record-form {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      padding-top: 8px;
-
-      @include sm-down {
-        gap: 16px;
-      }
-
-      .form-field {
-        .MuiInputLabel-root {
-          color: $color-text-secondary;
-
-          &.Mui-focused {
-            color: $color-primary;
-          }
-
-          &.Mui-error {
-            color: $color-error;
-          }
-        }
-
-        .MuiOutlinedInput-root {
-          color: $color-text-primary;
-
-          .MuiOutlinedInput-notchedOutline {
-            border-color: $color-border-hover;
-          }
-
-          &:hover .MuiOutlinedInput-notchedOutline {
-            border-color: $color-border-focus;
-          }
-
-          &.Mui-focused .MuiOutlinedInput-notchedOutline {
-            border-color: $color-primary;
-          }
-
-          &.Mui-error .MuiOutlinedInput-notchedOutline {
-            border-color: $color-error;
-          }
-        }
-
-        .MuiFormHelperText-root {
-          color: $color-text-secondary;
-
-          &.Mui-error {
-            color: $color-error;
-          }
-        }
-
-        .MuiSelect-icon {
-          color: $color-text-secondary;
-        }
-      }
+      gap: 1rem;
+      padding-top: 0.5rem;
 
       .amount-currency-row {
         display: flex;
-        gap: 16px;
-
-        @include sm-down {
-          gap: 12px;
-        }
+        gap: 1rem;
 
         .amount-field {
           flex: 2;
@@ -122,61 +51,25 @@
   }
 
   .dialog-actions {
-    padding: 16px 24px 20px;
-    gap: 12px;
-
     @include sm-down {
       padding: 12px 20px 16px;
     }
 
     .cancel-button {
-      color: $color-text-secondary;
-      border: 1px solid $color-border;
       padding: 10px 24px;
-      text-transform: none;
-      font-weight: 500;
-      border-radius: 8px;
+      border-radius: $border-radius-sm;
 
       @include sm-down {
         min-width: 80px;
-      }
-
-      &:hover {
-        border-color: $color-border-focus;
-        background-color: $color-input-background;
       }
     }
 
     .submit-button {
       padding: 10px 24px;
-      text-transform: none;
-      font-weight: 600;
-      border-radius: 8px;
+      border-radius: $border-radius-sm;
 
       @include sm-down {
         min-width: 80px;
-      }
-    }
-  }
-}
-
-// MUI Select dropdown menu styling
-.record-dialog-menu {
-  background-color: $color-background-lighter;
-  border: 1px solid $color-border;
-
-  .MuiMenuItem-root {
-    color: $color-text-primary;
-
-    &:hover {
-      background-color: $color-primary-alpha-10;
-    }
-
-    &.Mui-selected {
-      background-color: $color-primary-alpha-20;
-
-      &:hover {
-        background-color: $color-primary-alpha-30;
       }
     }
   }

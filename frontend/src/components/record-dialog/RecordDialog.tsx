@@ -135,15 +135,6 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false }: Re
                   className="form-field"
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   value={field.value || ''}
-                  slotProps={{
-                    select: {
-                      MenuProps: {
-                        PaperProps: {
-                          className: 'record-dialog-menu',
-                        },
-                      },
-                    },
-                  }}
                 >
                   {categories?.map((category) => (
                     <MenuItem key={category.id} value={category.id}>
@@ -170,15 +161,6 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false }: Re
                   className="form-field"
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   value={field.value || ''}
-                  slotProps={{
-                    select: {
-                      MenuProps: {
-                        PaperProps: {
-                          className: 'record-dialog-menu',
-                        },
-                      },
-                    },
-                  }}
                 >
                   {paymentMethods?.map((method) => (
                     <MenuItem key={method.id} value={method.id}>
@@ -224,15 +206,6 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false }: Re
                     error={!!errors.currency}
                     helperText={errors.currency ? t(errors.currency.message || '') : ''}
                     className="form-field currency-field"
-                    slotProps={{
-                      select: {
-                        MenuProps: {
-                          PaperProps: {
-                            className: 'record-dialog-menu',
-                          },
-                        },
-                      },
-                    }}
                   >
                     <MenuItem value="USD">USD</MenuItem>
                     <MenuItem value="EUR">EUR</MenuItem>

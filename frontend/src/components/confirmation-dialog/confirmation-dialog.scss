@@ -1,32 +1,15 @@
 @use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
 
 #confirmation-dialog {
-  .MuiDialog-paper {
-    background-color: $color-background-lighter;
-    border: 1px solid $color-border;
-    border-radius: 12px;
-    padding: 8px;
-  }
 
   .dialog-actions {
-    gap: 0.5rem;
-
     .cancel-button {
-      color: $color-text-secondary;
-      border: 1px solid $color-border;
       padding: 8px 20px;
-      text-transform: none;
-
-      &:hover {
-        border-color: $color-border-hover;
-        background-color: $color-input-background;
-      }
     }
 
     .confirm-button {
       padding: 8px 20px;
-      text-transform: none;
-      font-weight: 600;
     }
   }
 }

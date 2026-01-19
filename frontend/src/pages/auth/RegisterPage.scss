@@ -23,11 +23,7 @@
   .register-paper {
     width: 100%;
     padding: 3rem;
-    border-radius: 16px;
-    background: $color-background-lighter;
     backdrop-filter: blur(10px);
-    border: 1px solid $color-border;
-    box-shadow: 0 20px 40px $shadow-dark;
 
     @include sm-down {
       padding: 2rem;
@@ -57,26 +53,13 @@
   }
 
   .register-button {
-    height: 56px;
-    font-size: 1.125rem;
-    font-weight: 600;
-    text-transform: none;
-    border-radius: 12px;
-    background: $gradient-primary;
-    box-shadow: 0 8px 20px $shadow-primary;
-    transition: all $transition-normal;
-
-    &:hover {
-      background: $gradient-primary-hover;
-      box-shadow: 0 12px 25px $shadow-primary-hover;
-      transform: translateY(-2px);
-    }
-
-    &:disabled {
-      background: $gradient-disabled;
-      box-shadow: none;
-      transform: none;
-    }
+    @include gradient-button(
+      $gradient-primary,
+      $gradient-primary-hover,
+      $shadow-primary,
+      $shadow-primary-hover,
+      $gradient-disabled
+    );
   }
 
   .login-link-container {
@@ -92,57 +75,6 @@
         color: $color-secondary-hover;
         text-decoration: underline;
       }
-    }
-  }
-
-  // Custom TextField styles
-  .MuiTextField-root {
-    .MuiInputLabel-root {
-      color: $color-text-secondary;
-
-      &.Mui-focused {
-        color: $color-secondary;
-      }
-
-      &.Mui-error {
-        color: $color-error;
-      }
-    }
-
-    .MuiOutlinedInput-root {
-      background: $color-input-background;
-      border-radius: 12px;
-
-      .MuiOutlinedInput-notchedOutline {
-        border-color: $color-border-hover;
-      }
-
-      &:hover .MuiOutlinedInput-notchedOutline {
-        border-color: $color-border-focus;
-      }
-
-      &.Mui-focused .MuiOutlinedInput-notchedOutline {
-        border-color: $color-secondary;
-        border-width: 2px;
-      }
-
-      &.Mui-error .MuiOutlinedInput-notchedOutline {
-        border-color: $color-error;
-      }
-
-      &.Mui-error.Mui-focused .MuiOutlinedInput-notchedOutline {
-        border-color: $color-error;
-        border-width: 2px;
-      }
-
-      .MuiInputAdornment-root {
-        color: $color-text-secondary;
-      }
-    }
-
-    .MuiFormHelperText-root {
-      margin-left: 4px;
-      margin-top: 6px;
     }
   }
 }

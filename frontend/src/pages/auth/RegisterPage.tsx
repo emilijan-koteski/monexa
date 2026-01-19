@@ -251,7 +251,7 @@ const RegisterPage = () => {
           </Paper>
 
           <Box>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            <Typography variant="caption" color="text.secondary">
               Crafted with 💙 by Emilijan Koteski
             </Typography>
           </Box>

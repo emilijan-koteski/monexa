@@ -13,6 +13,13 @@ $transition-slow: 0.5s ease;
 // Header
 $header-height: 64px;
 
+// Border Radius
+$border-radius-xs: 4px;
+$border-radius-sm: 8px;
+$border-radius-md: 12px;
+$border-radius-lg: 16px;
+$border-radius-xl: 20px;
+
 // Responsive mixins
 @mixin xs-up {
   @media (min-width: #{$breakpoint-xs}) {
@@ -65,5 +72,28 @@ $header-height: 64px;
 @mixin xl-down {
   @media (max-width: #{$breakpoint-xl - 1px}) {
     @content;
+  }
+}
+
+@mixin gradient-button($gradient, $gradient-hover, $shadow, $shadow-hover, $gradient-disabled) {
+  height: 56px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-transform: none;
+  border-radius: $border-radius-md;
+  background: $gradient;
+  box-shadow: 0 8px 20px $shadow;
+  transition: all $transition-normal;
+
+  &:hover {
+    background: $gradient-hover;
+    box-shadow: 0 12px 25px $shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    background: $gradient-disabled;
+    box-shadow: none;
+    transform: none;
   }
 }

@@ -2,9 +2,15 @@
 @use '../../styles/variables' as *;
 
 #category-dialog {
+  .MuiDialog-paper {
+    @include sm-down {
+      border-radius: 0;
+      border: none;
+    }
+  }
 
   .dialog-content {
-    padding: 1.25rem 1.5rem;
+    padding: 20px 24px;
 
     form {
       display: flex;
@@ -21,12 +27,8 @@
   }
 
   .dialog-actions {
-    padding: 1rem 1.5rem;
+    padding: 16px 24px;
     gap: 1rem;
-
-    .cancel-button {
-      color: $color-text-secondary;
-    }
 
     .submit-button {
       min-width: 100px;
