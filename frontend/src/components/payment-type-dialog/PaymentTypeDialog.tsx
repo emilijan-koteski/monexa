@@ -104,7 +104,7 @@ function PaymentTypeDialog({
       </DialogContent>
 
       <DialogActions className="dialog-actions">
-        <Button onClick={handleClose} variant='text' disabled={isLoading} className="cancel-button">
+        <Button onClick={handleClose} disabled={isLoading} className="cancel-button">
           {t('CANCEL')}
         </Button>
         <Button
@@ -115,13 +115,7 @@ function PaymentTypeDialog({
           disabled={isLoading}
           className="submit-button"
         >
-          {isLoading ? (
-            <CircularProgress size={24} />
-          ) : paymentMethod ? (
-            t('UPDATE')
-          ) : (
-            t('CREATE')
-          )}
+          {isLoading ? <CircularProgress size={24} /> : paymentMethod ? t('UPDATE') : t('CREATE')}
         </Button>
       </DialogActions>
     </Dialog>

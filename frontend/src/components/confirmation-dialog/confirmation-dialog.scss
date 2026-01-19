@@ -2,14 +2,27 @@
 @use '../../styles/variables' as *;
 
 #confirmation-dialog {
-
   .dialog-actions {
+    @include sm-down {
+      padding: 12px 20px 16px;
+    }
+
     .cancel-button {
-      padding: 8px 20px;
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
     }
 
     .confirm-button {
-      padding: 8px 20px;
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
     }
   }
 }

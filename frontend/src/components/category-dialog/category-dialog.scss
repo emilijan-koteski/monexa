@@ -27,11 +27,26 @@
   }
 
   .dialog-actions {
-    padding: 16px 24px;
-    gap: 1rem;
+    @include sm-down {
+      padding: 12px 20px 16px;
+    }
+
+    .cancel-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
 
     .submit-button {
-      min-width: 100px;
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
     }
   }
 }
