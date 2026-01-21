@@ -40,12 +40,6 @@
     }
 
     .add-button {
-      text-transform: none;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      border-radius: $border-radius-sm;
-      white-space: nowrap;
-
       @include sm-down {
         padding: 0.4rem 0.75rem;
         font-size: 0.875rem;

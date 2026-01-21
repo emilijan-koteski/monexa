@@ -240,12 +240,13 @@ const theme = createTheme({
         text: {
           color: palette.text.secondary,
           textTransform: 'none',
-          fontWeight: 500,
         },
         outlined: {
-          borderColor: alpha('#ffffff', 0.1),
           color: palette.text.secondary,
+          borderColor: alpha('#ffffff', 0.1),
           textTransform: 'none',
+          padding: '0.5rem 1rem',
+          borderRadius: borderRadius.sm,
           '&:hover': {
             borderColor: borders.focus,
             backgroundColor: alpha('#ffffff', 0.05),
@@ -253,7 +254,9 @@ const theme = createTheme({
         },
         contained: {
           textTransform: 'none',
-          fontWeight: 600,
+          padding: '0.5rem 1rem',
+          borderRadius: borderRadius.sm,
+          whiteSpace: 'nowrap',
         },
       },
     },
