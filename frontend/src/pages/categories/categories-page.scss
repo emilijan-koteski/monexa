@@ -1,0 +1,37 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#categories-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+    padding: 0;
+  }
+
+  .categories-header {
+
+    .categories-title {
+
+      @include sm-down {
+        font-size: 1.75rem;
+        padding: 0 1rem;
+      }
+    }
+  }
+
+  .categories-content {
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+    padding: 1.5rem;
+
+    @include sm-down {
+      padding: 1rem;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+  }
+}

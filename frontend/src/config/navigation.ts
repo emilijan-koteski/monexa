@@ -1,4 +1,4 @@
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faChartPie } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 export type NavigationItem = {
@@ -15,5 +15,11 @@ export const navigationItems: NavigationItem[] = [
     label: 'HOME',
     icon: faHome,
     path: '/home'
+  },
+  {
+    id: 'categories',
+    label: 'CATEGORIES',
+    icon: faChartPie,
+    path: '/categories'
   },
 ];
