@@ -32,6 +32,7 @@ func RegisterCategoryHandler(e *echo.Echo, categoryService *services.CategorySer
 	r1.POST("", handler.Create)
 	r1.PATCH("/:id", handler.Update)
 	r1.DELETE("/:id", handler.Delete)
+	r1.GET("/statistics", handler.GetStatistics)
 }
 
 func (h *categoryHandler) Read(c echo.Context) error {
@@ -164,4 +165,27 @@ func (h *categoryHandler) Delete(c echo.Context) error {
 	}
 
 	return responses.Success(c)
+}
+
+func (h *categoryHandler) GetStatistics(c echo.Context) error {
+	var filter requests.CategoryStatisticsRequest
+	if err := c.Bind(&filter); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid query parameters")
+	}
+
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+	filter.UserID = &claims.UserID
+
+	stats, err := h.categoryService.GetStatistics(c.Request().Context(), filter)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return responses.NotFound(c)
+		}
+		return responses.FailureWithError(c, fmt.Errorf("error calculating statistics: %w", err))
+	}
+
+	return responses.SuccessWithData(c, stats)
 }
