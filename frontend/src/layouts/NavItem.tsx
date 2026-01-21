@@ -15,7 +15,7 @@ import { faChevronDown, faChevronUp, faCircle } from '@fortawesome/free-solid-sv
 import { useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { NavigationItem } from '../config/navigation';
-import './NavItem.scss';
+import './nav-item.scss';
 
 interface NavItemProps {
   item: NavigationItem;

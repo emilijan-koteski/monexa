@@ -3,7 +3,7 @@ import { Outlet } from 'react-router';
 import { useDrawerState } from '../hooks/useDrawerState';
 import AppHeader from './AppHeader';
 import AppDrawer from './AppDrawer';
-import './AppLayout.scss';
+import './app-layout.scss';
 
 const DRAWER_WIDTH_EXPANDED = 240;
 const DRAWER_WIDTH_COLLAPSED = 64;

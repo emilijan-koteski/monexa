@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import UserAvatar from '../components/user-avatar/UserAvatar';
 import { useTranslation } from 'react-i18next';
-import './AppHeader.scss';
+import './app-header.scss';
 
 interface AppHeaderProps {
   onMenuClick: () => void;

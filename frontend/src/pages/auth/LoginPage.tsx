@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { useLogin } from '../../services/authService.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
-import './LoginPage.scss';
+import './login-page.scss';
 
 const LoginPage = () => {
   const { t } = useTranslation();

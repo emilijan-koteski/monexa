@@ -1,7 +1,7 @@
 import { Drawer, List, Box } from '@mui/material';
 import { navigationItems } from '../config/navigation';
 import NavItem from './NavItem';
-import './AppDrawer.scss';
+import './app-drawer.scss';
 
 interface AppDrawerProps {
   isExpanded: boolean;

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { useRegister } from '../../services/authService.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
-import './RegisterPage.scss';
+import './register-page.scss';
 
 const RegisterPage = () => {
   const { t } = useTranslation();

@@ -14,7 +14,7 @@ import { faUser, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router';
 import { getStoredUser, useLogout } from '../../services/authService';
-import './UserAvatar.scss';
+import './user-avatar.scss';
 
 const UserAvatar = () => {
   const { t } = useTranslation();
