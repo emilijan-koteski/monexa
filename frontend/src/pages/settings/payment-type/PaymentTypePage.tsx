@@ -2,7 +2,7 @@ import './payment-type-page.scss';
 import { useState } from 'react';
 import { Box, Button, CircularProgress, Container, IconButton, List, ListItem, ListItemText, Stack, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faEdit, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useCreatePaymentMethod, useDeletePaymentMethod, usePaymentMethods, useUpdatePaymentMethod } from '../../../services/paymentMethodService';
@@ -141,22 +141,20 @@ const PaymentTypePage = () => {
                   />
                   <Box className="action-buttons">
                     <IconButton
-                      color="primary"
-                      size="small"
+                      color="secondary"
+                      size="large"
                       onClick={() => handleEditPaymentMethod(paymentMethod)}
                       disabled={isAnyMutationLoading}
-                      className="edit-button"
                     >
-                      <FontAwesomeIcon icon={faPen} />
+                      <FontAwesomeIcon icon={faEdit} fontSize="medium" />
                     </IconButton>
                     <IconButton
                       color="error"
-                      size="small"
+                      size="large"
                       onClick={() => handleDeleteClick(paymentMethod)}
                       disabled={isAnyMutationLoading}
-                      className="delete-button"
                     >
-                      <FontAwesomeIcon icon={faTrash} />
+                      <FontAwesomeIcon icon={faTrash} fontSize="medium" />
                     </IconButton>
                   </Box>
                 </Box>

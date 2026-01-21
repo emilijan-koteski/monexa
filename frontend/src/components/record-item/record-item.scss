@@ -74,42 +74,6 @@
       display: flex;
       gap: 8px;
       flex-shrink: 0;
-
-      .MuiIconButton-root {
-        width: 40px;
-        height: 40px;
-        border-radius: $border-radius-sm;
-        transition: all $transition-normal;
-
-        @media (max-width: 600px) {
-          width: 44px;
-          height: 44px;
-        }
-
-        svg {
-          font-size: 1rem;
-        }
-      }
-
-      .edit-button {
-        color: $color-secondary;
-        background-color: $color-secondary-alpha-10;
-
-        &:hover {
-          background-color: $color-secondary-alpha-20;
-          color: $color-secondary-light;
-        }
-      }
-
-      .delete-button {
-        color: $color-error;
-        background-color: $color-error-alpha-10;
-
-        &:hover {
-          background-color: $color-error-alpha-20;
-          color: $color-error-light;
-        }
-      }
     }
   }
 }

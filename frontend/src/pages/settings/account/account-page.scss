@@ -20,7 +20,7 @@
     }
 
     .back-button {
-      transition: all $transition-fast;
+      background-color: transparent;
 
       &:hover {
         transform: translateX(-2px);

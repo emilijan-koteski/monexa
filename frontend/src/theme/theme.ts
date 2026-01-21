@@ -64,6 +64,11 @@ const shadows = {
   paper: '0 20px 40px rgba(0, 0, 0, 0.3)',
 };
 
+const transitions = {
+  fast: 'all 0.15s ease',
+  normal: 'all 0.3s ease',
+};
+
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -276,6 +281,62 @@ const theme = createTheme({
           padding: 16,
           '&:last-child': {
             paddingBottom: 16,
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: borderRadius.sm,
+          transition: transitions.fast,
+        },
+        colorPrimary: {
+          color: palette.primary.main,
+          backgroundColor: alpha(palette.primary.main, 0.1),
+          '&:hover': {
+            backgroundColor: alpha(palette.primary.main, 0.2),
+            color: palette.primary.light,
+          },
+        },
+        colorSecondary: {
+          color: palette.secondary.main,
+          backgroundColor: alpha(palette.secondary.main, 0.1),
+          '&:hover': {
+            backgroundColor: alpha(palette.secondary.main, 0.2),
+            color: palette.secondary.light,
+          },
+        },
+        colorError: {
+          color: palette.error.main,
+          backgroundColor: alpha(palette.error.main, 0.1),
+          '&:hover': {
+            backgroundColor: alpha(palette.error.main, 0.2),
+            color: palette.error.light,
+          },
+        },
+        colorSuccess: {
+          color: palette.success.main,
+          backgroundColor: alpha(palette.success.main, 0.1),
+          '&:hover': {
+            backgroundColor: alpha(palette.success.main, 0.2),
+            color: palette.success.light,
+          },
+        },
+        colorWarning: {
+          color: palette.warning.main,
+          backgroundColor: alpha(palette.warning.main, 0.1),
+          '&:hover': {
+            backgroundColor: alpha(palette.warning.main, 0.2),
+            color: palette.warning.light,
+          },
+        },
+        colorInfo: {
+          color: palette.info.main,
+          backgroundColor: alpha(palette.info.main, 0.1),
+          '&:hover': {
+            backgroundColor: alpha(palette.info.main, 0.2),
+            color: palette.info.light,
           },
         },
       },

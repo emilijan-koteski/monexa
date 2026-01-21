@@ -20,7 +20,7 @@
     }
 
     .back-button {
-      transition: all $transition-fast;
+      background-color: transparent;
 
       &:hover {
         transform: translateX(-2px);
@@ -112,19 +112,6 @@
           display: flex;
           gap: 1rem;
           flex-shrink: 0;
-
-          .edit-button,
-          .delete-button {
-            transition: all $transition-fast;
-
-            &:hover {
-              transform: scale(1.1);
-            }
-
-            svg {
-              font-size: 1rem;
-            }
-          }
         }
       }
     }

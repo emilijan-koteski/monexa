@@ -47,20 +47,18 @@ function RecordItem({
 
         <Box className="record-actions">
           <IconButton
-            size="small"
             color="secondary"
+            size="large"
             onClick={() => onEdit(record)}
-            className="edit-button"
           >
-            <FontAwesomeIcon icon={faEdit} />
+            <FontAwesomeIcon icon={faEdit} fontSize="medium" />
           </IconButton>
           <IconButton
-            size="small"
             color="error"
+            size="large"
             onClick={() => onDelete(record)}
-            className="delete-button"
           >
-            <FontAwesomeIcon icon={faTrash} />
+            <FontAwesomeIcon icon={faTrash} fontSize="medium" />
           </IconButton>
         </Box>
       </CardContent>
