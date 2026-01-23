@@ -1,0 +1,45 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#balance-summary {
+
+  .summary-items {
+    justify-content: space-between;
+
+    @include sm-down {
+      flex-direction: column;
+    }
+  }
+
+  .summary-item {
+    flex: 1;
+    text-align: center;
+
+    @include sm-down {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid $color-border;
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+    }
+
+    .summary-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .summary-value {
+      font-size: 1.25rem;
+
+      @include sm-down {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}

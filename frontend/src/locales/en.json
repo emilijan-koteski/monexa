@@ -120,5 +120,22 @@
   "NO_CATEGORIES_TITLE": "No Categories Yet",
   "NO_CATEGORIES_MESSAGE": "Create your first category to organize your transactions!",
   "DELETE_CATEGORY_TITLE": "Delete Category?",
-  "DELETE_CATEGORY_MESSAGE": "Are you sure you want to delete this category? This action cannot be undone."
+  "DELETE_CATEGORY_MESSAGE": "Are you sure you want to delete this category? This action cannot be undone.",
+  "DATE_RANGE": "Date Range",
+  "DATE_RANGE_OVERALL": "Overall",
+  "DATE_RANGE_WEEK": "1 Week",
+  "DATE_RANGE_MONTH": "1 Month",
+  "DATE_RANGE_YEAR": "1 Year",
+  "DATE_RANGE_CUSTOM": "Custom",
+  "START_DATE": "Start Date",
+  "END_DATE": "End Date",
+  "ALL_PAYMENT_METHODS": "All Payment Methods",
+  "SEARCH_CATEGORIES": "Search by category, description, or amount",
+  "TOTAL_INCOME": "Total Income",
+  "TOTAL_EXPENSE": "Total Expense",
+  "NET_BALANCE": "Net Balance",
+  "RECORD": "Record",
+  "CATEGORY_DETAILS": "Category Details",
+  "NO_STATISTICS_TITLE": "No Statistics Available",
+  "NO_STATISTICS_MESSAGE": "No records found for the selected filters. Try adjusting your date range or filters."
 }

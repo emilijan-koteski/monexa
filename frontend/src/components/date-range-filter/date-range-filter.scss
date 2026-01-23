@@ -1,0 +1,15 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#date-range-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .custom-date-pickers {
+
+    @include sm-down {
+      flex-direction: column;
+    }
+  }
+}
