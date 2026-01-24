@@ -29,6 +29,7 @@ interface RecordDialogProps {
   onSubmit: (data: RecordFormData) => void;
   record?: FinancialRecord | null;
   isLoading?: boolean;
+  defaultDate?: Date;
 }
 
 export interface RecordFormData {
@@ -49,7 +50,7 @@ const recordSchema = z.object({
   date: z.date(),
 });
 
-function RecordDialog({ open, onClose, onSubmit, record, isLoading = false }: RecordDialogProps) {
+function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defaultDate }: RecordDialogProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -70,7 +71,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false }: Re
       amount: 0,
       currency: settings?.currency || 'USD',
       description: '',
-      date: new Date(),
+      date: defaultDate || new Date(),
     },
   });
 
@@ -92,11 +93,11 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false }: Re
           amount: 0,
           currency: settings?.currency || 'USD',
           description: '',
-          date: new Date(),
+          date: defaultDate || new Date(),
         });
       }
     }
-  }, [open, record, settings, reset]);
+  }, [open, record, settings, reset, defaultDate]);
 
   const handleFormSubmit = (data: RecordFormData) => {
     onSubmit(data);

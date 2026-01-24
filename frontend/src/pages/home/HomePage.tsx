@@ -212,6 +212,7 @@ function HomePage() {
         onSubmit={handleDialogSubmit}
         record={selectedRecord}
         isLoading={isAnyMutationLoading}
+        defaultDate={selectedDate}
       />
 
       <ConfirmationDialog
