@@ -10,6 +10,7 @@ import { useCategoryStatistics } from '../../services/categoryStatisticsService'
 import { useDebounce } from '../../hooks/useDebounce';
 import DateRangeFilter from '../../components/date-range-filter/DateRangeFilter';
 import PaymentMethodFilter from '../../components/payment-method-filter/PaymentMethodFilter';
+import CategoryPieChart from '../../components/category-pie-chart/CategoryPieChart';
 import BalanceSummary from '../../components/balance-summary/BalanceSummary';
 import CategoryStatItem from '../../components/category-stat-item/CategoryStatItem';
 
@@ -116,6 +117,13 @@ const CategoriesPage = () => {
           }}
         />
       </Box>
+
+      {/* Category Pie Chart */}
+      <CategoryPieChart
+        categories={statistics?.categories ?? []}
+        currency={statistics?.currency ?? 'MKD'}
+        isLoading={isLoading}
+      />
 
       {/* Balance Summary */}
       <BalanceSummary

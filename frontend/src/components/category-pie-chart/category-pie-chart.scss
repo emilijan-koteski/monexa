@@ -1,0 +1,82 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#category-pie-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .section-title {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 0 0.5rem;
+
+    @include sm-down {
+      padding: 0;
+    }
+  }
+
+  .chart-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    @include sm-up {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .view-toggle {
+      .MuiToggleButton-root {
+        color: $color-text-secondary;
+        border-color: $color-border;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        text-transform: none;
+
+        &.Mui-selected {
+          background-color: $color-primary-alpha-20;
+          color: $color-primary;
+          border-color: $color-primary;
+
+          &:hover {
+            background-color: $color-primary-alpha-30;
+          }
+        }
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.05);
+        }
+      }
+    }
+  }
+
+  .chart-wrapper {
+    position: relative;
+    height: 280px;
+    padding: 1rem;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+
+    @include sm-up {
+      height: 320px;
+      padding: 1.5rem;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+  }
+}

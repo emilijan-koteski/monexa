@@ -137,5 +137,8 @@
   "RECORD": "Record",
   "CATEGORY_DETAILS": "Category Details",
   "NO_STATISTICS_TITLE": "No Statistics Available",
-  "NO_STATISTICS_MESSAGE": "No records found for the selected filters. Try adjusting your date range or filters."
+  "NO_STATISTICS_MESSAGE": "No records found for the selected filters. Try adjusting your date range or filters.",
+  "CATEGORY_BREAKDOWN": "Category Breakdown",
+  "ALL": "All",
+  "NO_CATEGORY_DATA": "No category data available for the selected view."
 }
