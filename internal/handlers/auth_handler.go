@@ -192,6 +192,8 @@ func (h *authHandler) DeleteAccount(c echo.Context) error {
 		return responses.FailureWithError(c, fmt.Errorf("error deleting user: %w", err))
 	}
 
+	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), userID)
+
 	return responses.Success(c)
 }
 
