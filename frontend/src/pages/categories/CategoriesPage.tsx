@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns';
 import { DateRangePreset } from '../../enums/DateRangePreset';
 import { useCategoryStatistics } from '../../services/categoryStatisticsService';
+import { useDebounce } from '../../hooks/useDebounce';
 import DateRangeFilter from '../../components/date-range-filter/DateRangeFilter';
 import PaymentMethodFilter from '../../components/payment-method-filter/PaymentMethodFilter';
 import BalanceSummary from '../../components/balance-summary/BalanceSummary';
@@ -20,6 +21,7 @@ const CategoriesPage = () => {
   const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
   const [paymentMethodIds, setPaymentMethodIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   const { startDate, endDate } = useMemo(() => {
     const now = new Date();
@@ -56,7 +58,7 @@ const CategoriesPage = () => {
     startDate,
     endDate,
     paymentMethodIds: paymentMethodIds.length > 0 ? paymentMethodIds : undefined,
-    search: searchQuery || undefined,
+    search: debouncedSearch || undefined,
   });
 
   const handleCustomDateChange = (start: Date | null, end: Date | null) => {
