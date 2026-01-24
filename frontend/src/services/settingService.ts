@@ -2,24 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
 import type { Setting } from '../types/models';
 import type { ApiResponse } from '../types/responses';
-import { getStoredToken } from './authService';
-import { apiClient } from '../api/apiClient';
+import { apiClient, createAuthHeaders } from '../api/apiClient';
 
 const API_BASE_URL = ENV.API_BASE_URL;
-
-const getAuthHeaders = () => {
-  const token = getStoredToken();
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
 
 export const settingApi = {
   get: async (): Promise<Setting> => {
     const response = await apiClient(`${API_BASE_URL}/settings`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -34,7 +25,7 @@ export const settingApi = {
   update: async (data: Partial<Pick<Setting, 'currency' | 'language'>>): Promise<Setting> => {
     const response = await apiClient(`${API_BASE_URL}/settings`, {
       method: 'PATCH',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 

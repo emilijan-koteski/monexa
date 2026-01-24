@@ -2,22 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
 import type { PaymentMethod } from '../types/models';
 import type { ApiResponse } from '../types/responses';
-import { getStoredToken } from './authService';
-import { apiClient } from '../api/apiClient';
-
-const getAuthHeaders = () => {
-  const token = getStoredToken();
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
+import { apiClient, createAuthHeaders } from '../api/apiClient';
 
 export const paymentMethodApi = {
   getAll: async (): Promise<PaymentMethod[]> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -32,7 +23,7 @@ export const paymentMethodApi = {
   create: async (data: { name: string }): Promise<PaymentMethod> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -48,7 +39,7 @@ export const paymentMethodApi = {
   update: async (id: number, data: { name: string }): Promise<PaymentMethod> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods/${id}`, {
       method: 'PATCH',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -64,7 +55,7 @@ export const paymentMethodApi = {
   delete: async (id: number): Promise<void> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/payment-methods/${id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {

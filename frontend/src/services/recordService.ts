@@ -3,18 +3,9 @@ import { ENV } from '../config/env';
 import type { FinancialRecord, RecordSummary } from '../types/models';
 import type { RecordRequest } from '../types/requests';
 import type { ApiResponse } from '../types/responses';
-import { getStoredToken } from './authService';
-import { apiClient } from '../api/apiClient';
+import { apiClient, createAuthHeaders } from '../api/apiClient';
 
 const API_BASE_URL = ENV.API_BASE_URL;
-
-const getAuthHeaders = () => {
-  const token = getStoredToken();
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
 
 export const recordApi = {
   getAll: async (startDate?: string, endDate?: string): Promise<FinancialRecord[]> => {
@@ -24,7 +15,7 @@ export const recordApi = {
 
     const response = await apiClient(`${API_BASE_URL}/records?${params.toString()}`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -39,7 +30,7 @@ export const recordApi = {
   getById: async (id: number): Promise<FinancialRecord> => {
     const response = await apiClient(`${API_BASE_URL}/records/${id}`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -54,7 +45,7 @@ export const recordApi = {
   create: async (data: RecordRequest): Promise<FinancialRecord> => {
     const response = await apiClient(`${API_BASE_URL}/records`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -70,7 +61,7 @@ export const recordApi = {
   update: async (id: number, data: RecordRequest): Promise<FinancialRecord> => {
     const response = await apiClient(`${API_BASE_URL}/records/${id}`, {
       method: 'PATCH',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -86,7 +77,7 @@ export const recordApi = {
   delete: async (id: number): Promise<void> => {
     const response = await apiClient(`${API_BASE_URL}/records/${id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -102,7 +93,7 @@ export const recordApi = {
 
     const response = await apiClient(`${API_BASE_URL}/records/summary?${params.toString()}`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {

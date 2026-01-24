@@ -13,7 +13,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router';
-import { getStoredUser, useLogout } from '../../services/authService';
+import { useLogout } from '../../services/authService';
+import { tokenUtils } from '../../utils/tokenUtils';
 import './user-avatar.scss';
 
 const UserAvatar = () => {
@@ -25,7 +26,7 @@ const UserAvatar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const user = getStoredUser();
+  const user = tokenUtils.getUser();
   const logoutMutation = useLogout();
 
   const isProfileActive = location.pathname === '/profile';
@@ -53,14 +54,11 @@ const UserAvatar = () => {
   };
 
   const handleLogout = () => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (refreshToken) {
-      logoutMutation.mutate(refreshToken, {
-        onSuccess: () => {
-          navigate('/');
-        },
-      });
-    }
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        navigate('/');
+      },
+    });
     handleClose();
   };
 

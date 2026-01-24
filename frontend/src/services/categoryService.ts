@@ -3,22 +3,13 @@ import { ENV } from '../config/env';
 import type { Category } from '../types/models';
 import type { ApiResponse } from '../types/responses';
 import type { CategoryRequest } from '../types/requests';
-import { getStoredToken } from './authService';
-import { apiClient } from '../api/apiClient';
-
-const getAuthHeaders = () => {
-  const token = getStoredToken();
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
+import { apiClient, createAuthHeaders } from '../api/apiClient';
 
 export const categoryApi = {
   getAll: async (): Promise<Category[]> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/categories`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -33,7 +24,7 @@ export const categoryApi = {
   create: async (data: CategoryRequest): Promise<Category> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/categories`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -49,7 +40,7 @@ export const categoryApi = {
   update: async (id: number, data: Partial<CategoryRequest>): Promise<Category> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/categories/${id}`, {
       method: 'PATCH',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -65,7 +56,7 @@ export const categoryApi = {
   delete: async (id: number): Promise<void> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/categories/${id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(),
+      headers: createAuthHeaders(),
     });
 
     if (!response.ok) {

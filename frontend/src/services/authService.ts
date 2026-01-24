@@ -5,6 +5,7 @@ import type { User } from '../types/models';
 import type { LoginRequest, RegisterRequest } from '../types/requests';
 import type { AuthResponse } from '../types/responses';
 import { apiClient } from '../api/apiClient';
+import { tokenUtils } from '../utils/tokenUtils';
 
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
@@ -70,9 +71,13 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      tokenUtils.setTokens(
+        data.accessToken,
+        data.accessTokenExpiresAt,
+        data.refreshToken,
+        data.refreshTokenExpiresAt
+      );
+      tokenUtils.setUser(data.user);
 
       queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
     },
@@ -90,35 +95,22 @@ export const useLogout = () => {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: authApi.logout,
+    mutationFn: () => {
+      const refreshToken = tokenUtils.getRefreshToken();
+      if (!refreshToken) {
+        return Promise.resolve();
+      }
+      return authApi.logout(refreshToken);
+    },
     onSuccess: () => {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-
+      tokenUtils.clearTokens();
       queryClient.clear();
       navigate('/login');
     },
     onError: () => {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-
+      tokenUtils.clearTokens();
       queryClient.clear();
       navigate('/login');
     },
   });
-};
-
-export const getStoredUser = (): User | null => {
-  const userString = localStorage.getItem('user');
-  return userString ? JSON.parse(userString) : null;
-};
-
-export const getStoredToken = (): string | null => {
-  return localStorage.getItem('accessToken');
-};
-
-export const isAuthenticated = (): boolean => {
-  return !!getStoredToken() && !!getStoredUser();
 };
