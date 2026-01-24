@@ -121,3 +121,29 @@ func (s *UserService) DeleteUser(ctx context.Context, userID uint) error {
 	}
 	return nil
 }
+
+func (s *UserService) ChangePassword(ctx context.Context, userID uint, req requests.ChangePasswordRequest) error {
+	if req.NewPassword != req.ConfirmPassword {
+		return errors.New("passwords do not match")
+	}
+
+	var user models.User
+	if err := s.db.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+		return errors.New("user not found")
+	}
+
+	if err := utils.CheckPassword(req.CurrentPassword, user.Password); err != nil {
+		return errors.New("current password is incorrect")
+	}
+
+	hashedPassword, err := utils.HashPassword(req.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	if err := s.db.WithContext(ctx).Model(&user).Update("password", hashedPassword).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

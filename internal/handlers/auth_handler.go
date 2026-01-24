@@ -45,6 +45,7 @@ func RegisterAuthHandler(
 	r1.Use(middlewares.AuthMiddleware())
 
 	r1.DELETE("/accounts", handler.DeleteAccount)
+	r1.POST("/change-password", handler.ChangePassword)
 }
 
 func (h *authHandler) Login(c echo.Context) error {
@@ -192,4 +193,24 @@ func (h *authHandler) DeleteAccount(c echo.Context) error {
 	}
 
 	return responses.Success(c)
+}
+
+func (h *authHandler) ChangePassword(c echo.Context) error {
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.UnauthorizedWithMessage(c, "not authenticated")
+	}
+
+	req := requests.ChangePasswordRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
+	}
+
+	if err := h.userService.ChangePassword(c.Request().Context(), claims.UserID, req); err != nil {
+		return responses.BadRequestWithMessage(c, err.Error())
+	}
+
+	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), claims.UserID)
+
+	return responses.SuccessWithMessage(c, "password changed successfully")
 }
