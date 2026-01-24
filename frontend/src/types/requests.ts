@@ -10,6 +10,12 @@ export interface RegisterRequest {
   name: string;
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 // Record Requests
 export interface RecordRequest {
   categoryId: number;

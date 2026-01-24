@@ -32,22 +32,78 @@
     }
 
     .page-title {
-
       @include sm-down {
         font-size: 1.25rem;
       }
     }
   }
 
-  .page-content {
+  .settings-list {
+    padding: 0;
     background-color: $color-background-lighter;
-    border: 1px solid $color-border;
     border-radius: $border-radius-md;
-    padding: 2rem;
-    text-align: center;
+    border: 1px solid $color-border;
+    overflow: hidden;
 
-    @include sm-down {
-      padding: 1.5rem 1rem;
+    .settings-list-item {
+      border-bottom: 1px solid $color-border;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .settings-button {
+        padding: 1rem 1.25rem;
+        transition: background-color $transition-fast;
+
+        @media (hover: hover) {
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+          }
+        }
+
+        @include sm-down {
+          padding: 1rem;
+        }
+
+        .settings-icon {
+          min-width: 40px;
+          color: $color-primary;
+
+          svg {
+            font-size: 1.25rem;
+          }
+        }
+
+        .settings-text {
+          .MuiListItemText-primary {
+            color: $color-text-primary;
+            font-weight: 500;
+            font-size: 1rem;
+
+            @include sm-down {
+              font-size: 0.95rem;
+            }
+          }
+
+          .MuiListItemText-secondary {
+            color: $color-text-secondary;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+
+            @include sm-down {
+              font-size: 0.8rem;
+            }
+          }
+        }
+
+        .chevron-icon {
+          color: $color-text-secondary;
+          font-size: 0.875rem;
+          margin-left: auto;
+          flex-shrink: 0;
+        }
+      }
     }
   }
 }

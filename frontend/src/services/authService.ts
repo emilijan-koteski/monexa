@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { ENV } from '../config/env';
 import type { User } from '../types/models';
-import type { LoginRequest, RegisterRequest } from '../types/requests';
+import type { ChangePasswordRequest, LoginRequest, RegisterRequest } from '../types/requests';
 import type { AuthResponse } from '../types/responses';
 import { apiClient } from '../api/apiClient';
 import { tokenUtils } from '../utils/tokenUtils';
@@ -58,6 +58,22 @@ export const authApi = {
       throw new Error(error.message || 'Logout failed');
     }
   },
+
+  changePassword: async (data: ChangePasswordRequest): Promise<void> => {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tokenUtils.getAccessToken()}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Password change failed');
+    }
+  },
 };
 
 export const authQueryKeys = {
@@ -108,6 +124,20 @@ export const useLogout = () => {
       navigate('/login');
     },
     onError: () => {
+      tokenUtils.clearTokens();
+      queryClient.clear();
+      navigate('/login');
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: authApi.changePassword,
+    onSuccess: () => {
       tokenUtils.clearTokens();
       queryClient.clear();
       navigate('/login');
