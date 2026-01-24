@@ -70,6 +70,10 @@
           min-width: 40px;
           color: $color-primary;
 
+          &.danger {
+            color: $color-error;
+          }
+
           svg {
             font-size: 1.25rem;
           }
@@ -93,6 +97,16 @@
 
             @include sm-down {
               font-size: 0.8rem;
+            }
+          }
+
+          &.danger {
+            .MuiListItemText-primary {
+              color: $color-error;
+            }
+
+            .MuiListItemText-secondary {
+              color: $color-error-alpha-50;
             }
           }
         }

@@ -74,6 +74,21 @@ export const authApi = {
       throw new Error(error.message || 'Password change failed');
     }
   },
+
+  deleteAccount: async (): Promise<void> => {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/accounts`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tokenUtils.getAccessToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Account deletion failed');
+    }
+  },
 };
 
 export const authQueryKeys = {
@@ -137,6 +152,20 @@ export const useChangePassword = () => {
 
   return useMutation({
     mutationFn: authApi.changePassword,
+    onSuccess: () => {
+      tokenUtils.clearTokens();
+      queryClient.clear();
+      navigate('/login');
+    },
+  });
+};
+
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: authApi.deleteAccount,
     onSuccess: () => {
       tokenUtils.clearTokens();
       queryClient.clear();

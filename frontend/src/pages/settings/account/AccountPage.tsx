@@ -12,20 +12,23 @@ import {
   ListItemText,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faChevronRight, faKey } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faChevronRight, faKey, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import ChangePasswordDialog from '../../../components/change-password-dialog/ChangePasswordDialog';
 import type { ChangePasswordFormData } from '../../../components/change-password-dialog/ChangePasswordDialog';
-import { useChangePassword } from '../../../services/authService';
+import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
+import { useChangePassword, useDeleteAccount } from '../../../services/authService';
 
 const AccountPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const changePasswordMutation = useChangePassword();
+  const deleteAccountMutation = useDeleteAccount();
 
   const handleBack = () => {
     navigate('/settings');
@@ -37,6 +40,26 @@ const AccountPage = () => {
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
+  };
+
+  const handleOpenDeleteDialog = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleDeleteAccount = () => {
+    deleteAccountMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success(t('ACCOUNT_DELETED_SUCCESS'));
+        handleCloseDeleteDialog();
+      },
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : t('ACCOUNT_DELETE_ERROR'));
+      },
+    });
   };
 
   const handleChangePassword = (data: ChangePasswordFormData) => {
@@ -83,6 +106,19 @@ const AccountPage = () => {
             <FontAwesomeIcon icon={faChevronRight} className="chevron-icon" />
           </ListItemButton>
         </ListItem>
+        <ListItem disablePadding className="settings-list-item">
+          <ListItemButton onClick={handleOpenDeleteDialog} className="settings-button danger">
+            <ListItemIcon className="settings-icon danger">
+              <FontAwesomeIcon icon={faTrash} />
+            </ListItemIcon>
+            <ListItemText
+              primary={t('DELETE_ACCOUNT')}
+              secondary={t('DELETE_ACCOUNT_DESCRIPTION')}
+              className="settings-text danger"
+            />
+            <FontAwesomeIcon icon={faChevronRight} className="chevron-icon" />
+          </ListItemButton>
+        </ListItem>
       </List>
 
       <ChangePasswordDialog
@@ -90,6 +126,17 @@ const AccountPage = () => {
         onClose={handleCloseDialog}
         onSubmit={handleChangePassword}
         isLoading={changePasswordMutation.isPending}
+      />
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleDeleteAccount}
+        title="DELETE_ACCOUNT_TITLE"
+        message="DELETE_ACCOUNT_MESSAGE"
+        confirmText="DELETE"
+        confirmColor="error"
+        isLoading={deleteAccountMutation.isPending}
       />
     </Container>
   );
