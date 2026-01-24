@@ -36,7 +36,7 @@ function CategoryStatItem({
         color={isExpense ? 'error' : 'success'}
         className="type-chip"
       />
-      <Typography variant="body2" color="textSecondary" className="record-count">
+      <Typography variant="body2" color="text.secondary" className="record-count">
         {recordCount} {recordCount === 1 ? t('RECORD') : t('RECORDS')}
       </Typography>
       <Typography variant="body2" color={isExpense ? 'error' : 'success'} className='amount'>

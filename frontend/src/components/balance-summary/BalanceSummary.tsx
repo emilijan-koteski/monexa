@@ -50,7 +50,7 @@ function BalanceSummary({
       <CardContent>
         <Stack direction="row" gap={2} className="summary-items">
           <Box className="summary-item">
-            <Typography variant="body2" color='textSecondary' className="summary-label">
+            <Typography variant="body2" color='text.secondary' className="summary-label">
               {t('TOTAL_INCOME')}
             </Typography>
             <Typography variant="h6" color='success' fontWeight='bold' className="summary-value">
@@ -59,7 +59,7 @@ function BalanceSummary({
           </Box>
 
           <Box className="summary-item">
-            <Typography variant="body2" color='textSecondary' className="summary-label">
+            <Typography variant="body2" color='text.secondary' className="summary-label">
               {t('TOTAL_EXPENSE')}
             </Typography>
             <Typography variant="h6" color='error' fontWeight='bold' className="summary-value">
@@ -68,7 +68,7 @@ function BalanceSummary({
           </Box>
 
           <Box className='summary-item'>
-            <Typography variant="body2" color='textSecondary'className="summary-label">
+            <Typography variant="body2" color='text.secondary'className="summary-label">
               {t('NET_BALANCE')}
             </Typography>
             <Typography variant="h6" color={isPositiveBalance ? 'success' : 'error'} fontWeight='bold' className="summary-value">
