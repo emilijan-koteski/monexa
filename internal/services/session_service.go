@@ -3,10 +3,11 @@ package services
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/requests"
 	"gorm.io/gorm"
-	"time"
 )
 
 type SessionService struct {
@@ -89,4 +90,38 @@ func (s *SessionService) DeleteSession(ctx context.Context, req requests.Refresh
 	}
 
 	return nil
+}
+
+func (s *SessionService) CleanupExpiredSessions(ctx context.Context) (int64, error) {
+	result := s.db.WithContext(ctx).
+		Where("expires_at < ? OR is_revoked = ?", time.Now(), true).
+		Delete(&models.Session{})
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return result.RowsAffected, nil
+}
+
+func (s *SessionService) GetUserSessions(ctx context.Context, userID uint) ([]models.Session, error) {
+	var sessions []models.Session
+	err := s.db.WithContext(ctx).
+		Where("user_id = ? AND is_revoked = ? AND expires_at > ?", userID, false, time.Now()).
+		Find(&sessions).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sessions, nil
+}
+
+func (s *SessionService) RevokeAllUserSessions(ctx context.Context, userID uint) error {
+	result := s.db.WithContext(ctx).
+		Model(&models.Session{}).
+		Where("user_id = ?", userID).
+		Update("is_revoked", true)
+
+	return result.Error
 }

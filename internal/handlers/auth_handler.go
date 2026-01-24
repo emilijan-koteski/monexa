@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -10,7 +11,6 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/token"
 	"github.com/emilijan-koteski/monexa/internal/utils"
 	"github.com/labstack/echo/v4"
-	"time"
 )
 
 type authHandler struct {
@@ -62,12 +62,12 @@ func (h *authHandler) Login(c echo.Context) error {
 		return responses.UnauthorizedWithMessage(c, "invalid credentials")
 	}
 
-	accessToken, accessClaims, err := h.tokenMaker.CreateToken(*user, 1*time.Hour)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateToken(*user, 7*24*time.Hour)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
@@ -130,7 +130,7 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	refreshClaims, err := h.tokenMaker.VerifyToken(req.RefreshToken)
+	refreshClaims, err := h.tokenMaker.VerifyRefreshToken(req.RefreshToken)
 	if err != nil {
 		return responses.UnauthorizedWithMessage(c, "invalid refresh token")
 	}
@@ -153,7 +153,7 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 		Email: refreshClaims.Email,
 		Name:  refreshClaims.Name,
 	}
-	accessToken, accessClaims, err := h.tokenMaker.CreateToken(tmpUser, 1*time.Hour)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(tmpUser)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}

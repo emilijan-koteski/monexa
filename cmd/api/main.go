@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/clients"
 	"github.com/emilijan-koteski/monexa/internal/database"
 	"github.com/emilijan-koteski/monexa/internal/handlers"
+	"github.com/emilijan-koteski/monexa/internal/jobs"
 	"github.com/emilijan-koteski/monexa/internal/server"
 	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/emilijan-koteski/monexa/internal/token"
@@ -45,9 +47,14 @@ func main() {
 	paymentMethodService := services.NewPaymentMethodService(db)
 	log.Println("👍 [5] All services initiated successfully")
 
+	// Start background jobs
+	sessionCleanupJob := jobs.NewSessionCleanupJob(sessionService, 24*time.Hour)
+	sessionCleanupJob.Start()
+	log.Println("👍 [6] Background jobs started successfully")
+
 	// Init new echo client
 	e := echo.New()
-	log.Println("👍 [6] New Echo HTTP client initiated successfully")
+	log.Println("👍 [7] New Echo HTTP client initiated successfully")
 
 	// Init middlewares
 	e.Use(middleware.Logger())
@@ -60,7 +67,7 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-	log.Println("👍 [7] All middlewares initiated successfully")
+	log.Println("👍 [8] All middlewares initiated successfully")
 
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
@@ -69,9 +76,9 @@ func main() {
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
 	handlers.RegisterSettingHandler(e, settingService)
-	log.Println("👍 [8] All handlers and routes registered successfully")
+	log.Println("👍 [9] All handlers and routes registered successfully")
 
 	// Start HTTP server
-	log.Println("👍 [9] Starting HTTP server...")
+	log.Println("👍 [10] Starting HTTP server...")
 	server.StartServer(e)
 }
