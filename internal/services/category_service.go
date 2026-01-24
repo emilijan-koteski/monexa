@@ -221,14 +221,14 @@ func (s *CategoryService) GetStatistics(ctx context.Context, req requests.Catego
 		if req.Search != nil && *req.Search != "" {
 			searchLower := strings.ToLower(*req.Search)
 			categoryNameLower := strings.ToLower(category.Name)
-			categoryDescLower := ""
-			if category.Description != nil {
-				categoryDescLower = strings.ToLower(*category.Description)
+			recordDescLower := ""
+			if record.Description != nil {
+				recordDescLower = strings.ToLower(*record.Description)
 			}
 			amountStr := strconv.FormatFloat(record.Amount, 'f', 2, 64)
 
 			if !strings.Contains(categoryNameLower, searchLower) &&
-				!strings.Contains(categoryDescLower, searchLower) &&
+				!strings.Contains(recordDescLower, searchLower) &&
 				!strings.Contains(amountStr, *req.Search) {
 				continue
 			}
