@@ -22,9 +22,9 @@ function BalanceSummary({
 
   if (isLoading) {
     return (
-      <Card className="balance-summary">
+      <Card id="balance-summary">
         <CardContent>
-          <Stack direction="row" spacing={2} justifyContent="space-between" className="summary-items">
+          <Stack direction="row" gap={2} className="summary-items">
             <Box className="summary-item">
               <Skeleton variant="text" width={80} height={20} />
               <Skeleton variant="text" width={100} height={28} />
