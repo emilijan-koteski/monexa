@@ -218,11 +218,11 @@ func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFi
 		}
 	}
 
-	var exchangeRates map[types.CurrencyType]float64
+	var historicalRates map[string]float64
 	if needsConversion {
-		exchangeRates, err = s.currencyService.GetRatesForConversion(ctx, userCurrency)
+		historicalRates, err = s.currencyService.GetHistoricalRatesForRecords(ctx, records, userCurrency)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get exchange rates: %w", err)
+			return nil, fmt.Errorf("failed to get historical exchange rates: %w", err)
 		}
 	}
 
@@ -243,12 +243,21 @@ func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFi
 			continue
 		}
 
-		convertedAmount := record.Amount
+		var convertedAmount float64
 		if record.Currency != userCurrency {
-			convertedAmount, err = s.currencyService.ConvertWithRates(record.Amount, record.Currency, userCurrency, exchangeRates)
-			if err != nil {
-				return nil, fmt.Errorf("currency conversion failed for record %d: %w", record.ID, err)
+			rateKey := fmt.Sprintf("%s_%s_%s",
+				record.Date.Format("2006-01-02"),
+				record.Currency,
+				userCurrency)
+
+			rate, exists := historicalRates[rateKey]
+			if !exists {
+				return nil, fmt.Errorf("no rate found for record #%d (%s->%s on %s)", record.ID, record.Currency, userCurrency, record.Date.Format("2006-01-02"))
 			}
+
+			convertedAmount = record.Amount * rate
+		} else {
+			convertedAmount = record.Amount
 		}
 
 		if categoryType == types.Income {

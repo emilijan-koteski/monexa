@@ -41,7 +41,7 @@ func main() {
 	tokenMaker := token.NewJWTMaker()
 	sessionService := services.NewSessionService(db)
 	settingService := services.NewSettingService(db)
-	currencyService := services.NewCurrencyService(exchangeRateClient)
+	currencyService := services.NewCurrencyService(db, exchangeRateClient)
 	categoryService := services.NewCategoryService(db, settingService, currencyService)
 	recordService := services.NewRecordService(db, settingService, categoryService, currencyService)
 	paymentMethodService := services.NewPaymentMethodService(db)
@@ -50,6 +50,8 @@ func main() {
 	// Start background jobs
 	sessionCleanupJob := jobs.NewSessionCleanupJob(sessionService, 24*time.Hour)
 	sessionCleanupJob.Start()
+	exchangeRateUpdateJob := jobs.NewExchangeRateUpdateJob(currencyService, 24*time.Hour)
+	exchangeRateUpdateJob.Start()
 	log.Println("👍 [6] Background jobs started successfully")
 
 	// Init new echo client

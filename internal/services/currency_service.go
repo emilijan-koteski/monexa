@@ -3,106 +3,145 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/clients"
+	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
+	"gorm.io/gorm"
 )
 
-// TODO (Emilijan): Database-Backend Exchange Rates
-//
-// 1. Move fallback exchange rates from const variables to a database table with timestamps
-//
-// 2. Implement a daily scheduler that calls the Exchange Rate API once per day for all implemented
-//    currencies and stores the results in the database. Update GetRatesForConversion() to fetch
-//    rates from the database instead of calling the API directly.
-//
-// 3. (Optional) Add historical exchange rate calculation functionality using the timestamped
-//    database records for accurate past conversions.
-
 type CurrencyService struct {
-	exchangeRateClient    *clients.ExchangeRateAPIClient
-	fallbackExchangeRates map[string]float64
+	db                 *gorm.DB
+	exchangeRateClient *clients.ExchangeRateAPIClient
 }
 
-func NewCurrencyService(exchangeRateClient *clients.ExchangeRateAPIClient) *CurrencyService {
+func NewCurrencyService(db *gorm.DB, exchangeRateClient *clients.ExchangeRateAPIClient) *CurrencyService {
 	return &CurrencyService{
-		exchangeRateClient:    exchangeRateClient,
-		fallbackExchangeRates: initializeFallbackExchangeRates(),
+		db:                 db,
+		exchangeRateClient: exchangeRateClient,
 	}
 }
 
-func initializeFallbackExchangeRates() map[string]float64 {
-	return map[string]float64{
-		"EUR_MKD": 61.55,
-		"MKD_EUR": 0.016,
-		"MKD_USD": 0.019,
-		"EUR_USD": 1.17,
-		"USD_EUR": 0.85,
-		"USD_MKD": 52.40,
-	}
-}
+func (s *CurrencyService) FetchAndStoreLatestRates(ctx context.Context) error {
+	supportedCurrencies := []types.CurrencyType{types.MacedonianDenar, types.Euro, types.USDollar}
+	var errors []error
 
-func (s *CurrencyService) GetRatesForConversion(ctx context.Context, targetCurrency types.CurrencyType) (map[types.CurrencyType]float64, error) {
-	apiRates, err := s.exchangeRateClient.FetchRates(ctx, targetCurrency)
-	if err != nil {
-		return s.buildFallbackConversionRates(targetCurrency)
-	}
-
-	conversionRates := make(map[types.CurrencyType]float64)
-	conversionRates[targetCurrency] = 1.0
-
-	for currency, rate := range apiRates {
-		if currency != targetCurrency {
-			conversionRates[currency] = 1.0 / rate
-		}
-	}
-
-	return conversionRates, nil
-}
-
-func (s *CurrencyService) buildFallbackConversionRates(targetCurrency types.CurrencyType) (map[types.CurrencyType]float64, error) {
-	fallbackMap := make(map[types.CurrencyType]float64)
-	fallbackMap[targetCurrency] = 1.0
-
-	for _, sourceCurrency := range []types.CurrencyType{types.MacedonianDenar, types.Euro, types.USDollar} {
-		if sourceCurrency == targetCurrency {
+	for _, baseCurrency := range supportedCurrencies {
+		apiRates, err := s.exchangeRateClient.FetchRates(ctx, baseCurrency)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("failed to fetch rates for %s: %w", baseCurrency, err))
 			continue
 		}
 
-		rate, err := s.getFallbackRate(sourceCurrency, targetCurrency)
-		if err != nil {
-			return nil, fmt.Errorf("no fallback rate available for %s to %s: %w", sourceCurrency, targetCurrency, err)
+		tx := s.db.WithContext(ctx).Begin()
+
+		fetchedAt := time.Now()
+		for targetCurrency, rate := range apiRates {
+			if targetCurrency == baseCurrency {
+				continue
+			}
+
+			inverseRate := 1.0 / rate
+
+			exchangeRate := models.ExchangeRate{
+				FromCurrency: targetCurrency,
+				ToCurrency:   baseCurrency,
+				Rate:         inverseRate,
+				Source:       types.ExchangeRateApi,
+				FetchedAt:    fetchedAt,
+			}
+
+			if err := tx.Create(&exchangeRate).Error; err != nil {
+				tx.Rollback()
+				errors = append(errors, fmt.Errorf("failed to store rate %s->%s: %w", targetCurrency, baseCurrency, err))
+				break
+			}
 		}
-		fallbackMap[sourceCurrency] = rate
+
+		if err := tx.Commit().Error; err != nil {
+			errors = append(errors, fmt.Errorf("failed to commit rates for %s: %w", baseCurrency, err))
+		}
 	}
 
-	return fallbackMap, nil
+	if len(errors) > 0 {
+		return fmt.Errorf("encountered %d errors while fetching rates: %v", len(errors), errors)
+	}
+
+	return nil
 }
 
-func (s *CurrencyService) ConvertWithRates(amount float64, fromCurrency, toCurrency types.CurrencyType, rates map[types.CurrencyType]float64) (float64, error) {
-	if fromCurrency == toCurrency {
-		return amount, nil
+func (s *CurrencyService) getHistoricalRateWithFallback(ctx context.Context, date time.Time, fromCurrency, toCurrency types.CurrencyType) (float64, error) {
+	var rate models.ExchangeRate
+
+	err := s.db.WithContext(ctx).
+		Where("from_currency = ? AND to_currency = ? AND fetched_at <= ?", fromCurrency, toCurrency, date).
+		Order("fetched_at DESC").
+		First(&rate).
+		Error
+
+	if err == nil {
+		return rate.Rate, nil
 	}
 
-	rate, exists := rates[fromCurrency]
-	if !exists {
-		return 0, fmt.Errorf("no conversion rate found for %s to %s", fromCurrency, toCurrency)
+	if err != gorm.ErrRecordNotFound {
+		return 0, fmt.Errorf("failed to fetch historical rate: %w", err)
 	}
 
-	return amount * rate, nil
+	err = s.db.WithContext(ctx).
+		Where("from_currency = ? AND to_currency = ? AND fetched_at > ?", fromCurrency, toCurrency, date).
+		Order("fetched_at ASC").
+		First(&rate).
+		Error
+
+	if err == nil {
+		return rate.Rate, nil
+	}
+
+	return 0, fmt.Errorf("failed to fetch exchange rate: %w", err)
 }
 
-func (s *CurrencyService) getFallbackRate(fromCurrency, toCurrency types.CurrencyType) (float64, error) {
-	key := fmt.Sprintf("%s_%s", fromCurrency, toCurrency)
-
-	if rate, exists := s.fallbackExchangeRates[key]; exists {
-		return rate, nil
+func (s *CurrencyService) GetHistoricalRatesForRecords(ctx context.Context, records []models.Record, targetCurrency types.CurrencyType) (map[string]float64, error) {
+	if len(records) == 0 {
+		return make(map[string]float64), nil
 	}
 
-	inverseKey := fmt.Sprintf("%s_%s", toCurrency, fromCurrency)
-	if inverseRate, exists := s.fallbackExchangeRates[inverseKey]; exists {
-		return 1.0 / inverseRate, nil
+	type dateCurrencyPair struct {
+		date     string
+		currency types.CurrencyType
+	}
+	uniquePairs := make(map[dateCurrencyPair]bool)
+
+	for _, record := range records {
+		if record.Currency != targetCurrency {
+			pair := dateCurrencyPair{
+				date:     record.Date.Format("2006-01-02"),
+				currency: record.Currency,
+			}
+			uniquePairs[pair] = true
+		}
 	}
 
-	return 0, fmt.Errorf("no fallback rate available for %s to %s", fromCurrency, toCurrency)
+	if len(uniquePairs) == 0 {
+		return make(map[string]float64), nil
+	}
+
+	ratesMap := make(map[string]float64)
+
+	for pair := range uniquePairs {
+		dateTime, err := time.Parse("2006-01-02", pair.date)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date %s: %w", pair.date, err)
+		}
+
+		rate, err := s.getHistoricalRateWithFallback(ctx, dateTime, pair.currency, targetCurrency)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get rate for %s->%s on %s: %w", pair.currency, targetCurrency, pair.date, err)
+		}
+
+		rateKey := fmt.Sprintf("%s_%s_%s", pair.date, pair.currency, targetCurrency)
+		ratesMap[rateKey] = rate
+	}
+
+	return ratesMap, nil
 }

@@ -142,6 +142,77 @@ func Migrate(db *gorm.DB) {
 			},
 		},
 		{
+			ID: "20260125170000_create_exchange_rates_table",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.AutoMigrate(&models.ExchangeRate{})
+				if err != nil {
+					return err
+				}
+
+				fallbackRates := []map[string]interface{}{
+					{
+						"from_currency": "EUR",
+						"to_currency":   "MKD",
+						"rate":          61.55,
+						"source":        "FALLBACK",
+						"fetched_at":    time.Now(),
+						"created_at":    time.Now(),
+					},
+					{
+						"from_currency": "MKD",
+						"to_currency":   "EUR",
+						"rate":          0.016,
+						"source":        "FALLBACK",
+						"fetched_at":    time.Now(),
+						"created_at":    time.Now(),
+					},
+					{
+						"from_currency": "MKD",
+						"to_currency":   "USD",
+						"rate":          0.019,
+						"source":        "FALLBACK",
+						"fetched_at":    time.Now(),
+						"created_at":    time.Now(),
+					},
+					{
+						"from_currency": "USD",
+						"to_currency":   "MKD",
+						"rate":          52.40,
+						"source":        "FALLBACK",
+						"fetched_at":    time.Now(),
+						"created_at":    time.Now(),
+					},
+					{
+						"from_currency": "EUR",
+						"to_currency":   "USD",
+						"rate":          1.17,
+						"source":        "FALLBACK",
+						"fetched_at":    time.Now(),
+						"created_at":    time.Now(),
+					},
+					{
+						"from_currency": "USD",
+						"to_currency":   "EUR",
+						"rate":          0.85,
+						"source":        "FALLBACK",
+						"fetched_at":    time.Now(),
+						"created_at":    time.Now(),
+					},
+				}
+
+				for _, rate := range fallbackRates {
+					if err := tx.Table("exchange_rates").Create(rate).Error; err != nil {
+						return err
+					}
+				}
+
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("exchange_rates")
+			},
+		},
+		{
 			ID: "20241214104212_add_test_user",
 			Migrate: func(tx *gorm.DB) error {
 				hashedPassword, err := bcrypt.GenerateFromPassword([]byte("test"), bcrypt.DefaultCost)
