@@ -16,6 +16,10 @@ export interface ChangePasswordRequest {
   confirmPassword: string;
 }
 
+export interface UpdateUserRequest {
+  name: string;
+}
+
 // Record Requests
 export interface RecordRequest {
   categoryId: number;

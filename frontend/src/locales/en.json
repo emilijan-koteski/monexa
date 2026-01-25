@@ -90,6 +90,8 @@
   "DELETE_ACCOUNT_MESSAGE": "Are you sure you want to delete your account? This will delete all your data including records, categories, and payment methods. This action cannot be undone.",
   "ACCOUNT_DELETED_SUCCESS": "Account deleted successfully",
   "ACCOUNT_DELETE_ERROR": "Failed to delete account. Please try again.",
+  "PROFILE_UPDATED_SUCCESS": "Profile updated successfully!",
+  "PROFILE_UPDATE_ERROR": "Failed to update profile. Please try again.",
   "CATEGORIES_COMING_SOON": "Category management will be available soon.",
   "PAYMENT_TYPE_COMING_SOON": "Payment method management will be available soon.",
   "DISPLAY_CURRENCY_COMING_SOON": "Currency settings will be available soon.",

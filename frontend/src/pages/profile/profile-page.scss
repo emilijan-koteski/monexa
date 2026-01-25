@@ -1,0 +1,119 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+    padding: 0;
+  }
+
+  .page-header {
+    @include sm-down {
+      padding: 0 1rem;
+    }
+
+    .page-title {
+      @include sm-down {
+        font-size: 1.75rem;
+      }
+    }
+  }
+
+  .profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+
+    @include sm-down {
+      padding: 1.5rem 1rem;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+      font-weight: 600;
+      background-color: $color-secondary;
+      color: $color-text-primary;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+
+      .name-section {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .profile-name {
+          font-weight: 600;
+        }
+
+        .edit-button {
+          color: $color-text-secondary;
+          padding: 0.25rem;
+          transition: color $transition-fast;
+
+          &:hover {
+            color: $color-primary;
+          }
+
+          svg {
+            font-size: 0.875rem;
+          }
+        }
+      }
+
+      .edit-name-form {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        max-width: 300px;
+
+        .name-input {
+          flex: 1;
+
+          .MuiOutlinedInput-root {
+            background-color: $color-background-default;
+          }
+        }
+
+        .form-actions {
+          display: flex;
+          gap: 0.25rem;
+
+          .save-button {
+            color: $color-success;
+            padding: 0.5rem;
+
+            &:disabled {
+              color: $color-text-secondary;
+            }
+          }
+
+          .cancel-button {
+            color: $color-error;
+            padding: 0.5rem;
+          }
+        }
+      }
+
+      .profile-email {
+        color: $color-text-secondary;
+      }
+    }
+  }
+}
