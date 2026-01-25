@@ -72,6 +72,7 @@ func main() {
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
 	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService)
+	handlers.RegisterUserHandler(e, userService)
 	handlers.RegisterRecordHandler(e, recordService)
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)

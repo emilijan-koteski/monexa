@@ -147,3 +147,16 @@ func (s *UserService) ChangePassword(ctx context.Context, userID uint, req reque
 
 	return nil
 }
+
+func (s *UserService) UpdateUser(ctx context.Context, userID uint, req requests.UpdateUserRequest) (*models.User, error) {
+	var user models.User
+	if err := s.db.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	if err := s.db.WithContext(ctx).Model(&user).Update("name", req.Name).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
