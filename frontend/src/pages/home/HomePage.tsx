@@ -1,6 +1,7 @@
 import './home-page.scss';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
 import {
   Box,
   Fab,
@@ -32,7 +33,12 @@ import type { FinancialRecord } from '../../types/models';
 
 function HomePage() {
   const { t } = useTranslation();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const dateParam = searchParams.get('date');
+    return dateParam ? new Date(dateParam) : new Date();
+  });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<FinancialRecord | null>(
@@ -41,6 +47,12 @@ function HomePage() {
   const [recordToDelete, setRecordToDelete] = useState<FinancialRecord | null>(
     null
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set('date', selectedDate.toISOString());
+    setSearchParams(params, { replace: true });
+  }, [selectedDate, setSearchParams]);
 
   const startDate = format(
     startOfDay(selectedDate),
