@@ -30,6 +30,16 @@ export interface RecordRequest {
   date: string;
 }
 
+export interface RecordFilter {
+  startDate?: string;
+  endDate?: string;
+  categoryId?: number;
+  paymentMethodIds?: number[];
+  search?: string;
+  sortBy?: 'date' | 'amount';
+  sortOrder?: 'asc' | 'desc';
+}
+
 // Category Requests
 export interface CategoryRequest {
   name: string;

@@ -21,6 +21,21 @@ export const categoryApi = {
     return result.data;
   },
 
+  getById: async (id: number): Promise<Category> => {
+    const response = await apiClient(`${ENV.API_BASE_URL}/categories/${id}`, {
+      method: 'GET',
+      headers: createAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch category');
+    }
+
+    const result: ApiResponse<Category> = await response.json();
+    return result.data;
+  },
+
   create: async (data: CategoryRequest): Promise<Category> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/categories`, {
       method: 'POST',
@@ -69,12 +84,23 @@ export const categoryApi = {
 export const categoryQueryKeys = {
   all: ['categories'] as const,
   lists: () => [...categoryQueryKeys.all, 'list'] as const,
+  details: () => [...categoryQueryKeys.all, 'detail'] as const,
+  detail: (id: number) => [...categoryQueryKeys.details(), id] as const,
 };
 
 export const useCategories = () => {
   return useQuery({
     queryKey: categoryQueryKeys.lists(),
     queryFn: categoryApi.getAll,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useCategory = (id: number) => {
+  return useQuery({
+    queryKey: categoryQueryKeys.detail(id),
+    queryFn: () => categoryApi.getById(id),
+    enabled: !!id && id > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

@@ -11,6 +11,7 @@ const LoginPage = lazy(() => import('../pages/auth/LoginPage.tsx'));
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage.tsx'));
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage.tsx'));
 const CategoriesPage = lazy(() => import('../pages/categories/CategoriesPage.tsx'));
+const CategoryDetailsPage = lazy(() => import('../pages/categories/category-details/CategoryDetailsPage.tsx'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
 const AccountPage = lazy(() => import('../pages/settings/account/AccountPage.tsx'));
 const SettingsCategoriesPage = lazy(() => import('../pages/settings/categories/CategoriesPage.tsx'));
@@ -37,6 +38,7 @@ function AppRoutes() {
             <Route element={<AppLayout/>}>
               <Route path="/home" element={<HomePage/>}/>
               <Route path="/categories" element={<CategoriesPage/>}/>
+              <Route path="/categories/:categoryId" element={<CategoryDetailsPage/>}/>
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/settings" element={<SettingsPage/>}/>
               <Route path="/settings/account" element={<AccountPage/>}/>

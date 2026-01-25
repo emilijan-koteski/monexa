@@ -1,5 +1,6 @@
 import './categories-page.scss';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
 import { Box, Container, Typography, TextField, InputAdornment, List, ListItem, ListItemButton, Stack, CircularProgress } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -16,13 +17,45 @@ import CategoryStatItem from '../../components/category-stat-item/CategoryStatIt
 
 const CategoriesPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [datePreset, setDatePreset] = useState<DateRangePreset>(DateRangePreset.ONE_MONTH);
-  const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
-  const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
-  const [paymentMethodIds, setPaymentMethodIds] = useState<number[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [datePreset, setDatePreset] = useState<DateRangePreset>(() => {
+    const preset = searchParams.get('preset');
+    return preset ? (preset as DateRangePreset) : DateRangePreset.ONE_MONTH;
+  });
+  const [customStartDate, setCustomStartDate] = useState<Date | null>(() => {
+    const startDate = searchParams.get('customStartDate');
+    return startDate ? new Date(startDate) : null;
+  });
+  const [customEndDate, setCustomEndDate] = useState<Date | null>(() => {
+    const endDate = searchParams.get('customEndDate');
+    return endDate ? new Date(endDate) : null;
+  });
+  const [paymentMethodIds, setPaymentMethodIds] = useState<number[]>(() => {
+    const ids = searchParams.getAll('paymentMethodIds');
+    return ids.length > 0 ? ids.map(id => parseInt(id, 10)) : [];
+  });
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('search') || '');
   const debouncedSearch = useDebounce(searchQuery, 300);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set('preset', datePreset);
+    if (customStartDate) {
+      params.set('customStartDate', customStartDate.toISOString());
+    }
+    if (customEndDate) {
+      params.set('customEndDate', customEndDate.toISOString());
+    }
+    if (paymentMethodIds.length > 0) {
+      paymentMethodIds.forEach(id => params.append('paymentMethodIds', id.toString()));
+    }
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    }
+    setSearchParams(params, { replace: true });
+  }, [datePreset, customStartDate, customEndDate, paymentMethodIds, searchQuery, setSearchParams]);
 
   const { startDate, endDate } = useMemo(() => {
     const now = new Date();
@@ -65,6 +98,21 @@ const CategoriesPage = () => {
   const handleCustomDateChange = (start: Date | null, end: Date | null) => {
     setCustomStartDate(start);
     setCustomEndDate(end);
+  };
+
+  const handleCategoryClick = (categoryId: number) => {
+    const params = new URLSearchParams();
+    params.set('preset', datePreset);
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    if (customStartDate) params.set('customStartDate', customStartDate.toISOString());
+    if (customEndDate) params.set('customEndDate', customEndDate.toISOString());
+    if (paymentMethodIds.length > 0) {
+      paymentMethodIds.forEach(id => params.append('paymentMethodIds', id.toString()));
+    }
+    if (debouncedSearch) params.set('search', debouncedSearch);
+
+    navigate(`/categories/${categoryId}?${params.toString()}`);
   };
 
   return (
@@ -152,7 +200,7 @@ const CategoriesPage = () => {
                 disablePadding
                 className="category-list-item"
               >
-                <ListItemButton className="category-button" onClick={() => {}}>
+                <ListItemButton className="category-button" onClick={() => handleCategoryClick(category.categoryId)}>
                   <CategoryStatItem
                     name={category.categoryName}
                     type={category.categoryType}

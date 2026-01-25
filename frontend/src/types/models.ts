@@ -60,6 +60,12 @@ export interface RecordSummary {
   currency: string;
 }
 
+export interface RecordGroup {
+  date: string;
+  formattedDate: string;
+  records: FinancialRecord[];
+}
+
 export interface CategoryStatItem {
   categoryId: number;
   categoryName: string;

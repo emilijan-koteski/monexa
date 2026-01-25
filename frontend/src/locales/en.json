@@ -39,6 +39,7 @@
   "TOTAL_SUMMARY": "Total Summary",
   "NO_RECORDS_TITLE": "No Records Yet",
   "NO_RECORDS_MESSAGE": "Start tracking your finances by creating your first record!",
+  "NO_RECORDS_FOR_CATEGORY": "No records found for this category with the selected filters.",
   "NEW_RECORD": "New Record",
   "EDIT_RECORD": "Edit Record",
   "DELETE_CONFIRMATION_TITLE": "Delete Record?",

@@ -39,6 +39,7 @@
   "TOTAL_SUMMARY": "Вкупен износ",
   "NO_RECORDS_TITLE": "Сè уште нема записи",
   "NO_RECORDS_MESSAGE": "Започнете со следење на вашите финансии со креирање на првиот запис!",
+  "NO_RECORDS_FOR_CATEGORY": "Не се пронајдени записи за оваа категорија со избраните филтри.",
   "NEW_RECORD": "Нов запис",
   "EDIT_RECORD": "Измени запис",
   "DELETE_CONFIRMATION_TITLE": "Избриши запис?",

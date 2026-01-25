@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
 import type { FinancialRecord, RecordSummary } from '../types/models';
-import type { RecordRequest } from '../types/requests';
+import type { RecordFilter, RecordRequest } from '../types/requests';
 import type { ApiResponse } from '../types/responses';
 import { apiClient, createAuthHeaders } from '../api/apiClient';
 
@@ -12,6 +12,32 @@ export const recordApi = {
     const params = new URLSearchParams();
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
+
+    const response = await apiClient(`${API_BASE_URL}/records?${params.toString()}`, {
+      method: 'GET',
+      headers: createAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch records');
+    }
+
+    const result: ApiResponse<FinancialRecord[]> = await response.json();
+    return Array.isArray(result.data) ? result.data : [];
+  },
+
+  getAllFiltered: async (filter: RecordFilter): Promise<FinancialRecord[]> => {
+    const params = new URLSearchParams();
+    if (filter.startDate) params.append('startDate', filter.startDate);
+    if (filter.endDate) params.append('endDate', filter.endDate);
+    if (filter.categoryId) params.append('categoryId', filter.categoryId.toString());
+    if (filter.paymentMethodIds?.length) {
+      filter.paymentMethodIds.forEach(id => params.append('paymentMethodIds', id.toString()));
+    }
+    if (filter.search) params.append('search', filter.search);
+    if (filter.sortBy) params.append('sortBy', filter.sortBy);
+    if (filter.sortOrder) params.append('sortOrder', filter.sortOrder);
 
     const response = await apiClient(`${API_BASE_URL}/records?${params.toString()}`, {
       method: 'GET',
@@ -111,6 +137,7 @@ export const recordQueryKeys = {
   lists: () => [...recordQueryKeys.all, 'list'] as const,
   list: (startDate?: string, endDate?: string) =>
     [...recordQueryKeys.lists(), { startDate, endDate }] as const,
+  filtered: (filter: RecordFilter) => [...recordQueryKeys.all, 'filtered', filter] as const,
   details: () => [...recordQueryKeys.all, 'detail'] as const,
   detail: (id: number) => [...recordQueryKeys.details(), id] as const,
   summaries: () => [...recordQueryKeys.all, 'summary'] as const,
@@ -141,6 +168,16 @@ export const useRecordSummary = (startDate?: string, endDate?: string) => {
     queryFn: () => recordApi.getSummary(startDate, endDate),
     staleTime: 0,
     gcTime: 0,
+  });
+};
+
+export const useFilteredRecords = (filter: RecordFilter) => {
+  return useQuery({
+    queryKey: recordQueryKeys.filtered(filter),
+    queryFn: () => recordApi.getAllFiltered(filter),
+    staleTime: 0,
+    gcTime: 0,
+    enabled: !!filter.categoryId,
   });
 };
 
