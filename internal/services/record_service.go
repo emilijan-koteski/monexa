@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
@@ -55,6 +56,29 @@ func (s *RecordService) GetAll(ctx context.Context, filter requests.RecordFilter
 	if filter.EndDate != nil {
 		query = query.Where("date <= ?", *filter.EndDate)
 	}
+
+	if filter.CategoryID != nil && *filter.CategoryID != 0 {
+		query = query.Where("category_id = ?", *filter.CategoryID)
+	}
+
+	if len(filter.PaymentMethodIDs) > 0 {
+		query = query.Where("payment_method_id IN ?", filter.PaymentMethodIDs)
+	}
+
+	if filter.Search != nil && *filter.Search != "" {
+		searchPattern := "%" + *filter.Search + "%"
+		query = query.Where("description ILIKE ?", searchPattern)
+	}
+
+	sortBy := "date"
+	sortOrder := "DESC"
+	if filter.SortBy != nil && (*filter.SortBy == "date" || *filter.SortBy == "amount") {
+		sortBy = *filter.SortBy
+	}
+	if filter.SortOrder != nil && (*filter.SortOrder == "asc" || *filter.SortOrder == "desc") {
+		sortOrder = strings.ToUpper(*filter.SortOrder)
+	}
+	query = query.Order(fmt.Sprintf("%s %s", sortBy, sortOrder))
 
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
