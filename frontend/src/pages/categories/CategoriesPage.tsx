@@ -5,7 +5,7 @@ import { Box, Container, Typography, TextField, InputAdornment, List, ListItem, 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, endOfDay } from 'date-fns';
 import { DateRangePreset } from '../../enums/DateRangePreset';
 import { useCategoryStatistics } from '../../services/categoryStatisticsService';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -81,7 +81,7 @@ const CategoriesPage = () => {
       case DateRangePreset.CUSTOM:
         return {
           startDate: customStartDate ? format(customStartDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : undefined,
-          endDate: customEndDate ? format(customEndDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : undefined,
+          endDate: customEndDate ? format(endOfDay(customEndDate), "yyyy-MM-dd'T'HH:mm:ss'Z'") : undefined,
         };
       default:
         return { startDate: undefined, endDate: undefined };
