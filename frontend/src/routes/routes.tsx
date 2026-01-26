@@ -1,4 +1,3 @@
-import LandingPage from '../pages/landing/LandingPage.tsx';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { lazy, Suspense } from 'react';
 import Loader from '../components/loader/Loader.tsx';
@@ -24,8 +23,8 @@ function AppRoutes() {
     <BrowserRouter>
       <Suspense fallback={<Loader/>}>
         <Routes>
-          {/* Public routes without layout */}
-          <Route path="/" element={<LandingPage/>}/>
+          {/* Public routes without layout. Redirect root to home for now */}
+          <Route path="/" element={<Navigate to="/home" replace/>}/>
 
           {/* Auth routes - redirect to /home if already logged in */}
           <Route element={<AuthRoute/>}>
@@ -48,7 +47,7 @@ function AppRoutes() {
               <Route path="/settings/language" element={<LanguagePage/>}/>
             </Route>
           </Route>
-          <Route path="*" element={<Navigate to="/"/>}/>
+          <Route path="*" element={<Navigate to="/home"/>}/>
         </Routes>
       </Suspense>
     </BrowserRouter>
