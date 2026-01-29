@@ -2,12 +2,13 @@ package database
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"time"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // ConnectDB initializes and returns a Gorm database instance
@@ -25,8 +26,13 @@ func ConnectDB() *gorm.DB {
 
 	var err error
 
+	logLevel := logger.Info
+	if os.Getenv("APP_ENV") == "production" {
+		logLevel = logger.Warn
+	}
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logLevel),
 	})
 	if err != nil {
 		log.Fatal("⛔ Exit!!! Failed to connect database")

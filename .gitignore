@@ -23,8 +23,11 @@ tmp/
 .vscode
 .idea
 
-# env file (remove the comment below to include it)
-#.env
+# Environment files (Add '#' at the beginning of a line to temporarily exclude it from .gitignore)
+.env
+.env.local
+.env.production
+.env.*.local
 
 # Project build
 main

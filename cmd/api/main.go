@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/clients"
@@ -19,9 +20,10 @@ import (
 func main() {
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("⛔ Exit!!! Error loading .env file")
+		if os.Getenv("APP_ENV") == "" {
+			log.Fatal("⛔ Exit!!! Error loading .env file")
+		}
 	}
-	log.Println("👍 [1] Environment variables loaded successfully")
 
 	// Connect database
 	db := database.ConnectDB()
