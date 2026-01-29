@@ -48,26 +48,28 @@ function DateSelector({ selectedDate, onChange }: DateSelectorProps) {
         )}
       </Box>
 
-      <DatePicker
-        value={selectedDate}
-        onChange={handleDateChange}
-        open={open}
-        onClose={() => setOpen(false)}
-        slotProps={{
-          textField: { sx: { display: 'none' } },
-          popper: {
-            anchorEl: anchorRef.current,
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: [0, 8],
+      <Box onClick={(e) => e.stopPropagation()}>
+        <DatePicker
+          value={selectedDate}
+          onChange={handleDateChange}
+          open={open}
+          onClose={() => setOpen(false)}
+          slotProps={{
+            textField: { sx: { display: 'none' } },
+            popper: {
+              anchorEl: anchorRef.current,
+              modifiers: [
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, 8],
+                  },
                 },
-              },
-            ],
-          },
-        }}
-      />
+              ],
+            },
+          }}
+        />
+      </Box>
     </Box>
   );
 }
