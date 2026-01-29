@@ -24,6 +24,7 @@ func main() {
 			log.Fatal("⛔ Exit!!! Error loading .env file")
 		}
 	}
+	log.Println("👍 [1] Environment variables loaded successfully")
 
 	// Connect database
 	db := database.ConnectDB()
