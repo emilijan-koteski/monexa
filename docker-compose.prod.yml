@@ -35,7 +35,7 @@ services:
 
   backend:
     container_name: monexa_backend
-    image: monexa-backend:${VERSION:-latest}
+    image: ${BACKEND_IMAGE:-monexa-backend:latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -87,7 +87,7 @@ services:
 
   frontend:
     container_name: monexa_frontend
-    image: monexa-frontend:${VERSION:-latest}
+    image: ${FRONTEND_IMAGE:-monexa-frontend:latest}
     build:
       context: ./frontend
       dockerfile: Dockerfile
