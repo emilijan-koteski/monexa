@@ -119,6 +119,14 @@ func (s *CategoryService) Update(ctx context.Context, req requests.CategoryReque
 }
 
 func (s *CategoryService) Delete(ctx context.Context, categoryID uint) error {
+	var count int64
+	if err := s.db.WithContext(ctx).Model(&models.Record{}).Where("category_id = ?", categoryID).Count(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		return errors.New("cannot delete category that is referenced by active records")
+	}
+
 	if err := s.db.WithContext(ctx).Where("id = ?", categoryID).Delete(&models.Category{}).Error; err != nil {
 		return err
 	}

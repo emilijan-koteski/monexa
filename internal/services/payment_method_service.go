@@ -85,6 +85,14 @@ func (s *PaymentMethodService) Update(ctx context.Context, req requests.PaymentM
 }
 
 func (s *PaymentMethodService) Delete(ctx context.Context, paymentMethodID uint) error {
+	var count int64
+	if err := s.db.WithContext(ctx).Model(&models.Record{}).Where("payment_method_id = ?", paymentMethodID).Count(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		return errors.New("cannot delete payment method that is referenced by active records")
+	}
+
 	if err := s.db.WithContext(ctx).Where("id = ?", paymentMethodID).Delete(&models.PaymentMethod{}).Error; err != nil {
 		return err
 	}

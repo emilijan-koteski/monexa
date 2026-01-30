@@ -268,6 +268,35 @@ func Migrate(db *gorm.DB) {
 				`).Error
 			},
 		},
+		{
+			ID: "20260130225000_add_soft_delete_to_categories_and_payment_methods",
+			Migrate: func(tx *gorm.DB) error {
+				if !tx.Migrator().HasColumn(&models.Category{}, "DeletedAt") {
+					if err := tx.Migrator().AddColumn(&models.Category{}, "DeletedAt"); err != nil {
+						return err
+					}
+				}
+				if !tx.Migrator().HasColumn(&models.PaymentMethod{}, "DeletedAt") {
+					if err := tx.Migrator().AddColumn(&models.PaymentMethod{}, "DeletedAt"); err != nil {
+						return err
+					}
+				}
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				if tx.Migrator().HasColumn(&models.Category{}, "DeletedAt") {
+					if err := tx.Migrator().DropColumn(&models.Category{}, "DeletedAt"); err != nil {
+						return err
+					}
+				}
+				if tx.Migrator().HasColumn(&models.PaymentMethod{}, "DeletedAt") {
+					if err := tx.Migrator().DropColumn(&models.PaymentMethod{}, "DeletedAt"); err != nil {
+						return err
+					}
+				}
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
