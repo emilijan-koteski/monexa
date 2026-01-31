@@ -78,7 +78,7 @@ func (s *RecordService) GetAll(ctx context.Context, filter requests.RecordFilter
 	if filter.SortOrder != nil && (*filter.SortOrder == "asc" || *filter.SortOrder == "desc") {
 		sortOrder = strings.ToUpper(*filter.SortOrder)
 	}
-	query = query.Order(fmt.Sprintf("%s %s", sortBy, sortOrder))
+	query = query.Order(fmt.Sprintf("%s %s, id DESC", sortBy, sortOrder))
 
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
