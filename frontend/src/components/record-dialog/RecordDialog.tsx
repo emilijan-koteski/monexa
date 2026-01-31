@@ -23,6 +23,7 @@ import { useCategories } from '../../services/categoryService';
 import { usePaymentMethods } from '../../services/paymentMethodService';
 import { useSettings } from '../../services/settingService';
 import { formatAmount, stripCommas } from '../../utils/amount';
+import { Currency } from '../../enums/Currency';
 
 interface RecordDialogProps {
   open: boolean;
@@ -85,7 +86,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
       categoryId: 0,
       paymentMethodId: 0,
       amount: '',
-      currency: settings?.currency || 'USD',
+      currency: settings?.currency || Currency.MKD,
       description: '',
       date: defaultDate || new Date(),
     },
@@ -107,7 +108,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
           categoryId: 0,
           paymentMethodId: 0,
           amount: '',
-          currency: settings?.currency || 'USD',
+          currency: settings?.currency || Currency.MKD,
           description: '',
           date: defaultDate || new Date(),
         });
@@ -254,9 +255,9 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                     helperText={errors.currency ? t(errors.currency.message || '') : ''}
                     className="form-field currency-field"
                   >
-                    <MenuItem value="USD">USD</MenuItem>
-                    <MenuItem value="EUR">EUR</MenuItem>
-                    <MenuItem value="MKD">MKD</MenuItem>
+                    {Object.values(Currency).map((c) => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
                   </TextField>
                 )}
               />

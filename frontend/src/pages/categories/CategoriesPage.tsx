@@ -7,6 +7,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, endOfDay } from 'date-fns';
 import { DateRangePreset } from '../../enums/DateRangePreset';
+import { Currency } from '../../enums/Currency';
 import { useCategoryStatistics } from '../../services/categoryStatisticsService';
 import { useDebounce } from '../../hooks/useDebounce';
 import DateRangeFilter from '../../components/date-range-filter/DateRangeFilter';
@@ -169,7 +170,7 @@ const CategoriesPage = () => {
       {/* Category Pie Chart */}
       <CategoryPieChart
         categories={statistics?.categories ?? []}
-        currency={statistics?.currency ?? 'MKD'}
+        currency={statistics?.currency ?? Currency.MKD}
         isLoading={isLoading}
       />
 
@@ -178,7 +179,7 @@ const CategoriesPage = () => {
         totalIncome={statistics?.totalIncome ?? 0}
         totalExpense={statistics?.totalExpense ?? 0}
         netBalance={statistics?.netBalance ?? 0}
-        currency={statistics?.currency ?? 'MKD'}
+        currency={statistics?.currency ?? Currency.MKD}
         isLoading={isLoading}
       />
 
