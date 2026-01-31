@@ -210,6 +210,19 @@ const theme = createTheme({
         },
       },
     },
+    MuiAutocomplete: {
+      styleOverrides: {
+        popupIndicator: {
+          color: palette.text.secondary,
+        },
+        clearIndicator: {
+          color: palette.text.secondary,
+        },
+        paper: {
+          borderRadius: borderRadius.sm,
+        },
+      },
+    },
     MuiMenu: {
       styleOverrides: {
         paper: {

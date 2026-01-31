@@ -7,6 +7,7 @@ import {
   DialogActions,
   Button,
   TextField,
+  Autocomplete,
   MenuItem,
   Box,
   Chip,
@@ -182,23 +183,22 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
               name="categoryId"
               control={control}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  select
-                  label={t('CATEGORY')}
+                <Autocomplete
+                  options={categories || []}
+                  getOptionLabel={(option) => option.name}
+                  value={categories?.find((c) => c.id === field.value) || null}
+                  onChange={(_, newValue) => field.onChange(newValue ? newValue.id : 0)}
                   fullWidth
-                  error={!!errors.categoryId}
-                  helperText={errors.categoryId ? t(errors.categoryId.message || '') : ''}
                   className="form-field"
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                  value={field.value || ''}
-                >
-                  {categories?.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
-                      {category.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={t('CATEGORY')}
+                      error={!!errors.categoryId}
+                      helperText={errors.categoryId ? t(errors.categoryId.message || '') : ''}
+                    />
+                  )}
+                />
               )}
             />
 
