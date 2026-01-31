@@ -24,7 +24,7 @@ func NewCurrencyService(db *gorm.DB, exchangeRateClient *clients.ExchangeRateAPI
 }
 
 func (s *CurrencyService) FetchAndStoreLatestRates(ctx context.Context) error {
-	supportedCurrencies := []types.CurrencyType{types.MacedonianDenar, types.Euro, types.USDollar}
+	supportedCurrencies := []types.CurrencyType{types.MacedonianDenar, types.Euro, types.USDollar, types.AustralianDollar, types.SwissFranc, types.BritishPound}
 	var errors []error
 
 	for _, baseCurrency := range supportedCurrencies {

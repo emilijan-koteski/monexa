@@ -1,12 +1,13 @@
 package database
 
 import (
+	"log"
+	"time"
+
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"log"
-	"time"
 )
 
 func createUniqueEmailIndex(tx *gorm.DB) error {
@@ -295,6 +296,48 @@ func Migrate(db *gorm.DB) {
 					}
 				}
 				return nil
+			},
+		},
+		{
+			ID: "20260131145000_add_aud_chf_gbp_exchange_rates",
+			Migrate: func(tx *gorm.DB) error {
+				fallbackRates := []map[string]interface{}{
+					{"from_currency": "MKD", "to_currency": "AUD", "rate": 0.027, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "MKD", "to_currency": "CHF", "rate": 0.015, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "MKD", "to_currency": "GBP", "rate": 0.014, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "EUR", "to_currency": "AUD", "rate": 1.70, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "EUR", "to_currency": "CHF", "rate": 0.92, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "EUR", "to_currency": "GBP", "rate": 0.87, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "USD", "to_currency": "AUD", "rate": 1.44, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "USD", "to_currency": "CHF", "rate": 0.77, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "USD", "to_currency": "GBP", "rate": 0.73, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "AUD", "to_currency": "MKD", "rate": 33.0, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "AUD", "to_currency": "EUR", "rate": 0.58, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "AUD", "to_currency": "USD", "rate": 0.63, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "AUD", "to_currency": "CHF", "rate": 0.56, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "AUD", "to_currency": "GBP", "rate": 0.50, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "CHF", "to_currency": "MKD", "rate": 67.29, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "CHF", "to_currency": "EUR", "rate": 1.09, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "CHF", "to_currency": "USD", "rate": 1.29, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "CHF", "to_currency": "AUD", "rate": 1.86, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "CHF", "to_currency": "GBP", "rate": 0.95, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "GBP", "to_currency": "MKD", "rate": 71.18, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "GBP", "to_currency": "EUR", "rate": 1.15, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "GBP", "to_currency": "USD", "rate": 1.37, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "GBP", "to_currency": "AUD", "rate": 1.97, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "GBP", "to_currency": "CHF", "rate": 1.06, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+				}
+
+				for _, rate := range fallbackRates {
+					if err := tx.Table("exchange_rates").Create(rate).Error; err != nil {
+						return err
+					}
+				}
+
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Exec(`DELETE FROM exchange_rates WHERE from_currency IN ('AUD', 'CHF', 'GBP') OR to_currency IN ('AUD', 'CHF', 'GBP')`).Error
 			},
 		},
 	})

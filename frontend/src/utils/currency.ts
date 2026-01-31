@@ -10,6 +10,9 @@ const CURRENCY_CONFIGS: Record<string, CurrencyConfig> = {
   USD: { symbol: '$', position: 'before' },
   EUR: { symbol: '€', position: 'after' },
   MKD: { symbol: 'ден', position: 'after' },
+  AUD: { symbol: 'A$', position: 'before' },
+  CHF: { symbol: 'CHF', position: 'before' },
+  GBP: { symbol: '£', position: 'before' },
 };
 
 /**
