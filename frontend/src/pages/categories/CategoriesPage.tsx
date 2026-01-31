@@ -1,9 +1,9 @@
 import './categories-page.scss';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Box, Container, Typography, TextField, InputAdornment, List, ListItem, ListItemButton, Stack, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, TextField, InputAdornment, IconButton, List, ListItem, ListItemButton, Stack, CircularProgress } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, endOfDay } from 'date-fns';
 import { DateRangePreset } from '../../enums/DateRangePreset';
@@ -162,6 +162,13 @@ const CategoriesPage = () => {
                   <FontAwesomeIcon icon={faSearch} className="search-icon" />
                 </InputAdornment>
               ),
+              endAdornment: searchQuery ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearchQuery('')} edge="end">
+                    <FontAwesomeIcon icon={faXmark} />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
             },
           }}
         />
