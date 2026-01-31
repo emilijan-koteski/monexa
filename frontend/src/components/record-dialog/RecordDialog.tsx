@@ -9,6 +9,8 @@ import {
   TextField,
   MenuItem,
   Box,
+  Chip,
+  Skeleton,
   CircularProgress,
   useMediaQuery,
   useTheme,
@@ -22,7 +24,9 @@ import type { FinancialRecord } from '../../types/models';
 import { useCategories } from '../../services/categoryService';
 import { usePaymentMethods } from '../../services/paymentMethodService';
 import { useSettings } from '../../services/settingService';
+import { useDescriptionSuggestions } from '../../services/recordService';
 import { formatAmount, stripCommas } from '../../utils/amount';
+import { truncateText } from '../../utils/string';
 import { Currency } from '../../enums/Currency';
 
 interface RecordDialogProps {
@@ -79,6 +83,8 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
     control,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<RecordFormInput>({
     resolver: zodResolver(recordSchema),
@@ -155,6 +161,9 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
       onClose();
     }
   };
+
+  const watchedCategoryId = watch('categoryId');
+  const { data: suggestions, isLoading: suggestionsLoading } = useDescriptionSuggestions(watchedCategoryId);
 
   const isDataLoading = categoriesLoading || paymentMethodsLoading;
 
@@ -300,6 +309,35 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                 />
               )}
             />
+
+            {watchedCategoryId > 0 && (
+              <Box className="description-suggestions">
+                {suggestionsLoading ? (
+                  <>
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton
+                        key={i}
+                        variant="rounded"
+                        width={70 + i * 15}
+                        height={24}
+                        className="suggestion-skeleton"
+                      />
+                    ))}
+                  </>
+                ) : (
+                  suggestions?.map((suggestion) => (
+                    <Chip
+                      key={suggestion}
+                      label={truncateText(suggestion, 18)}
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setValue('description', suggestion)}
+                      className="suggestion-chip"
+                    />
+                  ))
+                )}
+              </Box>
+            )}
           </form>
         )}
       </DialogContent>

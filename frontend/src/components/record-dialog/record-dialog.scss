@@ -34,6 +34,30 @@
       gap: 1rem;
       padding-top: 0.5rem;
 
+      .description-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: -4px;
+        margin-bottom: 8px;
+        padding: 0 14px;
+
+        .suggestion-skeleton {
+          border-radius: $border-radius-lg;
+        }
+
+        .suggestion-chip {
+          background-color: $color-input-background;
+          border-color: $color-border;
+          color: $color-text-secondary;
+          cursor: pointer;
+
+          &:hover {
+            color: $color-text-primary;
+          }
+        }
+      }
+
       .amount-currency-row {
         display: flex;
         gap: 1rem;

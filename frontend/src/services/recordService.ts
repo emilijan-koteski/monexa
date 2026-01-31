@@ -112,6 +112,21 @@ export const recordApi = {
     }
   },
 
+  getDescriptionSuggestions: async (categoryId: number): Promise<string[]> => {
+    const response = await apiClient(`${API_BASE_URL}/records/descriptions/suggestions?categoryId=${categoryId}`, {
+      method: 'GET',
+      headers: createAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch description suggestions');
+    }
+
+    const result: ApiResponse<string[]> = await response.json();
+    return Array.isArray(result.data) ? result.data : [];
+  },
+
   getSummary: async (startDate?: string, endDate?: string): Promise<RecordSummary> => {
     const params = new URLSearchParams();
     if (startDate) params.append('startDate', startDate);
@@ -140,6 +155,7 @@ export const recordQueryKeys = {
   filtered: (filter: RecordFilter) => [...recordQueryKeys.all, 'filtered', filter] as const,
   details: () => [...recordQueryKeys.all, 'detail'] as const,
   detail: (id: number) => [...recordQueryKeys.details(), id] as const,
+  suggestions: (categoryId: number) => [...recordQueryKeys.all, 'suggestions', categoryId] as const,
   summaries: () => [...recordQueryKeys.all, 'summary'] as const,
   summary: (startDate?: string, endDate?: string) =>
     [...recordQueryKeys.summaries(), { startDate, endDate }] as const,
@@ -178,6 +194,15 @@ export const useFilteredRecords = (filter: RecordFilter) => {
     staleTime: 0,
     gcTime: 0,
     enabled: !!filter.categoryId,
+  });
+};
+
+export const useDescriptionSuggestions = (categoryId: number) => {
+  return useQuery({
+    queryKey: recordQueryKeys.suggestions(categoryId),
+    queryFn: () => recordApi.getDescriptionSuggestions(categoryId),
+    enabled: categoryId > 0,
+    staleTime: 30_000,
   });
 };
 
