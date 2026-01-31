@@ -67,6 +67,9 @@ function DateSelector({ selectedDate, onChange }: DateSelectorProps) {
                 },
               ],
             },
+            actionBar: {
+              actions: ['today', 'cancel'],
+            },
           }}
         />
       </Box>
