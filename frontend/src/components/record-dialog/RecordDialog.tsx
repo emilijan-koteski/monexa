@@ -22,6 +22,7 @@ import type { FinancialRecord } from '../../types/models';
 import { useCategories } from '../../services/categoryService';
 import { usePaymentMethods } from '../../services/paymentMethodService';
 import { useSettings } from '../../services/settingService';
+import { formatAmount, stripCommas } from '../../utils/amount';
 
 interface RecordDialogProps {
   open: boolean;
@@ -41,10 +42,25 @@ export interface RecordFormData {
   date: Date;
 }
 
+interface RecordFormInput {
+  categoryId: number;
+  paymentMethodId: number;
+  amount: string;
+  currency: string;
+  description?: string;
+  date: Date;
+}
+
 const recordSchema = z.object({
   categoryId: z.number().min(1, 'CATEGORY_REQUIRED'),
   paymentMethodId: z.number().min(1, 'PAYMENT_METHOD_REQUIRED'),
-  amount: z.number().min(0.01, 'AMOUNT_MIN'),
+  amount: z.string().refine(
+    (val) => {
+      const num = Number(val.replace(/,/g, ''));
+      return !isNaN(num) && num >= 0.01;
+    },
+    { message: 'AMOUNT_MIN' },
+  ),
   currency: z.string().min(1, 'CURRENCY_REQUIRED'),
   description: z.string().optional(),
   date: z.date(),
@@ -63,12 +79,12 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<RecordFormData>({
+  } = useForm<RecordFormInput>({
     resolver: zodResolver(recordSchema),
     defaultValues: {
       categoryId: 0,
       paymentMethodId: 0,
-      amount: 0,
+      amount: '',
       currency: settings?.currency || 'USD',
       description: '',
       date: defaultDate || new Date(),
@@ -81,7 +97,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
         reset({
           categoryId: record.categoryId,
           paymentMethodId: record.paymentMethodId,
-          amount: Number(record.amount),
+          amount: formatAmount(String(record.amount)),
           currency: record.currency,
           description: record.description || '',
           date: new Date(record.date),
@@ -90,7 +106,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
         reset({
           categoryId: 0,
           paymentMethodId: 0,
-          amount: 0,
+          amount: '',
           currency: settings?.currency || 'USD',
           description: '',
           date: defaultDate || new Date(),
@@ -99,8 +115,38 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
     }
   }, [open, record, settings, reset, defaultDate]);
 
-  const handleFormSubmit = (data: RecordFormData) => {
-    onSubmit(data);
+  const handleFormSubmit = (data: RecordFormInput) => {
+    onSubmit({
+      ...data,
+      amount: Number(stripCommas(data.amount)),
+    });
+  };
+
+  const handleAmountFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  };
+
+  const handleAmountChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: { onChange: (value: string) => void },
+  ) => {
+    const raw = stripCommas(e.target.value);
+    if (raw === '' || /^\d*\.?\d{0,2}$/.test(raw)) {
+      const cleaned = raw.replace(/^0+(\d)/, '$1');
+      field.onChange(formatAmount(cleaned));
+    }
+  };
+
+  const handleAmountBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: { onBlur: () => void; onChange: (value: string) => void },
+  ) => {
+    field.onBlur();
+    const raw = stripCommas(e.target.value);
+    if (raw.includes('.')) {
+      const trimmed = raw.replace(/\.?0+$/, '');
+      field.onChange(formatAmount(trimmed));
+    }
   };
 
   const handleClose = () => {
@@ -179,7 +225,6 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    type="number"
                     label={t('AMOUNT')}
                     fullWidth
                     error={!!errors.amount}
@@ -187,11 +232,12 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                     className="form-field amount-field"
                     slotProps={{
                       htmlInput: {
-                        step: '0.01',
-                        min: '0',
+                        inputMode: 'decimal',
                       },
                     }}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onFocus={handleAmountFocus}
+                    onChange={(e) => handleAmountChange(e, field)}
+                    onBlur={(e) => handleAmountBlur(e, field)}
                   />
                 )}
               />

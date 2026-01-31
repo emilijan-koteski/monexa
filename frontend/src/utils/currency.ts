@@ -1,7 +1,6 @@
 /**
  * Currency utility functions for formatting amounts with proper currency symbols
  */
-
 export interface CurrencyConfig {
   symbol: string;
   position: 'before' | 'after';
