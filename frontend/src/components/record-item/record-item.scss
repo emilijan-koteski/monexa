@@ -37,11 +37,21 @@
       flex: 1;
       min-width: 0;
 
+      .record-header {
+        margin-bottom: 4px;
+
+        .payment-method-chip {
+          opacity: 0.7;
+          font-size: 0.7rem;
+          height: 22px;
+          border-color: $color-border;
+        }
+      }
+
       .record-name {
         font-size: 1rem;
         font-weight: 500;
         color: $color-text-primary;
-        margin-bottom: 4px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

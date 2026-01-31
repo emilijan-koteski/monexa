@@ -18,6 +18,7 @@ import { format, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
 import { useFilteredRecords, useUpdateRecord, useDeleteRecord } from '../../../services/recordService';
 import { useCategory } from '../../../services/categoryService';
+import { usePaymentMethods } from '../../../services/paymentMethodService';
 import RecordItem from '../../../components/record-item/RecordItem';
 import RecordDialog, { type RecordFormData } from '../../../components/record-dialog/RecordDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
@@ -62,6 +63,7 @@ const CategoryDetailsPage = () => {
   }, [categoryId, searchParams, sortBy, sortOrder]);
 
   const { data: records, isLoading: recordsLoading } = useFilteredRecords(filters);
+  const { data: paymentMethods } = usePaymentMethods();
   const { data: category, isLoading: categoryLoading } = useCategory(
     categoryId ? parseInt(categoryId, 10) : 0
   );
@@ -91,6 +93,10 @@ const CategoryDetailsPage = () => {
 
   const handleBack = () => {
     navigate(`/categories?${searchParams.toString()}`);
+  };
+
+  const getPaymentMethodName = (paymentMethodId: number) => {
+    return paymentMethods?.find((pm) => pm.id === paymentMethodId)?.name;
   };
 
   const handleSortByChange = (_: React.MouseEvent<HTMLElement>, newSortBy: SortBy | null) => {
@@ -228,6 +234,7 @@ const CategoryDetailsPage = () => {
                           categoryName={category?.name}
                           categoryColor={category?.color}
                           categoryType={category?.type}
+                          paymentMethodName={getPaymentMethodName(record.paymentMethodId)}
                           onEdit={handleEditRecord}
                           onDelete={handleDeleteClick}
                         />
@@ -245,6 +252,7 @@ const CategoryDetailsPage = () => {
                     categoryName={category?.name}
                     categoryColor={category?.color}
                     categoryType={category?.type}
+                    paymentMethodName={getPaymentMethodName(record.paymentMethodId)}
                     onEdit={handleEditRecord}
                     onDelete={handleDeleteClick}
                   />

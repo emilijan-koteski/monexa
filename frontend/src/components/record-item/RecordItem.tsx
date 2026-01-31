@@ -1,5 +1,5 @@
 import './record-item.scss';
-import { Card, CardContent, Typography, IconButton, Box } from '@mui/material';
+import { Card, CardContent, Typography, IconButton, Box, Chip, Stack } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { FinancialRecord } from '../../types/models';
@@ -11,6 +11,7 @@ interface RecordItemProps {
   categoryName?: string;
   categoryColor?: string;
   categoryType?: CategoryType;
+  paymentMethodName?: string;
   onEdit: (record: FinancialRecord) => void;
   onDelete: (record: FinancialRecord) => void;
 }
@@ -20,6 +21,7 @@ function RecordItem({
   categoryName,
   categoryColor = '#e63573',
   categoryType,
+  paymentMethodName,
   onEdit,
   onDelete,
 }: RecordItemProps) {
@@ -34,9 +36,19 @@ function RecordItem({
       />
       <CardContent className="record-content">
         <Box className="record-info">
-          <Typography variant="h6" className="record-name">
-            {displayName}
-          </Typography>
+          <Stack flexDirection='row' gap={1} alignItems='center' className="record-header">
+            <Typography variant="h6" className="record-name">
+              {displayName}
+            </Typography>
+            {paymentMethodName && (
+              <Chip
+                label={paymentMethodName}
+                size="small"
+                variant="outlined"
+                className="payment-method-chip"
+              />
+            )}
+          </Stack>
           <Typography
             variant="h5"
             className={`record-amount ${isExpense ? 'expense' : 'income'}`}

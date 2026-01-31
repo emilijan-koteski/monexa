@@ -29,6 +29,7 @@ import {
   useDeleteRecord,
 } from '../../services/recordService';
 import { useCategories } from '../../services/categoryService';
+import { usePaymentMethods } from '../../services/paymentMethodService';
 import type { FinancialRecord } from '../../types/models';
 
 function HomePage() {
@@ -65,6 +66,7 @@ function HomePage() {
     endDate
   );
   const { data: categories } = useCategories();
+  const { data: paymentMethods } = usePaymentMethods();
   const { data: summary, isLoading: summaryLoading } = useRecordSummary(
     startDate,
     endDate
@@ -158,6 +160,10 @@ function HomePage() {
     };
   };
 
+  const getPaymentMethodName = (paymentMethodId: number) => {
+    return paymentMethods?.find((pm) => pm.id === paymentMethodId)?.name;
+  };
+
   const isAnyMutationLoading =
     createRecordMutation.isPending ||
     updateRecordMutation.isPending ||
@@ -191,6 +197,7 @@ function HomePage() {
                     categoryName={categoryDetails.name}
                     categoryColor={categoryDetails.color}
                     categoryType={categoryDetails.type}
+                    paymentMethodName={getPaymentMethodName(record.paymentMethodId)}
                     onEdit={handleEditRecord}
                     onDelete={handleDeleteClick}
                   />
