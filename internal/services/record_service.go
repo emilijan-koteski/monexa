@@ -272,3 +272,37 @@ func (s *RecordService) GetSummary(ctx context.Context, filter requests.RecordFi
 		Currency: userCurrency,
 	}, nil
 }
+
+func (s *RecordService) GetDescriptionSuggestions(ctx context.Context, userID uint, categoryID uint) ([]string, error) {
+	if userID == 0 || categoryID == 0 {
+		return []string{}, nil
+	}
+
+	var records []models.Record
+	if err := s.db.WithContext(ctx).
+		Select("description").
+		Where("user_id = ? AND category_id = ? AND description IS NOT NULL AND description != ''", userID, categoryID).
+		Order("date DESC, created_at DESC").
+		Limit(20).
+		Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	var suggestions []string
+	seen := make(map[string]bool)
+	for _, r := range records {
+		if r.Description != nil && *r.Description != "" && !seen[*r.Description] {
+			seen[*r.Description] = true
+			suggestions = append(suggestions, *r.Description)
+			if len(suggestions) == 4 {
+				break
+			}
+		}
+	}
+
+	if suggestions == nil {
+		suggestions = []string{}
+	}
+
+	return suggestions, nil
+}

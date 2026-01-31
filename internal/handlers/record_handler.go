@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
@@ -31,6 +32,7 @@ func RegisterRecordHandler(e *echo.Echo, recordService *services.RecordService) 
 	r1.GET("/:id", handler.Read)
 	r1.GET("", handler.ReadAll)
 	r1.GET("/summary", handler.GetSummary)
+	r1.GET("/descriptions/suggestions", handler.GetDescriptionSuggestions)
 	r1.POST("", handler.Create)
 	r1.PATCH("/:id", handler.Update)
 	r1.DELETE("/:id", handler.Delete)
@@ -197,4 +199,25 @@ func (h *recordHandler) GetSummary(c echo.Context) error {
 	}
 
 	return responses.SuccessWithData(c, summary)
+}
+
+func (h *recordHandler) GetDescriptionSuggestions(c echo.Context) error {
+	categoryIDStr := c.QueryParam("categoryId")
+	categoryIDParsed, err := strconv.ParseUint(categoryIDStr, 10, 64)
+	if err != nil || categoryIDParsed == 0 {
+		return responses.BadRequestWithMessage(c, "invalid categoryId")
+	}
+	categoryID := uint(categoryIDParsed)
+
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+
+	suggestions, err := h.recordService.GetDescriptionSuggestions(c.Request().Context(), claims.UserID, categoryID)
+	if err != nil {
+		return responses.FailureWithError(c, fmt.Errorf("error fetching description suggestions: %w", err))
+	}
+
+	return responses.SuccessWithData(c, suggestions)
 }
