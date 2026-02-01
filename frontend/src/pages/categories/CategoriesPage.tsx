@@ -149,29 +149,34 @@ const CategoriesPage = () => {
           />
         </Box>
 
-        <TextField
-          placeholder={t('SEARCH_CATEGORIES')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          size="small"
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                </InputAdornment>
-              ),
-              endAdornment: searchQuery ? (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setSearchQuery('')} edge="end">
-                    <FontAwesomeIcon icon={faXmark} />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-            },
-          }}
-        />
+        <Box className="filter-group">
+          <Typography variant="overline" color="text.secondary" className="filter-header">
+            {t('SEARCH')}
+          </Typography>
+          <TextField
+            placeholder={t('SEARCH_CATEGORIES')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="small"
+            fullWidth
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                  </InputAdornment>
+                ),
+                endAdornment: searchQuery ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setSearchQuery('')} edge="end">
+                      <FontAwesomeIcon icon={faXmark} />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              },
+            }}
+          />
+        </Box>
       </Box>
 
       {/* Category Pie Chart */}
@@ -182,13 +187,18 @@ const CategoriesPage = () => {
       />
 
       {/* Balance Summary */}
-      <BalanceSummary
-        totalIncome={statistics?.totalIncome ?? 0}
-        totalExpense={statistics?.totalExpense ?? 0}
-        netBalance={statistics?.netBalance ?? 0}
-        currency={statistics?.currency ?? Currency.MKD}
-        isLoading={isLoading}
-      />
+      <Box className="categories-content">
+        <Typography variant="overline" color="text.secondary" className="section-title">
+          {t('TOTAL_SUMMARY')}
+        </Typography>
+        <BalanceSummary
+          totalIncome={statistics?.totalIncome ?? 0}
+          totalExpense={statistics?.totalExpense ?? 0}
+          netBalance={statistics?.netBalance ?? 0}
+          currency={statistics?.currency ?? Currency.MKD}
+          isLoading={isLoading}
+        />
+      </Box>
 
       {/* Category List */}
       <Box className="categories-content">
