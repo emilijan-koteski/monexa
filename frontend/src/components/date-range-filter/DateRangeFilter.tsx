@@ -23,9 +23,12 @@ function DateRangeFilter({
 
   const presets = [
     { value: DateRangePreset.OVERALL, label: t('DATE_RANGE_OVERALL') },
-    { value: DateRangePreset.ONE_WEEK, label: t('DATE_RANGE_WEEK') },
-    { value: DateRangePreset.ONE_MONTH, label: t('DATE_RANGE_MONTH') },
-    { value: DateRangePreset.ONE_YEAR, label: t('DATE_RANGE_YEAR') },
+    { value: DateRangePreset.LAST_WEEK, label: t('DATE_RANGE_LAST_WEEK') },
+    { value: DateRangePreset.LAST_MONTH, label: t('DATE_RANGE_LAST_MONTH') },
+    { value: DateRangePreset.LAST_YEAR, label: t('DATE_RANGE_LAST_YEAR') },
+    { value: DateRangePreset.THIS_WEEK, label: t('DATE_RANGE_THIS_WEEK') },
+    { value: DateRangePreset.THIS_MONTH, label: t('DATE_RANGE_THIS_MONTH') },
+    { value: DateRangePreset.THIS_YEAR, label: t('DATE_RANGE_THIS_YEAR') },
     { value: DateRangePreset.CUSTOM, label: t('DATE_RANGE_CUSTOM') },
   ];
 

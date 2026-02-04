@@ -5,7 +5,7 @@ import { Box, Container, Typography, TextField, InputAdornment, IconButton, List
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, endOfDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, endOfDay, subWeeks, subMonths, subYears } from 'date-fns';
 import { DateRangePreset } from '../../enums/DateRangePreset';
 import { Currency } from '../../enums/Currency';
 import { useCategoryStatistics } from '../../services/categoryStatisticsService';
@@ -23,7 +23,7 @@ const CategoriesPage = () => {
 
   const [datePreset, setDatePreset] = useState<DateRangePreset>(() => {
     const preset = searchParams.get('preset');
-    return preset ? (preset as DateRangePreset) : DateRangePreset.ONE_MONTH;
+    return preset ? (preset as DateRangePreset) : DateRangePreset.THIS_MONTH;
   });
   const [customStartDate, setCustomStartDate] = useState<Date | null>(() => {
     const startDate = searchParams.get('customStartDate');
@@ -64,21 +64,42 @@ const CategoriesPage = () => {
     switch (datePreset) {
       case DateRangePreset.OVERALL:
         return { startDate: undefined, endDate: undefined };
-      case DateRangePreset.ONE_WEEK:
+      case DateRangePreset.THIS_WEEK:
         return {
           startDate: format(startOfWeek(now, { weekStartsOn: 1 }), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
           endDate: format(endOfWeek(now, { weekStartsOn: 1 }), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
         };
-      case DateRangePreset.ONE_MONTH:
+      case DateRangePreset.THIS_MONTH:
         return {
           startDate: format(startOfMonth(now), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
           endDate: format(endOfMonth(now), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
         };
-      case DateRangePreset.ONE_YEAR:
+      case DateRangePreset.THIS_YEAR:
         return {
           startDate: format(startOfYear(now), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
           endDate: format(endOfYear(now), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
         };
+      case DateRangePreset.LAST_WEEK: {
+        const lastWeek = subWeeks(now, 1);
+        return {
+          startDate: format(startOfWeek(lastWeek, { weekStartsOn: 1 }), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+          endDate: format(endOfWeek(lastWeek, { weekStartsOn: 1 }), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        };
+      }
+      case DateRangePreset.LAST_MONTH: {
+        const lastMonth = subMonths(now, 1);
+        return {
+          startDate: format(startOfMonth(lastMonth), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+          endDate: format(endOfMonth(lastMonth), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        };
+      }
+      case DateRangePreset.LAST_YEAR: {
+        const lastYear = subYears(now, 1);
+        return {
+          startDate: format(startOfYear(lastYear), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+          endDate: format(endOfYear(lastYear), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        };
+      }
       case DateRangePreset.CUSTOM:
         return {
           startDate: customStartDate ? format(customStartDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : undefined,
