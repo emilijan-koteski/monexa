@@ -145,6 +145,13 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		}
 	}
 
+	if len(req.AcceptedDocumentIds) > 0 {
+		if err = s.legalDocumentService.AcceptDocumentsTx(ctx, tx, user.ID, req.AcceptedDocumentIds, req.IpAddress, req.UserAgent); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
 	if err = tx.Commit().Error; err != nil {
 		return nil, err
 	}
