@@ -115,6 +115,16 @@ func ConflictWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusConflict, createMessageBody(http.StatusConflict, message))
 }
 
+// StatusUnavailableForLegalReasons: 451
+
+func LegalAcceptanceRequired(c echo.Context) error {
+	return LegalAcceptanceRequiredWithMessage(c, "legal acceptance required")
+}
+
+func LegalAcceptanceRequiredWithMessage(c echo.Context, message string) error {
+	return c.JSON(http.StatusUnavailableForLegalReasons, createMessageBody(http.StatusUnavailableForLegalReasons, message))
+}
+
 // StatusInternalServerError: 500
 
 func Failure(c echo.Context) error {

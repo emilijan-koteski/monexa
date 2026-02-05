@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 	"github.com/emilijan-koteski/monexa/internal/requests"
@@ -11,11 +12,15 @@ import (
 )
 
 type UserService struct {
-	db *gorm.DB
+	db                   *gorm.DB
+	legalDocumentService *LegalDocumentService
 }
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db: db}
+func NewUserService(db *gorm.DB, legalDocumentService *LegalDocumentService) *UserService {
+	return &UserService{
+		db:                   db,
+		legalDocumentService: legalDocumentService,
+	}
 }
 
 func (s *UserService) GetUserByExample(ctx context.Context, example models.User) (*models.User, error) {
@@ -106,6 +111,13 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 	if err = tx.Create(&defaultCategories).Error; err != nil {
 		tx.Rollback()
 		return nil, err
+	}
+
+	if len(req.AcceptedDocumentIds) > 0 {
+		if err = s.legalDocumentService.AcceptDocumentsTx(ctx, tx, user.ID, req.AcceptedDocumentIds, req.IpAddress, req.UserAgent); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
 	if err = tx.Commit().Error; err != nil {

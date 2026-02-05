@@ -103,6 +103,13 @@ func (h *authHandler) Register(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
+	if len(req.AcceptedDocumentIds) == 0 {
+		return responses.BadRequestWithMessage(c, "you must accept the required legal documents")
+	}
+
+	req.IpAddress = c.RealIP()
+	req.UserAgent = c.Request().UserAgent()
+
 	user, err := h.userService.CreateUser(c.Request().Context(), req)
 	if err != nil {
 		return responses.FailureWithError(c, fmt.Errorf("error creating user: %w", err))

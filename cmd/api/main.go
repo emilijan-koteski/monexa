@@ -40,7 +40,8 @@ func main() {
 
 	// Init services
 	healthService := services.NewHealthService(db)
-	userService := services.NewUserService(db)
+	legalDocumentService := services.NewLegalDocumentService(db)
+	userService := services.NewUserService(db, legalDocumentService)
 	tokenMaker := token.NewJWTMaker()
 	sessionService := services.NewSessionService(db)
 	settingService := services.NewSettingService(db)
@@ -82,6 +83,7 @@ func main() {
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
 	handlers.RegisterSettingHandler(e, settingService)
+	handlers.RegisterLegalDocumentHandler(e, legalDocumentService)
 	log.Println("👍 [9] All handlers and routes registered successfully")
 
 	// Start HTTP server

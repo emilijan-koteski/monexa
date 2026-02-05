@@ -340,6 +340,79 @@ func Migrate(db *gorm.DB) {
 				return tx.Exec(`DELETE FROM exchange_rates WHERE from_currency IN ('AUD', 'CHF', 'GBP') OR to_currency IN ('AUD', 'CHF', 'GBP')`).Error
 			},
 		},
+		{
+			ID: "20260205225000_create_legal_documents_tables",
+			Migrate: func(tx *gorm.DB) error {
+				if err := tx.AutoMigrate(&models.LegalDocument{}); err != nil {
+					return err
+				}
+
+				if err := tx.Exec(`
+					CREATE UNIQUE INDEX IF NOT EXISTS unique_active_document_per_type
+					ON legal_documents (type)
+					WHERE is_active = true AND deleted_at IS NULL;
+				`).Error; err != nil {
+					return err
+				}
+
+				if err := tx.AutoMigrate(&models.UserLegalAcceptance{}); err != nil {
+					return err
+				}
+
+				if err := tx.Exec(`
+					ALTER TABLE user_legal_acceptances
+					ADD CONSTRAINT fk_acceptances_user
+					FOREIGN KEY (user_id) REFERENCES users(id);
+
+					ALTER TABLE user_legal_acceptances
+					ADD CONSTRAINT fk_acceptances_document
+					FOREIGN KEY (legal_document_id) REFERENCES legal_documents(id);
+
+					CREATE UNIQUE INDEX IF NOT EXISTS unique_user_document_acceptance
+					ON user_legal_acceptances (user_id, legal_document_id);
+				`).Error; err != nil {
+					return err
+				}
+
+				now := time.Now()
+				initialDocuments := []map[string]interface{}{
+					{
+						"type":               "PRIVACY_POLICY",
+						"version":            1,
+						"title":              "Privacy Policy",
+						"content":            `<h1>Privacy Policy</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Data Collection</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Data Usage</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Your Rights</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
+						"effective_at":       now,
+						"is_active":          true,
+						"requires_reconsent": false,
+						"created_at":         now,
+					},
+					{
+						"type":               "TERMS_OF_SERVICE",
+						"version":            1,
+						"title":              "Terms of Service",
+						"content":            `<h1>Terms of Service</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Acceptance of Terms</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>User Responsibilities</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Limitation of Liability</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
+						"effective_at":       now,
+						"is_active":          true,
+						"requires_reconsent": false,
+						"created_at":         now,
+					},
+				}
+
+				for _, doc := range initialDocuments {
+					if err := tx.Table("legal_documents").Create(doc).Error; err != nil {
+						return err
+					}
+				}
+
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				if err := tx.Migrator().DropTable("user_legal_acceptances"); err != nil {
+					return err
+				}
+				return tx.Migrator().DropTable("legal_documents")
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
