@@ -7,6 +7,7 @@ import { Doughnut } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import type { CategoryStatItem } from '../../types/models';
 import { CategoryType } from '../../enums/CategoryType';
+import { formatCurrencyAmount } from '../../utils/currency';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -136,7 +137,7 @@ const CategoryPieChart = ({ categories, currency, isLoading }: CategoryPieChartP
           label: (context: TooltipItem<'doughnut'>) => {
             const value = context.raw as number;
             const percentage = totalAmount > 0 ? ((value / totalAmount) * 100).toFixed(1) : '0';
-            return ` ${value.toLocaleString()} ${currency} (${percentage}%)`;
+            return ` ${formatCurrencyAmount(value, currency)} (${percentage}%)`;
           },
         },
       },

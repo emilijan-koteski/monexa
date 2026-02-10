@@ -1,3 +1,5 @@
+import { formatAmount } from './amount';
+
 /**
  * Currency utility functions for formatting amounts with proper currency symbols
  */
@@ -29,7 +31,7 @@ export function getCurrencySymbol(currency: string): string {
  * @param amount - The numeric amount to format
  * @param currency - ISO currency code (e.g., 'USD', 'EUR', 'MKD')
  * @param decimals - Number of decimal places (default: 2)
- * @returns Formatted string with currency symbol in the correct position
+ * @returns Formatted string with currency symbol in the correct position and thousand separators
  */
 export function formatCurrencyAmount(
   amount: number | string,
@@ -37,7 +39,8 @@ export function formatCurrencyAmount(
   decimals: number = 2
 ): string {
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const formattedAmount = numAmount.toFixed(decimals);
+  const fixedAmount = numAmount.toFixed(decimals);
+  const formattedAmount = formatAmount(fixedAmount);
 
   const config = CURRENCY_CONFIGS[currency];
 
