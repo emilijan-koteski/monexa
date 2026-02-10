@@ -12,12 +12,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faPen, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { tokenUtils } from '../../utils/tokenUtils';
+import { useUser } from '../../hooks/useUser';
 import { useUpdateUser } from '../../services/userService';
 
 const ProfilePage = () => {
   const { t } = useTranslation();
-  const user = tokenUtils.getUser();
+  const user = useUser();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || '');

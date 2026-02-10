@@ -14,7 +14,7 @@ import { faUser, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router';
 import { useLogout } from '../../services/authService';
-import { tokenUtils } from '../../utils/tokenUtils';
+import { useUser } from '../../hooks/useUser';
 import './user-avatar.scss';
 
 const UserAvatar = () => {
@@ -26,7 +26,7 @@ const UserAvatar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const user = tokenUtils.getUser();
+  const user = useUser();
   const logoutMutation = useLogout();
 
   const isProfileActive = location.pathname === '/profile';
