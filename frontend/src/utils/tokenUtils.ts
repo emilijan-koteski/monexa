@@ -75,6 +75,7 @@ export const tokenUtils = {
 
   setUser: (user: User): void => {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    window.dispatchEvent(new Event('user-updated'));
   },
 
   getUser: (): User | null => {
