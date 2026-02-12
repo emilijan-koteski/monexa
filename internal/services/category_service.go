@@ -105,10 +105,18 @@ func (s *CategoryService) Update(ctx context.Context, req requests.CategoryReque
 		category.Type = *req.Type
 	}
 	if req.Description != nil {
-		category.Description = req.Description
+		if *req.Description == "" {
+			category.Description = nil
+		} else {
+			category.Description = req.Description
+		}
 	}
 	if req.Color != nil {
-		category.Color = req.Color
+		if *req.Color == "" {
+			category.Color = nil
+		} else {
+			category.Color = req.Color
+		}
 	}
 
 	if err = s.db.WithContext(ctx).Save(&category).Error; err != nil {
