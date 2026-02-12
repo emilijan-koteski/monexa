@@ -155,7 +155,11 @@ func (s *RecordService) Update(ctx context.Context, req requests.RecordRequest) 
 		record.Currency = *req.Currency
 	}
 	if req.Description != nil {
-		record.Description = req.Description
+		if *req.Description == "" {
+			record.Description = nil
+		} else {
+			record.Description = req.Description
+		}
 	}
 	if req.Date != nil {
 		record.Date = *req.Date

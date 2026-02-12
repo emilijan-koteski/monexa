@@ -133,7 +133,7 @@ const CategoryDetailsPage = () => {
         paymentMethodId: data.paymentMethodId,
         amount: data.amount,
         currency: data.currency,
-        description: data.description || undefined,
+        description: data.description ?? undefined,
         date: format(data.date, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
       };
 
