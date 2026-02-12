@@ -48,37 +48,39 @@ func (s *RecordService) GetAll(ctx context.Context, filter requests.RecordFilter
 
 	var records []models.Record
 
-	query := s.db.WithContext(ctx).Where("user_id = ?", *filter.UserID)
+	query := s.db.WithContext(ctx).Where("records.user_id = ?", *filter.UserID)
 
 	if filter.StartDate != nil {
-		query = query.Where("date >= ?", *filter.StartDate)
+		query = query.Where("records.date >= ?", *filter.StartDate)
 	}
 	if filter.EndDate != nil {
-		query = query.Where("date <= ?", *filter.EndDate)
+		query = query.Where("records.date <= ?", *filter.EndDate)
 	}
 
 	if filter.CategoryID != nil && *filter.CategoryID != 0 {
-		query = query.Where("category_id = ?", *filter.CategoryID)
+		query = query.Where("records.category_id = ?", *filter.CategoryID)
 	}
 
 	if len(filter.PaymentMethodIDs) > 0 {
-		query = query.Where("payment_method_id IN ?", filter.PaymentMethodIDs)
+		query = query.Where("records.payment_method_id IN ?", filter.PaymentMethodIDs)
 	}
 
 	if filter.Search != nil && *filter.Search != "" {
 		searchPattern := "%" + *filter.Search + "%"
-		query = query.Where("description ILIKE ?", searchPattern)
+		query = query.Select("records.*").
+			Joins("LEFT JOIN categories ON categories.id = records.category_id").
+			Where("records.description ILIKE ? OR categories.name ILIKE ?", searchPattern, searchPattern)
 	}
 
-	sortBy := "date"
+	sortBy := "records.date"
 	sortOrder := "DESC"
 	if filter.SortBy != nil && (*filter.SortBy == "date" || *filter.SortBy == "amount") {
-		sortBy = *filter.SortBy
+		sortBy = "records." + *filter.SortBy
 	}
 	if filter.SortOrder != nil && (*filter.SortOrder == "asc" || *filter.SortOrder == "desc") {
 		sortOrder = strings.ToUpper(*filter.SortOrder)
 	}
-	query = query.Order(fmt.Sprintf("%s %s, id DESC", sortBy, sortOrder))
+	query = query.Order(fmt.Sprintf("%s %s, records.id DESC", sortBy, sortOrder))
 
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
