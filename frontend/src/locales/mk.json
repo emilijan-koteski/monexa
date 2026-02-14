@@ -167,5 +167,21 @@
   "CATEGORY_BREAKDOWN": "Преглед по категории",
   "SEARCH": "Пребарување",
   "ALL": "Сите",
-  "NO_CATEGORY_DATA": "Нема податоци за избраниот преглед."
+  "NO_CATEGORY_DATA": "Нема податоци за избраниот преглед.",
+  "PRIVACY_POLICY": "Политика за приватност",
+  "TERMS_OF_SERVICE": "Услови за користење",
+  "VERSION": "Верзија",
+  "EFFECTIVE": "Важи од",
+  "ACCEPT_PRIVACY_POLICY_PREFIX": "Ја прочитав и се согласувам со",
+  "ACCEPT_TERMS_PREFIX": "Ги прочитав и се согласувам со",
+  "PRIVACY_POLICY_REQUIRED": "Мора да ја прифатите Политиката за приватност",
+  "TERMS_OF_SERVICE_REQUIRED": "Мора да ги прифатите Условите за користење",
+  "LEGAL_DOCUMENT_LOAD_ERROR": "Неуспешно вчитување на правниот документ. Обидете се повторно.",
+  "LEGAL_DOCUMENTS_REQUIRED_TITLE": "Ве молиме прегледајте ги нашите правни документи",
+  "LEGAL_DOCUMENTS_REQUIRED_MESSAGE": "Ги ажуриравме нашите правни документи. Ве молиме прегледајте ги и прифатете ги за да продолжите да го користите Монекса.",
+  "LEGAL_DOCUMENT_ACCEPT_CHECKBOX": "Прочитав и се согласувам со {{title}}",
+  "LEGAL_DOCUMENT_ACCEPT_ERROR": "Неуспешно прифаќање на документот. Обидете се повторно.",
+  "LEGAL_DOCUMENTS_ACCEPTED_SUCCESS": "Ви благодариме што ги прифативте нашите правни документи!",
+  "ACCEPT_AND_CONTINUE": "Прифати и продолжи",
+  "ACCEPT_AND_NEXT": "Прифати и следно"
 }

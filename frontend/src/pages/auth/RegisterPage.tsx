@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Box, Button, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Checkbox, Container, FormControlLabel, FormHelperText, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faEye, faEyeSlash, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -8,6 +8,8 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { useRegister } from '../../services/authService.ts';
+import { useActiveDocuments } from '../../services/legalDocumentService.ts';
+import { DocumentType } from '../../enums/DocumentType.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
 import './register-page.scss';
 
@@ -16,6 +18,10 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+
+  const { data: legalDocuments } = useActiveDocuments();
+  const privacyPolicy = legalDocuments?.find(doc => doc.type === DocumentType.PRIVACY_POLICY);
+  const termsOfService = legalDocuments?.find(doc => doc.type === DocumentType.TERMS_OF_SERVICE);
 
   const registerSchema = z.object({
     name: z
@@ -32,6 +38,12 @@ const RegisterPage = () => {
     confirmPassword: z
       .string({ message: t('CONFIRM_PASSWORD_REQUIRED') })
       .min(1, { message: t('CONFIRM_PASSWORD_REQUIRED') }),
+    acceptPrivacyPolicy: z
+      .boolean()
+      .refine(val => val === true, { message: t('PRIVACY_POLICY_REQUIRED') }),
+    acceptTermsOfService: z
+      .boolean()
+      .refine(val => val === true, { message: t('TERMS_OF_SERVICE_REQUIRED') }),
   }).refine((data) => data.password === data.confirmPassword, {
     message: t('PASSWORDS_DONT_MATCH'),
     path: ['confirmPassword'],
@@ -50,13 +62,29 @@ const RegisterPage = () => {
       email: '',
       password: '',
       confirmPassword: '',
+      acceptPrivacyPolicy: false,
+      acceptTermsOfService: false,
     },
   });
 
   const registerMutation = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
-    const { ...registerData } = data;
+    const acceptedDocumentIds: number[] = [];
+    if (data.acceptPrivacyPolicy && privacyPolicy) {
+      acceptedDocumentIds.push(privacyPolicy.id);
+    }
+    if (data.acceptTermsOfService && termsOfService) {
+      acceptedDocumentIds.push(termsOfService.id);
+    }
+
+    const registerData = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      acceptedDocumentIds,
+    };
+
     registerMutation.mutate(registerData, {
       onSuccess: () => {
         navigate('/login');
@@ -225,6 +253,78 @@ const RegisterPage = () => {
                       />
                     )}
                   />
+
+                  <Box className="legal-consent-section">
+                    <Controller
+                      name="acceptPrivacyPolicy"
+                      control={control}
+                      render={({ field }) => (
+                        <Box>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                {...field}
+                                checked={field.value}
+                                onChange={(e) => field.onChange(e.target.checked)}
+                              />
+                            }
+                            label={
+                              <Typography variant="body2">
+                                {t('ACCEPT_PRIVACY_POLICY_PREFIX')}{' '}
+                                <Link
+                                  href="/privacy-policy"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {t('PRIVACY_POLICY')}
+                                </Link>
+                              </Typography>
+                            }
+                          />
+                          {errors.acceptPrivacyPolicy && (
+                            <FormHelperText error>
+                              {errors.acceptPrivacyPolicy.message}
+                            </FormHelperText>
+                          )}
+                        </Box>
+                      )}
+                    />
+
+                    <Controller
+                      name="acceptTermsOfService"
+                      control={control}
+                      render={({ field }) => (
+                        <Box>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                {...field}
+                                checked={field.value}
+                                onChange={(e) => field.onChange(e.target.checked)}
+                              />
+                            }
+                            label={
+                              <Typography variant="body2">
+                                {t('ACCEPT_TERMS_PREFIX')}{' '}
+                                <Link
+                                  href="/terms-of-service"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {t('TERMS_OF_SERVICE')}
+                                </Link>
+                              </Typography>
+                            }
+                          />
+                          {errors.acceptTermsOfService && (
+                            <FormHelperText error>
+                              {errors.acceptTermsOfService.message}
+                            </FormHelperText>
+                          )}
+                        </Box>
+                      )}
+                    />
+                  </Box>
 
                   <Button
                     type="submit"

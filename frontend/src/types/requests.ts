@@ -8,6 +8,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
+  acceptedDocumentIds: number[];
 }
 
 export interface ChangePasswordRequest {

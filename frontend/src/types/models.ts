@@ -1,6 +1,7 @@
 import {CategoryType} from '../enums/CategoryType.ts';
 import {Language} from '../enums/Language.ts';
 import {Currency} from '../enums/Currency.ts';
+import {DocumentType} from '../enums/DocumentType.ts';
 
 export interface User {
   id: number;
@@ -81,4 +82,22 @@ export interface CategoryStatistics {
   netBalance: number;
   currency: string;
   categories: CategoryStatItem[];
+}
+
+export interface LegalDocument {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  type: DocumentType;
+  version: number;
+  title: string;
+  content: string;
+  effectiveAt: string;
+  isActive: boolean;
+  requiresReconsent: boolean;
+}
+
+export interface PendingDocumentsResponse {
+  hasPendingDocuments: boolean;
+  pendingDocuments: LegalDocument[];
 }

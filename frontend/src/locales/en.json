@@ -167,5 +167,21 @@
   "CATEGORY_BREAKDOWN": "Category Breakdown",
   "SEARCH": "Search",
   "ALL": "All",
-  "NO_CATEGORY_DATA": "No category data available for the selected view."
+  "NO_CATEGORY_DATA": "No category data available for the selected view.",
+  "PRIVACY_POLICY": "Privacy Policy",
+  "TERMS_OF_SERVICE": "Terms of Service",
+  "VERSION": "Version",
+  "EFFECTIVE": "Effective",
+  "ACCEPT_PRIVACY_POLICY_PREFIX": "I have read and agree to the",
+  "ACCEPT_TERMS_PREFIX": "I have read and agree to the",
+  "PRIVACY_POLICY_REQUIRED": "You must accept the Privacy Policy",
+  "TERMS_OF_SERVICE_REQUIRED": "You must accept the Terms of Service",
+  "LEGAL_DOCUMENT_LOAD_ERROR": "Failed to load legal document. Please try again.",
+  "LEGAL_DOCUMENTS_REQUIRED_TITLE": "Please Review Our Legal Documents",
+  "LEGAL_DOCUMENTS_REQUIRED_MESSAGE": "We have updated our legal documents. Please review and accept them to continue using Monexa.",
+  "LEGAL_DOCUMENT_ACCEPT_CHECKBOX": "I have read and agree to the {{title}}",
+  "LEGAL_DOCUMENT_ACCEPT_ERROR": "Failed to accept document. Please try again.",
+  "LEGAL_DOCUMENTS_ACCEPTED_SUCCESS": "Thank you for accepting our legal documents!",
+  "ACCEPT_AND_CONTINUE": "Accept and Continue",
+  "ACCEPT_AND_NEXT": "Accept and Next"
 }
