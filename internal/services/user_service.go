@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
+
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 	"github.com/emilijan-koteski/monexa/internal/requests"
@@ -116,9 +118,38 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 }
 
 func (s *UserService) DeleteUser(ctx context.Context, userID uint) error {
-	if err := s.db.WithContext(ctx).Where("id = ?", userID).Delete(&models.User{}).Error; err != nil {
-		return err
+	tx := s.db.WithContext(ctx).Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var user models.User
+	if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+		tx.Rollback()
+		return errors.New("user not found")
 	}
+
+	anonymized := fmt.Sprintf("[Deleted User #%d]", userID)
+	if err := tx.Model(&user).Updates(map[string]any{
+		"email": anonymized,
+		"name":  anonymized,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize user: %w", err)
+	}
+
+	if err := tx.Delete(&user).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit account deletion: %w", err)
+	}
+
 	return nil
 }
 
