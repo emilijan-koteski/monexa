@@ -52,13 +52,13 @@ function DateRangeFilter({
             label={t('START_DATE')}
             value={customStartDate}
             onChange={(date) => onCustomDateChange(date, customEndDate)}
-            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+            slotProps={{ textField: { size: 'small', fullWidth: true }, field: { clearable: true } }}
           />
           <DatePicker
             label={t('END_DATE')}
             value={customEndDate}
             onChange={(date) => onCustomDateChange(customStartDate, date)}
-            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+            slotProps={{ textField: { size: 'small', fullWidth: true }, field: { clearable: true } }}
           />
         </Stack>
       )}

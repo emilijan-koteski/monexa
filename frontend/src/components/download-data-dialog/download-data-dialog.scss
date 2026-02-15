@@ -1,0 +1,42 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#download-data-dialog {
+  .MuiDialog-paper {
+    @include sm-down {
+      border-radius: 0;
+      border: none;
+    }
+  }
+
+  .dialog-content {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .dialog-actions {
+    @include sm-down {
+      padding: 12px 20px 16px;
+    }
+
+    .cancel-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+
+    .download-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+  }
+}

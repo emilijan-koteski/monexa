@@ -24,6 +24,26 @@ export const userApi = {
     const result = await response.json();
     return result.data;
   },
+
+  downloadData: async (startDate?: string, endDate?: string): Promise<Blob> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+
+    const response = await apiClient(`${ENV.API_BASE_URL}/users/data/export?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${tokenUtils.getAccessToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to download data');
+    }
+
+    return await response.blob();
+  },
 };
 
 export const useUpdateUser = () => {
@@ -32,5 +52,12 @@ export const useUpdateUser = () => {
     onSuccess: (user) => {
       tokenUtils.setUser(user);
     },
+  });
+};
+
+export const useDownloadData = () => {
+  return useMutation({
+    mutationFn: ({ startDate, endDate }: { startDate?: string; endDate?: string }) =>
+      userApi.downloadData(startDate, endDate),
   });
 };
