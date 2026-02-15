@@ -12,23 +12,28 @@ import {
   ListItemText,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faChevronRight, faKey, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faChevronRight, faDownload, faKey, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
+import { format } from 'date-fns';
 import ChangePasswordDialog from '../../../components/change-password-dialog/ChangePasswordDialog';
 import type { ChangePasswordFormData } from '../../../components/change-password-dialog/ChangePasswordDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
+import DownloadDataDialog from '../../../components/download-data-dialog/DownloadDataDialog';
 import { useChangePassword, useDeleteAccount } from '../../../services/authService';
+import { useDownloadData } from '../../../services/userService';
 
 const AccountPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
 
   const changePasswordMutation = useChangePassword();
   const deleteAccountMutation = useDeleteAccount();
+  const downloadMutation = useDownloadData();
 
   const handleBack = () => {
     navigate('/settings');
@@ -48,6 +53,14 @@ const AccountPage = () => {
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
+  };
+
+  const handleOpenDownloadDialog = () => {
+    setIsDownloadDialogOpen(true);
+  };
+
+  const handleCloseDownloadDialog = () => {
+    setIsDownloadDialogOpen(false);
   };
 
   const handleDeleteAccount = () => {
@@ -81,6 +94,32 @@ const AccountPage = () => {
     );
   };
 
+  const handleDownloadData = (startDate: Date | null, endDate: Date | null) => {
+    downloadMutation.mutate(
+      {
+        startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
+        endDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+      },
+      {
+        onSuccess: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `monexa-export-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          toast.success(t('DATA_DOWNLOAD_SUCCESS'));
+          handleCloseDownloadDialog();
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : t('DATA_DOWNLOAD_ERROR'));
+        },
+      }
+    );
+  };
+
   return (
     <Container maxWidth="md" id="account-page">
       <Box className="page-header">
@@ -107,6 +146,19 @@ const AccountPage = () => {
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding className="settings-list-item">
+          <ListItemButton onClick={handleOpenDownloadDialog} className="settings-button">
+            <ListItemIcon className="settings-icon">
+              <FontAwesomeIcon icon={faDownload} />
+            </ListItemIcon>
+            <ListItemText
+              primary={t('DOWNLOAD_DATA')}
+              secondary={t('DOWNLOAD_DATA_DESCRIPTION')}
+              className="settings-text"
+            />
+            <FontAwesomeIcon icon={faChevronRight} className="chevron-icon" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding className="settings-list-item">
           <ListItemButton onClick={handleOpenDeleteDialog} className="settings-button danger">
             <ListItemIcon className="settings-icon danger">
               <FontAwesomeIcon icon={faTrash} />
@@ -126,6 +178,13 @@ const AccountPage = () => {
         onClose={handleCloseDialog}
         onSubmit={handleChangePassword}
         isLoading={changePasswordMutation.isPending}
+      />
+
+      <DownloadDataDialog
+        open={isDownloadDialogOpen}
+        onClose={handleCloseDownloadDialog}
+        onDownload={handleDownloadData}
+        isLoading={downloadMutation.isPending}
       />
 
       <ConfirmationDialog
