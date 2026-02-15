@@ -48,6 +48,7 @@ func main() {
 	categoryService := services.NewCategoryService(db, settingService, currencyService)
 	recordService := services.NewRecordService(db, settingService, categoryService, currencyService)
 	paymentMethodService := services.NewPaymentMethodService(db)
+	exportService := services.NewExportService(db, settingService)
 	log.Println("👍 [5] All services initiated successfully")
 
 	// Start background jobs
@@ -77,7 +78,7 @@ func main() {
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
 	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService)
-	handlers.RegisterUserHandler(e, userService)
+	handlers.RegisterUserHandler(e, userService, exportService)
 	handlers.RegisterRecordHandler(e, recordService)
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
