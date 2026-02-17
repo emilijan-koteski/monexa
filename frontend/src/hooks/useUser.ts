@@ -14,6 +14,10 @@ function subscribe(callback: () => void) {
 }
 
 function getSnapshot(): User | null {
+  const current = tokenUtils.getUser();
+  if (JSON.stringify(current) !== JSON.stringify(cachedSnapshot)) {
+    cachedSnapshot = current;
+  }
   return cachedSnapshot;
 }
 

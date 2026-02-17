@@ -71,6 +71,7 @@ export const tokenUtils = {
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN_EXPIRES_AT);
     localStorage.removeItem(STORAGE_KEYS.USER);
+    window.dispatchEvent(new Event('user-updated'));
   },
 
   setUser: (user: User): void => {
