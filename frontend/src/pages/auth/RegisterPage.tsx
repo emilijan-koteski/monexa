@@ -87,7 +87,7 @@ const RegisterPage = () => {
 
     registerMutation.mutate(registerData, {
       onSuccess: () => {
-        navigate('/login');
+        navigate('/');
       },
     });
   };
@@ -118,12 +118,6 @@ const RegisterPage = () => {
                   {t('REGISTER')}
                 </Typography>
               </Box>
-
-              {registerMutation.isSuccess && (
-                <Alert severity="success">
-                  {t('REGISTER_SUCCESS')}
-                </Alert>
-              )}
 
               {registerMutation.isError && (
                 <Alert severity="error">
