@@ -115,7 +115,38 @@ func (h *authHandler) Register(c echo.Context) error {
 		return responses.FailureWithError(c, fmt.Errorf("error creating user: %w", err))
 	}
 
-	return responses.SuccessWithData(c, user)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating access token")
+	}
+
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user)
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating refresh token")
+	}
+
+	session, err := h.sessionService.CreateSessionFromExample(c.Request().Context(), models.Session{
+		ID:           refreshClaims.RegisteredClaims.ID,
+		UserID:       user.ID,
+		RefreshToken: refreshToken,
+		IsRevoked:    false,
+		ExpiresAt:    refreshClaims.RegisteredClaims.ExpiresAt.Time,
+		CreatedAt:    refreshClaims.RegisteredClaims.IssuedAt.Time,
+		UpdatedAt:    &refreshClaims.RegisteredClaims.IssuedAt.Time,
+	})
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating session")
+	}
+
+	response := map[string]interface{}{}
+	response["sessionId"] = session.ID
+	response["accessToken"] = accessToken
+	response["refreshToken"] = refreshToken
+	response["accessTokenExpiresAt"] = accessClaims.RegisteredClaims.ExpiresAt.Time
+	response["refreshTokenExpiresAt"] = refreshClaims.RegisteredClaims.ExpiresAt.Time
+	response["user"] = *user
+
+	return responses.SuccessWithData(c, response)
 }
 
 func (h *authHandler) Logout(c echo.Context) error {
