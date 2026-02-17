@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { ENV } from '../config/env';
-import type { User } from '../types/models';
 import type { ChangePasswordRequest, LoginRequest, RegisterRequest } from '../types/requests';
 import type { AuthResponse } from '../types/responses';
 import { apiClient } from '../api/apiClient';
@@ -26,7 +25,7 @@ export const authApi = {
     return result.data;
   },
 
-  register: async (data: RegisterRequest): Promise<User> => {
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: {
@@ -116,8 +115,21 @@ export const useLogin = () => {
 };
 
 export const useRegister = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: authApi.register,
+    onSuccess: (data) => {
+      tokenUtils.setTokens(
+        data.accessToken,
+        data.accessTokenExpiresAt,
+        data.refreshToken,
+        data.refreshTokenExpiresAt
+      );
+      tokenUtils.setUser(data.user);
+
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
+    },
   });
 };
 
