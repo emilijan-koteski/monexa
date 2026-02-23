@@ -17,7 +17,7 @@ interface CategoryPieChartProps {
   isLoading?: boolean;
 }
 
-type ChartView = 'all' | 'income' | 'expense';
+type ChartView = 'income' | 'expense';
 
 const DEFAULT_COLORS = [
   '#FF5733', '#4EFF33', '#33CFFF', '#FF33A8', '#FF3333',
@@ -28,10 +28,9 @@ const DEFAULT_COLORS = [
 const CategoryPieChart = ({ categories, currency, isLoading }: CategoryPieChartProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const [chartView, setChartView] = useState<ChartView>('all');
+  const [chartView, setChartView] = useState<ChartView>('expense');
 
   const filteredCategories = useMemo(() => {
-    if (chartView === 'all') return categories;
     return categories.filter(cat =>
       chartView === 'income'
         ? cat.categoryType === CategoryType.INCOME
@@ -167,7 +166,6 @@ const CategoryPieChart = ({ categories, currency, isLoading }: CategoryPieChartP
           size="small"
           className="view-toggle"
         >
-          <ToggleButton value="all">{t('ALL')}</ToggleButton>
           <ToggleButton value="income">{t('INCOME')}</ToggleButton>
           <ToggleButton value="expense">{t('EXPENSE')}</ToggleButton>
         </ToggleButtonGroup>
