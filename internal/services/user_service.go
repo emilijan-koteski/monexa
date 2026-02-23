@@ -110,6 +110,23 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
+	shoppingColor := *defaultCategories[5].Color
+	transportColor := *defaultCategories[2].Color
+	foodColor := *defaultCategories[0].Color
+
+	defaultTrendReports := []models.TrendReport{
+		{UserID: user.ID, Color: &shoppingColor, Categories: []models.Category{defaultCategories[5]}},
+		{UserID: user.ID, Color: &transportColor, Categories: []models.Category{defaultCategories[2]}},
+		{UserID: user.ID, Color: &foodColor, Categories: []models.Category{defaultCategories[0], defaultCategories[7]}},
+	}
+
+	for i := range defaultTrendReports {
+		if err = tx.Create(&defaultTrendReports[i]).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
 	if err = tx.Commit().Error; err != nil {
 		return nil, err
 	}
