@@ -50,6 +50,7 @@ func main() {
 	recordService := services.NewRecordService(db, settingService, categoryService, currencyService)
 	paymentMethodService := services.NewPaymentMethodService(db)
 	exportService := services.NewExportService(db, settingService)
+	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
 	log.Println("👍 [5] All services initiated successfully")
 
 	// Start background jobs
@@ -84,6 +85,7 @@ func main() {
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
 	handlers.RegisterSettingHandler(e, settingService)
+	handlers.RegisterTrendReportHandler(e, trendReportService)
 	handlers.RegisterLegalDocumentHandler(e, legalDocumentService)
 	log.Println("👍 [9] All handlers and routes registered successfully")
 

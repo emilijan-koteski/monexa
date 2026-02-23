@@ -341,7 +341,29 @@ func Migrate(db *gorm.DB) {
 			},
 		},
 		{
-			ID: "20260205225000_create_legal_documents_tables",
+			ID: "2026022322200_create_trend_reports",
+			Migrate: func(tx *gorm.DB) error {
+				if err := tx.AutoMigrate(&models.TrendReport{}); err != nil {
+					return err
+				}
+				if err := tx.Exec(`
+					ALTER TABLE public.trend_reports
+					ADD CONSTRAINT fk_trend_reports_user
+					FOREIGN KEY (user_id) REFERENCES public.users(id);
+				`).Error; err != nil {
+					return err
+				}
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				if err := tx.Migrator().DropTable("trend_report_categories"); err != nil {
+					return err
+				}
+				return tx.Migrator().DropTable("trend_reports")
+			},
+		},
+		{
+			ID: "20260307142500_create_legal_documents_tables",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(&models.LegalDocument{}); err != nil {
 					return err
