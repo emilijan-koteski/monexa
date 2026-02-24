@@ -56,32 +56,13 @@ export interface Session {
   expiresAt: string;
 }
 
-export interface RecordSummary {
-  amount: number;
-  currency: string;
-}
-
-export interface RecordGroup {
-  date: string;
-  formattedDate: string;
-  records: FinancialRecord[];
-}
-
-export interface CategoryStatItem {
-  categoryId: number;
-  categoryName: string;
-  categoryType: CategoryType;
+export interface TrendReport {
+  id: number;
+  userId: number;
+  title?: string;
+  description?: string;
   color?: string;
-  recordCount: number;
-  totalAmount: number;
-}
-
-export interface CategoryStatistics {
-  totalIncome: number;
-  totalExpense: number;
-  netBalance: number;
-  currency: string;
-  categories: CategoryStatItem[];
+  categories: Category[];
 }
 
 export interface LegalDocument {

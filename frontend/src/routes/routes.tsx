@@ -11,6 +11,8 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage.tsx'));
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage.tsx'));
 const CategoriesPage = lazy(() => import('../pages/categories/CategoriesPage.tsx'));
 const CategoryDetailsPage = lazy(() => import('../pages/categories/category-details/CategoryDetailsPage.tsx'));
+const TrendsPage = lazy(() => import('../pages/trends/TrendsPage.tsx'));
+const TrendDetailsPage = lazy(() => import('../pages/trends/trend-details/TrendDetailsPage.tsx'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
 const AccountPage = lazy(() => import('../pages/settings/account/AccountPage.tsx'));
 const SettingsCategoriesPage = lazy(() => import('../pages/settings/categories/CategoriesPage.tsx'));
@@ -50,6 +52,8 @@ function AppRoutes() {
               <Route path="/home" element={<HomePage/>}/>
               <Route path="/categories" element={<CategoriesPage/>}/>
               <Route path="/categories/:categoryId" element={<CategoryDetailsPage/>}/>
+              <Route path="/trends" element={<TrendsPage/>}/>
+              <Route path="/trends/:reportId" element={<TrendDetailsPage/>}/>
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/settings" element={<SettingsPage/>}/>
               <Route path="/settings/account" element={<AccountPage/>}/>

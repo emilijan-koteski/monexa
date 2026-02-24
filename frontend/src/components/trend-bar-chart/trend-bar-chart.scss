@@ -1,0 +1,22 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+.trend-bar-chart {
+  width: 100%;
+  canvas {
+    width: 100%;
+  }
+}
+
+.trend-bar-chart-placeholder {
+  width: 100%;
+  background: $color-input-background;
+  border-radius: $border-radius-sm;
+}
+
+.trend-bar-chart-empty {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

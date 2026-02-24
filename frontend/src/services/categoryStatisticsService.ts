@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ENV } from '../config/env';
-import type { CategoryStatistics } from '../types/models';
-import type { ApiResponse } from '../types/responses';
+import type { ApiResponse, CategoryStatistics } from '../types/responses';
 import { apiClient, createAuthHeaders } from '../api/apiClient';
 
 const API_BASE_URL = ENV.API_BASE_URL;
@@ -48,7 +47,7 @@ export const useCategoryStatistics = (filter: CategoryStatisticsFilter) => {
   return useQuery({
     queryKey: categoryStatisticsQueryKeys.statistics(filter),
     queryFn: () => categoryStatisticsApi.getStatistics(filter),
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 0, // Consider data stale immediately
+    gcTime: 0, // Don't cache unused data
   });
 };

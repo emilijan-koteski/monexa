@@ -48,3 +48,11 @@ export interface CategoryRequest {
   description?: string;
   color?: string;
 }
+
+// Trend Report Requests
+export interface TrendReportRequest {
+  title?: string;
+  description?: string;
+  color?: string;
+  categoryIds: number[];
+}

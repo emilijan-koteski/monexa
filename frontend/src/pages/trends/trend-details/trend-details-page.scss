@@ -1,0 +1,65 @@
+@use '../../../styles/colors' as *;
+@use '../../../styles/variables' as *;
+
+#trend-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+    padding: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+
+    .back-button {
+      background-color: transparent;
+      flex-shrink: 0;
+
+      &:hover {
+        transform: translateX(-2px);
+      }
+
+      svg {
+        font-size: 1.25rem;
+      }
+    }
+
+    .page-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      @include sm-down {
+        font-size: 1.15rem;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+  }
+
+  .report-description {
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+}

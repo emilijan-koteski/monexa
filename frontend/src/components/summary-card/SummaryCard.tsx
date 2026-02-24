@@ -2,7 +2,7 @@ import './summary-card.scss';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { formatCurrencyAmount } from '../../utils/currency';
-import type { RecordSummary } from '../../types/models';
+import type { RecordSummary } from '../../types/responses.ts';
 
 interface SummaryCardProps {
   summary: RecordSummary;

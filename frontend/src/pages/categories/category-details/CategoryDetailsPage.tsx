@@ -22,8 +22,9 @@ import { usePaymentMethods } from '../../../services/paymentMethodService';
 import RecordItem from '../../../components/record-item/RecordItem';
 import RecordDialog, { type RecordFormData } from '../../../components/record-dialog/RecordDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
-import type { FinancialRecord, RecordGroup } from '../../../types/models';
+import type { FinancialRecord } from '../../../types/models';
 import type { RecordFilter } from '../../../types/requests';
+import type { RecordGroup } from '../../../types/responses.ts';
 
 type SortBy = 'date' | 'amount';
 type SortOrder = 'asc' | 'desc';
