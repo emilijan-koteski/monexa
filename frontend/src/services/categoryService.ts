@@ -4,6 +4,7 @@ import type { Category } from '../types/models';
 import type { ApiResponse } from '../types/responses';
 import type { CategoryRequest } from '../types/requests';
 import { apiClient, createAuthHeaders } from '../api/apiClient';
+import { trendReportQueryKeys } from './trendReportService';
 
 export const categoryApi = {
   getAll: async (): Promise<Category[]> => {
@@ -112,6 +113,7 @@ export const useCreateCategory = () => {
     mutationFn: categoryApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: trendReportQueryKeys.all });
     },
   });
 };
@@ -124,6 +126,7 @@ export const useUpdateCategory = () => {
       categoryApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: trendReportQueryKeys.all });
     },
   });
 };
@@ -135,6 +138,7 @@ export const useDeleteCategory = () => {
     mutationFn: categoryApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: trendReportQueryKeys.all });
     },
   });
 };

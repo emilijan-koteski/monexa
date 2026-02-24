@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
-import type { FinancialRecord, RecordSummary } from '../types/models';
+import type { FinancialRecord } from '../types/models';
 import type { RecordFilter, RecordRequest } from '../types/requests';
-import type { ApiResponse } from '../types/responses';
+import type { ApiResponse, RecordSummary } from '../types/responses';
 import { apiClient, createAuthHeaders } from '../api/apiClient';
+import { trendReportQueryKeys } from './trendReportService';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
@@ -182,8 +183,8 @@ export const useRecordSummary = (startDate?: string, endDate?: string) => {
   return useQuery({
     queryKey: recordQueryKeys.summary(startDate, endDate),
     queryFn: () => recordApi.getSummary(startDate, endDate),
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 0, // Consider data stale immediately
+    gcTime: 0, // Don't cache unused data
   });
 };
 
@@ -191,8 +192,8 @@ export const useFilteredRecords = (filter: RecordFilter) => {
   return useQuery({
     queryKey: recordQueryKeys.filtered(filter),
     queryFn: () => recordApi.getAllFiltered(filter),
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 0, // Consider data stale immediately
+    gcTime: 0, // Don't cache unused data
     enabled: !!filter.categoryId,
   });
 };
@@ -202,7 +203,7 @@ export const useDescriptionSuggestions = (categoryId: number) => {
     queryKey: recordQueryKeys.suggestions(categoryId),
     queryFn: () => recordApi.getDescriptionSuggestions(categoryId),
     enabled: categoryId > 0,
-    staleTime: 30_000,
+    staleTime: 30_000, // 30 seconds
   });
 };
 
@@ -213,6 +214,7 @@ export const useCreateRecord = () => {
     mutationFn: recordApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: recordQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: trendReportQueryKeys.all });
     },
   });
 };
@@ -225,6 +227,7 @@ export const useUpdateRecord = () => {
       recordApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: recordQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: trendReportQueryKeys.all });
     },
   });
 };
@@ -236,6 +239,7 @@ export const useDeleteRecord = () => {
     mutationFn: recordApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: recordQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: trendReportQueryKeys.all });
     },
   });
 };

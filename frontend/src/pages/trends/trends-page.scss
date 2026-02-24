@@ -1,0 +1,111 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#trends-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+    padding: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+
+    .page-title {
+      flex: 1;
+
+      @include sm-down {
+        font-size: 1.25rem;
+      }
+    }
+
+    .add-button {
+      @include sm-down {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  .year-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+
+    .year-select {
+      min-width: 100px;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  .reports-list {
+    padding-bottom: 1rem;
+  }
+
+  .report-card {
+    border-color: $color-border;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    transition: all $transition-normal;
+
+    &:hover {
+      border-color: $color-border-hover;
+      box-shadow: 0 4px 12px $shadow-dark;
+    }
+
+    .report-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.25rem;
+
+      .report-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        cursor: pointer;
+
+        .report-title {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .chevron-icon {
+          color: $color-text-secondary;
+          font-size: 0.875rem;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-lg;
+    border: 2px dashed $color-border;
+  }
+}
