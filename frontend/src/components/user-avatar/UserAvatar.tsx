@@ -29,8 +29,8 @@ const UserAvatar = () => {
   const user = useUser();
   const logoutMutation = useLogout();
 
-  const isProfileActive = location.pathname === '/profile';
-  const isSettingsActive = location.pathname === '/settings';
+  const isProfileActive = location.pathname === '/profile' || location.pathname.startsWith('/profile/');
+  const isSettingsActive = location.pathname === '/settings' || location.pathname.startsWith('/settings/');
 
   const profileClasses = ['menu-item', isProfileActive && 'active'].filter(Boolean).join(' ');
   const settingsClasses = ['menu-item', isSettingsActive && 'active'].filter(Boolean).join(' ');
