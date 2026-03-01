@@ -59,3 +59,22 @@ export interface TrendReportMonthlyData {
   currency: string;
   year: number;
 }
+
+export interface MonthlyDetailItem {
+  label: string;
+  categoryName: string;
+  categoryId: number;
+  amount: number;
+  isUngrouped: boolean;
+}
+
+export interface MonthlyDetailGroup {
+  month: number;
+  items: MonthlyDetailItem[];
+}
+
+export interface TrendReportMonthlyDetails {
+  data: MonthlyDetailGroup[];
+  currency: string;
+  year: number;
+}

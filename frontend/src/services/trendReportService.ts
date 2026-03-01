@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ENV } from '../config/env';
 import type { TrendReport } from '../types/models';
-import type { ApiResponse, TrendReportMonthlyData } from '../types/responses';
+import type { ApiResponse, TrendReportMonthlyData, TrendReportMonthlyDetails } from '../types/responses';
 import type { TrendReportRequest } from '../types/requests';
 import { apiClient, createAuthHeaders } from '../api/apiClient';
 import { CategoryType } from '../enums/CategoryType';
@@ -58,6 +58,27 @@ export const trendReportApi = {
     return result.data;
   },
 
+  getMonthlyDetails: async (id: number, year: number, type?: CategoryType): Promise<TrendReportMonthlyDetails> => {
+    const params = new URLSearchParams({ year: String(year) });
+    if (type) params.set('type', type);
+
+    const response = await apiClient(
+      `${ENV.API_BASE_URL}/trend-reports/${id}/monthly-details?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: createAuthHeaders(),
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch monthly details');
+    }
+
+    const result: ApiResponse<TrendReportMonthlyDetails> = await response.json();
+    return result.data;
+  },
+
   create: async (data: TrendReportRequest): Promise<TrendReport> => {
     const response = await apiClient(`${ENV.API_BASE_URL}/trend-reports`, {
       method: 'POST',
@@ -110,6 +131,8 @@ export const trendReportQueryKeys = {
   detail: (id: number) => [...trendReportQueryKeys.details(), id] as const,
   monthlyData: (id: number, year: number, type?: CategoryType) =>
     [...trendReportQueryKeys.detail(id), 'monthly-data', year, type ?? 'ALL'] as const,
+  monthlyDetails: (id: number, year: number, type?: CategoryType) =>
+    [...trendReportQueryKeys.detail(id), 'monthly-details', year, type ?? 'ALL'] as const,
 };
 
 export const useTrendReports = () => {
@@ -133,6 +156,15 @@ export const useTrendReportMonthlyData = (id: number, year: number, type?: Categ
   return useQuery({
     queryKey: trendReportQueryKeys.monthlyData(id, year, type),
     queryFn: () => trendReportApi.getMonthlyData(id, year, type),
+    enabled: !!id && id > 0 && year > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useTrendReportMonthlyDetails = (id: number, year: number, type?: CategoryType) => {
+  return useQuery({
+    queryKey: trendReportQueryKeys.monthlyDetails(id, year, type),
+    queryFn: () => trendReportApi.getMonthlyDetails(id, year, type),
     enabled: !!id && id > 0 && year > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

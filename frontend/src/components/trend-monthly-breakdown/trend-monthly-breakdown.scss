@@ -1,0 +1,101 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+.trend-monthly-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+  }
+
+  .month-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .month-header {
+      display: block;
+      padding: 0 0.5rem;
+
+      @include sm-down {
+        padding: 0;
+        font-size: 0.7rem;
+      }
+    }
+  }
+
+  .detail-items-container {
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+    overflow: hidden;
+
+    &.selected {
+      background-color: $color-primary-alpha-10;
+      border-color: $color-primary-alpha-30;
+    }
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid $color-border;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    @include sm-down {
+      padding: 0.625rem 0.75rem;
+    }
+
+    .detail-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+      flex: 1;
+
+      .detail-label {
+        .detail-label-suffix {
+          color: $color-text-secondary;
+          font-weight: 400;
+        }
+      }
+
+    }
+
+    .detail-item-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.125rem;
+      flex-shrink: 0;
+      margin-left: 1rem;
+
+      .detail-diff {
+        &.good {
+          color: $color-success;
+        }
+
+        &.bad {
+          color: $color-error;
+        }
+
+        &.neutral {
+          color: $color-text-secondary;
+        }
+      }
+    }
+  }
+}

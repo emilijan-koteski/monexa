@@ -72,7 +72,7 @@ const MonthSummary = ({ monthLabel, amount, comparison, comparisonMonth, compari
         )}
         {comparison !== null && comparison.percentage === null && (
           <Typography variant="caption" color="text.secondary">
-            {t('NO_PREVIOUS_DATA')}
+            {t('NO_DATA_AVAILABLE')}
           </Typography>
         )}
       </Box>
