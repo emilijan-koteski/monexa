@@ -173,19 +173,26 @@ func (s *TrendReportService) GetMonthlyData(ctx context.Context, req requests.Tr
 		return emptyMonthlyData(userCurrency, req.Year), nil
 	}
 
-	categoryIDs := make([]uint, len(report.Categories))
+	categoryIDs := make([]uint, 0, len(report.Categories))
 	categoryTypeMap := make(map[uint]types.CategoryType, len(report.Categories))
 	hasIncome := false
 	hasExpense := false
 
-	for i, cat := range report.Categories {
-		categoryIDs[i] = cat.ID
+	for _, cat := range report.Categories {
+		if req.Type != nil && cat.Type != *req.Type {
+			continue
+		}
+		categoryIDs = append(categoryIDs, cat.ID)
 		categoryTypeMap[cat.ID] = cat.Type
 		if cat.Type == types.Income {
 			hasIncome = true
 		} else {
 			hasExpense = true
 		}
+	}
+
+	if len(categoryIDs) == 0 {
+		return emptyMonthlyData(userCurrency, req.Year), nil
 	}
 
 	startDate := time.Date(req.Year, 1, 1, 0, 0, 0, 0, time.UTC)
