@@ -7,6 +7,7 @@ import (
 
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
+	"github.com/emilijan-koteski/monexa/internal/models/types"
 	"github.com/emilijan-koteski/monexa/internal/requests"
 	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/emilijan-koteski/monexa/internal/utils"
@@ -197,10 +198,20 @@ func (h *trendReportHandler) GetMonthlyData(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid year parameter")
 	}
 
+	var categoryType *types.CategoryType
+	if typeStr := c.QueryParam("type"); typeStr != "" {
+		ct := types.CategoryType(typeStr)
+		if !types.IsValidCategoryType(ct) {
+			return responses.BadRequestWithMessage(c, "invalid type parameter: must be INCOME or EXPENSE")
+		}
+		categoryType = &ct
+	}
+
 	data, err := h.trendReportService.GetMonthlyData(c.Request().Context(), requests.TrendReportMonthlyDataRequest{
 		ReportID: id,
 		UserID:   claims.UserID,
 		Year:     year,
+		Type:     categoryType,
 	})
 	if err != nil {
 		return responses.FailureWithError(c, fmt.Errorf("error fetching monthly data: %w", err))
