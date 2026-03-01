@@ -1,7 +1,7 @@
 import './trend-bar-chart.scss';
 import { useMemo } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
-import type { TooltipItem } from 'chart.js';
+import type { ChartEvent, ActiveElement, TooltipItem } from 'chart.js';
 import { BarElement, CategoryScale, Chart as ChartJS, LinearScale, Tooltip } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
@@ -19,9 +19,11 @@ interface TrendBarChartProps {
   currency: string;
   height?: number;
   isLoading?: boolean;
+  selectedMonth?: number | null;
+  onMonthClick?: (month: number) => void;
 }
 
-const TrendBarChart = ({ data, color, currency, height = 200, isLoading }: TrendBarChartProps) => {
+const TrendBarChart = ({ data, color, currency, height = 200, isLoading, selectedMonth, onMonthClick }: TrendBarChartProps) => {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
 
@@ -33,9 +35,19 @@ const TrendBarChart = ({ data, color, currency, height = 200, isLoading }: Trend
 
   const chartData = useMemo(() => {
     const errorColor = theme.palette.error.main;
+    const disabledColor = theme.palette.action.disabledBackground;
     const amounts = data.map(d => d.amount);
-    const bgColors = amounts.map(a => a < 0 ? errorColor : color);
-    const hoverColors = amounts.map(a => a < 0 ? errorColor + 'cc' : color + 'cc');
+    const hasSelection = selectedMonth != null;
+
+    const bgColors = amounts.map((a, i) => {
+      if (hasSelection && i + 1 !== selectedMonth) return disabledColor;
+      return a < 0 ? errorColor : color;
+    });
+    const hoverColors = amounts.map((a, i) => {
+      if (hasSelection && i + 1 !== selectedMonth) return disabledColor;
+      return a < 0 ? errorColor + 'cc' : color + 'cc';
+    });
+
     return {
       labels: monthLabels,
       datasets: [
@@ -49,11 +61,26 @@ const TrendBarChart = ({ data, color, currency, height = 200, isLoading }: Trend
         },
       ],
     };
-  }, [data, color, theme.palette.error.main, monthLabels]);
+  }, [data, color, selectedMonth, theme.palette.error.main, theme.palette.action.disabledBackground, monthLabels]);
 
   const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
+    onClick: onMonthClick
+      ? (_event: ChartEvent, elements: ActiveElement[]) => {
+          if (elements.length > 0) {
+            onMonthClick(elements[0].index + 1);
+          }
+        }
+      : undefined,
+    onHover: onMonthClick
+      ? (event: ChartEvent, elements: ActiveElement[]) => {
+          const canvas = event.native?.target as HTMLCanvasElement | undefined;
+          if (canvas) {
+            canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+          }
+        }
+      : undefined,
     plugins: {
       legend: {
         display: false,
@@ -96,7 +123,7 @@ const TrendBarChart = ({ data, color, currency, height = 200, isLoading }: Trend
         border: { display: false },
       },
     },
-  }), [currency, theme.palette.background.paper, theme.palette.text.primary, theme.palette.text.secondary]);
+  }), [currency, onMonthClick, theme.palette.background.paper, theme.palette.text.primary, theme.palette.text.secondary]);
 
   if (isLoading) {
     return <Box className="trend-bar-chart-placeholder" style={{ height }}/>;

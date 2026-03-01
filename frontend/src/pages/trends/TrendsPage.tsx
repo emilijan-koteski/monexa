@@ -1,63 +1,23 @@
 import './trends-page.scss';
 import { useState } from 'react';
-import { Box, Button, Card, CardContent, Chip, CircularProgress, Container, MenuItem, Select, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Button, Chip, CircularProgress, Container, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
-import { useTrendReports, useCreateTrendReport, useTrendReportMonthlyData } from '../../services/trendReportService';
-import type { TrendReport } from '../../types/models';
+import { useTrendReports, useCreateTrendReport } from '../../services/trendReportService';
 import TrendReportDialog, { type TrendReportFormData } from '../../components/trend-report-dialog/TrendReportDialog';
-import TrendBarChart from '../../components/trend-bar-chart/TrendBarChart';
-
-type YearPreset = 'THIS_YEAR' | 'LAST_YEAR' | 'CUSTOM';
-
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - i);
-
-function getReportDisplayName(report: TrendReport): string {
-  if (report.title) return report.title;
-  return report.categories.map(c => c.name).join(', ');
-}
-
-function ReportCard({ report, year, yearPreset }: { report: TrendReport; year: number; yearPreset: string }) {
-  const navigate = useNavigate();
-  const theme = useTheme();
-  const { data: monthlyData, isLoading } = useTrendReportMonthlyData(report.id, year);
-
-  const displayName = getReportDisplayName(report);
-  const color = report.color || theme.palette.secondary.main;
-
-  return (
-    <Card className="report-card" variant="outlined">
-      <CardContent className="report-card-content">
-        <Box
-          className="report-card-header"
-          onClick={() => navigate(`/trends/${report.id}?yearPreset=${yearPreset}&year=${year}`)}
-        >
-          <Typography variant="subtitle1" fontWeight={600} className="report-title">
-            {displayName}
-          </Typography>
-          <FontAwesomeIcon icon={faChevronRight} className="chevron-icon" />
-        </Box>
-        <TrendBarChart
-          data={monthlyData?.data ?? Array.from({ length: 12 }, (_, i) => ({ month: i + 1, amount: 0 }))}
-          color={color}
-          currency={monthlyData?.currency ?? 'MKD'}
-          height={150}
-          isLoading={isLoading}
-        />
-      </CardContent>
-    </Card>
-  );
-}
+import ReportCard from '../../components/report-card/ReportCard';
+import { getReportDisplayName } from './utils/getReportDisplayName';
+import { YearPreset } from '../../enums/YearPreset';
+import { CURRENT_YEAR, YEAR_OPTIONS } from './constants/date';
 
 const TrendsPage = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const presetParam = (searchParams.get('yearPreset') as YearPreset) || 'THIS_YEAR';
+  const presetParam = (searchParams.get('yearPreset') as YearPreset) || YearPreset.THIS_YEAR;
   const yearParam = searchParams.get('year');
 
   const [yearPreset, setYearPreset] = useState<YearPreset>(presetParam);
@@ -71,8 +31,8 @@ const TrendsPage = () => {
   const createMutation = useCreateTrendReport();
 
   const getActiveYear = (): number => {
-    if (yearPreset === 'THIS_YEAR') return CURRENT_YEAR;
-    if (yearPreset === 'LAST_YEAR') return CURRENT_YEAR - 1;
+    if (yearPreset === YearPreset.THIS_YEAR) return CURRENT_YEAR;
+    if (yearPreset === YearPreset.LAST_YEAR) return CURRENT_YEAR - 1;
     return customYear;
   };
 
@@ -88,9 +48,9 @@ const TrendsPage = () => {
   const handlePresetChange = (preset: YearPreset) => {
     setYearPreset(preset);
     const year =
-      preset === 'THIS_YEAR'
+      preset === YearPreset.THIS_YEAR
         ? CURRENT_YEAR
-        : preset === 'LAST_YEAR'
+        : preset === YearPreset.LAST_YEAR
           ? CURRENT_YEAR - 1
           : customYear;
     updateUrlParams(preset, year);
@@ -98,7 +58,7 @@ const TrendsPage = () => {
 
   const handleCustomYearChange = (year: number) => {
     setCustomYear(year);
-    updateUrlParams('CUSTOM', year);
+    updateUrlParams(YearPreset.CUSTOM, year);
   };
 
   const handleDialogSubmit = async (data: TrendReportFormData) => {
@@ -141,20 +101,20 @@ const TrendsPage = () => {
         <Box className="year-filter">
           <Chip
             label={t('THIS_YEAR')}
-            color={yearPreset === 'THIS_YEAR' ? 'primary' : 'default'}
-            onClick={() => handlePresetChange('THIS_YEAR')}
+            color={yearPreset === YearPreset.THIS_YEAR ? 'primary' : 'default'}
+            onClick={() => handlePresetChange(YearPreset.THIS_YEAR)}
           />
           <Chip
             label={t('LAST_YEAR')}
-            color={yearPreset === 'LAST_YEAR' ? 'primary' : 'default'}
-            onClick={() => handlePresetChange('LAST_YEAR')}
+            color={yearPreset === YearPreset.LAST_YEAR ? 'primary' : 'default'}
+            onClick={() => handlePresetChange(YearPreset.LAST_YEAR)}
           />
           <Chip
             label={t('CUSTOM')}
-            color={yearPreset === 'CUSTOM' ? 'primary' : 'default'}
-            onClick={() => handlePresetChange('CUSTOM')}
+            color={yearPreset === YearPreset.CUSTOM ? 'primary' : 'default'}
+            onClick={() => handlePresetChange(YearPreset.CUSTOM)}
           />
-          {yearPreset === 'CUSTOM' && (
+          {yearPreset === YearPreset.CUSTOM && (
             <Select
               value={customYear}
               onChange={(e) => handleCustomYearChange(Number(e.target.value))}

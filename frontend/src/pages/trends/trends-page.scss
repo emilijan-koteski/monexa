@@ -29,7 +29,7 @@
 
     .add-button {
       @include sm-down {
-        padding: 0.4rem 0.75rem;
+        padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
       }
     }
@@ -59,46 +59,6 @@
 
   .reports-list {
     padding-bottom: 1rem;
-  }
-
-  .report-card {
-    border-color: $color-border;
-    background-color: $color-background-lighter;
-    border-radius: $border-radius-md;
-    transition: all $transition-normal;
-
-    &:hover {
-      border-color: $color-border-hover;
-      box-shadow: 0 4px 12px $shadow-dark;
-    }
-
-    .report-card-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1.25rem;
-
-      .report-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        cursor: pointer;
-
-        .report-title {
-          flex: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .chevron-icon {
-          color: $color-text-secondary;
-          font-size: 0.875rem;
-          flex-shrink: 0;
-        }
-      }
-    }
   }
 
   .empty-state {

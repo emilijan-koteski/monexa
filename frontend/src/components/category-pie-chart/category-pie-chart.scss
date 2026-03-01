@@ -30,6 +30,8 @@
     }
 
     .view-toggle {
+      flex-shrink: 0;
+
       .MuiToggleButton-root {
         color: $color-text-secondary;
         border-color: $color-border;

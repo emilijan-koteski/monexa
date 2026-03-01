@@ -4,6 +4,7 @@ import type { TrendReport } from '../types/models';
 import type { ApiResponse, TrendReportMonthlyData } from '../types/responses';
 import type { TrendReportRequest } from '../types/requests';
 import { apiClient, createAuthHeaders } from '../api/apiClient';
+import { CategoryType } from '../enums/CategoryType';
 
 export const trendReportApi = {
   getAll: async (): Promise<TrendReport[]> => {
@@ -36,9 +37,12 @@ export const trendReportApi = {
     return result.data;
   },
 
-  getMonthlyData: async (id: number, year: number): Promise<TrendReportMonthlyData> => {
+  getMonthlyData: async (id: number, year: number, type?: CategoryType): Promise<TrendReportMonthlyData> => {
+    const params = new URLSearchParams({ year: String(year) });
+    if (type) params.set('type', type);
+
     const response = await apiClient(
-      `${ENV.API_BASE_URL}/trend-reports/${id}/monthly-data?year=${year}`,
+      `${ENV.API_BASE_URL}/trend-reports/${id}/monthly-data?${params.toString()}`,
       {
         method: 'GET',
         headers: createAuthHeaders(),
@@ -104,8 +108,8 @@ export const trendReportQueryKeys = {
   lists: () => [...trendReportQueryKeys.all, 'list'] as const,
   details: () => [...trendReportQueryKeys.all, 'detail'] as const,
   detail: (id: number) => [...trendReportQueryKeys.details(), id] as const,
-  monthlyData: (id: number, year: number) =>
-    [...trendReportQueryKeys.detail(id), 'monthly-data', year] as const,
+  monthlyData: (id: number, year: number, type?: CategoryType) =>
+    [...trendReportQueryKeys.detail(id), 'monthly-data', year, type ?? 'ALL'] as const,
 };
 
 export const useTrendReports = () => {
@@ -125,10 +129,10 @@ export const useTrendReport = (id: number) => {
   });
 };
 
-export const useTrendReportMonthlyData = (id: number, year: number) => {
+export const useTrendReportMonthlyData = (id: number, year: number, type?: CategoryType) => {
   return useQuery({
-    queryKey: trendReportQueryKeys.monthlyData(id, year),
-    queryFn: () => trendReportApi.getMonthlyData(id, year),
+    queryKey: trendReportQueryKeys.monthlyData(id, year, type),
+    queryFn: () => trendReportApi.getMonthlyData(id, year, type),
     enabled: !!id && id > 0 && year > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

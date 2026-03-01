@@ -200,6 +200,8 @@
   "SELECT_ALL": "Избери сè",
   "YEAR": "Година",
   "NO_DATA_FOR_PERIOD": "Нема податоци за овој период.",
+  "COMPARED_TO": "Споредено со",
+  "NO_PREVIOUS_DATA": "Нема достапни податоци",
   "PRIVACY_POLICY": "Политика за приватност",
   "TERMS_OF_SERVICE": "Услови за користење",
   "VERSION": "Верзија",
