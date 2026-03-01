@@ -199,5 +199,7 @@
   "CUSTOM": "Custom",
   "SELECT_ALL": "Select All",
   "YEAR": "Year",
-  "NO_DATA_FOR_PERIOD": "No data for this period."
+  "NO_DATA_FOR_PERIOD": "No data for this period.",
+  "COMPARED_TO": "Compared to",
+  "NO_PREVIOUS_DATA": "No data available"
 }

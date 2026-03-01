@@ -1,4 +1,5 @@
 import { formatAmount } from './amount';
+import { Currency } from '../enums/Currency';
 
 /**
  * Currency utility functions for formatting amounts with proper currency symbols
@@ -9,12 +10,12 @@ export interface CurrencyConfig {
 }
 
 const CURRENCY_CONFIGS: Record<string, CurrencyConfig> = {
-  USD: { symbol: '$', position: 'before' },
-  EUR: { symbol: '€', position: 'after' },
-  MKD: { symbol: 'ден', position: 'after' },
-  AUD: { symbol: 'A$', position: 'before' },
-  CHF: { symbol: 'CHF', position: 'before' },
-  GBP: { symbol: '£', position: 'before' },
+  [Currency.USD]: { symbol: '$', position: 'before' },
+  [Currency.EUR]: { symbol: '€', position: 'after' },
+  [Currency.MKD]: { symbol: 'ден', position: 'after' },
+  [Currency.AUD]: { symbol: 'A$', position: 'before' },
+  [Currency.CHF]: { symbol: 'CHF', position: 'before' },
+  [Currency.GBP]: { symbol: '£', position: 'before' },
 };
 
 /**
