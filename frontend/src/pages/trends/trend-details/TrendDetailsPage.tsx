@@ -8,10 +8,11 @@ import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { enGB, mk } from 'date-fns/locale';
-import { useDeleteTrendReport, useTrendReport, useTrendReportMonthlyData, useUpdateTrendReport } from '../../../services/trendReportService';
+import { useDeleteTrendReport, useTrendReport, useTrendReportMonthlyData, useTrendReportMonthlyDetails, useUpdateTrendReport } from '../../../services/trendReportService';
 import TrendReportDialog, { type TrendReportFormData } from '../../../components/trend-report-dialog/TrendReportDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
 import TrendBarChart from '../../../components/trend-bar-chart/TrendBarChart';
+import TrendMonthlyBreakdown from '../../../components/trend-monthly-breakdown/TrendMonthlyBreakdown';
 import MonthSummary from '../../../components/month-summary/MonthSummary';
 import { CategoryType } from '../../../enums/CategoryType';
 import { Currency } from '../../../enums/Currency';
@@ -56,6 +57,7 @@ const TrendDetailsPage = () => {
   }, [report]);
 
   const { data: monthlyData, isLoading: dataLoading } = useTrendReportMonthlyData(id, activeYear, activeType);
+  const { data: monthlyDetails, isLoading: detailsLoading } = useTrendReportMonthlyDetails(id, activeYear, activeType);
 
   const dateFnsLocale = i18n.language === Language.MK ? mk : enGB;
 
@@ -252,6 +254,16 @@ const TrendDetailsPage = () => {
             onMonthClick={handleMonthClick}
           />
         </Stack>
+
+        <TrendMonthlyBreakdown
+          monthlyDetails={monthlyDetails}
+          selectedMonth={selectedMonth}
+          comparisonMonth={comparisonMonth}
+          activeType={activeType}
+          currency={monthlyData?.currency ?? Currency.MKD}
+          year={activeYear}
+          isLoading={detailsLoading}
+        />
       </Container>
 
       <TrendReportDialog
