@@ -77,6 +77,7 @@ function TrendMonthlyBreakdown({ monthlyDetails, selectedMonth, comparisonMonth,
       <Stack gap={2}>
         {monthsWithData.map(group => {
           const monthName = format(new Date(year, group.month - 1, 1), 'MMMM yyyy', { locale: dateFnsLocale });
+          const isComparisonGroup = comparisonMonth !== null && group.month === comparisonMonth;
 
           return (
             <Box key={group.month} className="month-group">
@@ -87,7 +88,7 @@ function TrendMonthlyBreakdown({ monthlyDetails, selectedMonth, comparisonMonth,
                 {group.items.map((item, idx) => {
                   const itemKey = getItemKey(item);
                   const comparisonAmount = comparisonItemsMap.get(itemKey);
-                  const hasDiff = comparisonMonth !== null && comparisonAmount !== undefined;
+                  const hasDiff = !isComparisonGroup && comparisonMonth !== null && comparisonAmount !== undefined;
                   const diff = hasDiff ? item.amount - comparisonAmount : null;
 
                   return (
@@ -100,7 +101,7 @@ function TrendMonthlyBreakdown({ monthlyDetails, selectedMonth, comparisonMonth,
                             item.label
                           )}
                         </Typography>
-                        {comparisonMonth !== null && (
+                        {!isComparisonGroup && comparisonMonth !== null && (
                           <Typography variant="caption" className="detail-comparison-label" color="text.secondary" fontSize="0.7rem">
                             {t('COMPARED_TO')} {comparisonMonthName}
                           </Typography>
@@ -120,7 +121,7 @@ function TrendMonthlyBreakdown({ monthlyDetails, selectedMonth, comparisonMonth,
                             {t('NO_DIFFERENCE')}
                           </Typography>
                         )}
-                        {diff === null && comparisonMonth !== null && (
+                        {diff === null && !isComparisonGroup && comparisonMonth !== null && (
                           <Typography variant="caption" className="detail-diff neutral" fontSize="0.7rem" fontWeight={500}>
                             {t('NO_DATA_AVAILABLE')}
                           </Typography>
