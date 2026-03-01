@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -273,6 +275,138 @@ func (s *TrendReportService) GetMonthlyData(ctx context.Context, req requests.Tr
 	}, nil
 }
 
+func (s *TrendReportService) GetMonthlyDetails(ctx context.Context, req requests.TrendReportMonthlyDataRequest) (*responses.TrendReportMonthlyDetailsResponse, error) {
+	if req.Year <= 0 {
+		return nil, errors.New("invalid year")
+	}
+
+	setting, err := s.settingService.GetByUserID(ctx, req.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user settings: %w", err)
+	}
+	userCurrency := setting.Currency
+
+	report, err := s.GetByID(ctx, req.ReportID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(report.Categories) == 0 {
+		return emptyMonthlyDetails(userCurrency, req.Year), nil
+	}
+
+	categoryIDs := make([]uint, 0, len(report.Categories))
+	categoryNameMap := make(map[uint]string, len(report.Categories))
+
+	for _, cat := range report.Categories {
+		if req.Type != nil && cat.Type != *req.Type {
+			continue
+		}
+		categoryIDs = append(categoryIDs, cat.ID)
+		categoryNameMap[cat.ID] = cat.Name
+	}
+
+	if len(categoryIDs) == 0 {
+		return emptyMonthlyDetails(userCurrency, req.Year), nil
+	}
+
+	startDate := time.Date(req.Year, 1, 1, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(req.Year+1, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	var records []models.Record
+	if err := s.db.WithContext(ctx).
+		Where("user_id = ? AND category_id IN ? AND date >= ? AND date < ?", req.UserID, categoryIDs, startDate, endDate).
+		Find(&records).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch records: %w", err)
+	}
+
+	if len(records) == 0 {
+		return emptyMonthlyDetails(userCurrency, req.Year), nil
+	}
+
+	var historicalRates map[string]float64
+	for _, record := range records {
+		if record.Currency != userCurrency {
+			historicalRates, err = s.currencyService.GetHistoricalRatesForRecords(ctx, records, userCurrency)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get historical exchange rates: %w", err)
+			}
+			break
+		}
+	}
+
+	type groupKey struct {
+		Month      int
+		CategoryID uint
+		Desc       string
+	}
+	groupAmounts := make(map[groupKey]float64)
+
+	for _, record := range records {
+		var convertedAmount float64
+		if record.Currency != userCurrency {
+			rateKey := fmt.Sprintf("%s_%s_%s",
+				record.Date.Format("2006-01-02"),
+				record.Currency,
+				userCurrency)
+			rate, exists := historicalRates[rateKey]
+			if !exists {
+				return nil, fmt.Errorf("no rate found for record #%d on %s", record.ID, record.Date.Format("2006-01-02"))
+			}
+			convertedAmount = record.Amount * rate
+		} else {
+			convertedAmount = record.Amount
+		}
+
+		desc := ""
+		if record.Description != nil {
+			desc = strings.TrimSpace(*record.Description)
+		}
+
+		key := groupKey{
+			Month:      int(record.Date.Month()),
+			CategoryID: record.CategoryID,
+			Desc:       desc,
+		}
+		groupAmounts[key] += convertedAmount
+	}
+
+	monthItems := make(map[int][]responses.MonthlyDetailItem)
+	for key, amount := range groupAmounts {
+		isUngrouped := key.Desc == ""
+		label := key.Desc
+		item := responses.MonthlyDetailItem{
+			Label:        label,
+			CategoryName: categoryNameMap[key.CategoryID],
+			CategoryID:   key.CategoryID,
+			Amount:       amount,
+			IsUngrouped:  isUngrouped,
+		}
+		monthItems[key.Month] = append(monthItems[key.Month], item)
+	}
+
+	for month := range monthItems {
+		sort.Slice(monthItems[month], func(i, j int) bool {
+			return monthItems[month][i].Amount > monthItems[month][j].Amount
+		})
+	}
+
+	data := make([]responses.MonthlyDetailGroup, 12)
+	for i := 1; i <= 12; i++ {
+		items := monthItems[i]
+		if items == nil {
+			items = []responses.MonthlyDetailItem{}
+		}
+		data[i-1] = responses.MonthlyDetailGroup{Month: i, Items: items}
+	}
+
+	return &responses.TrendReportMonthlyDetailsResponse{
+		Data:     data,
+		Currency: userCurrency,
+		Year:     req.Year,
+	}, nil
+}
+
 func (s *TrendReportService) loadCategories(ctx context.Context, categoryIDs []uint) ([]models.Category, error) {
 	var categories []models.Category
 	if err := s.db.WithContext(ctx).
@@ -294,6 +428,18 @@ func resolveColor(reqColor *string, categories []models.Category) string {
 		return *categories[0].Color
 	}
 	return defaultColor
+}
+
+func emptyMonthlyDetails(currency types.CurrencyType, year int) *responses.TrendReportMonthlyDetailsResponse {
+	data := make([]responses.MonthlyDetailGroup, 12)
+	for i := 1; i <= 12; i++ {
+		data[i-1] = responses.MonthlyDetailGroup{Month: i, Items: []responses.MonthlyDetailItem{}}
+	}
+	return &responses.TrendReportMonthlyDetailsResponse{
+		Data:     data,
+		Currency: currency,
+		Year:     year,
+	}
 }
 
 func emptyMonthlyData(currency types.CurrencyType, year int) *responses.TrendReportMonthlyDataResponse {

@@ -35,6 +35,7 @@ func RegisterTrendReportHandler(e *echo.Echo, trendReportService *services.Trend
 	r1.PATCH("/:id", handler.Update)
 	r1.DELETE("/:id", handler.Delete)
 	r1.GET("/:id/monthly-data", handler.GetMonthlyData)
+	r1.GET("/:id/monthly-details", handler.GetMonthlyDetails)
 }
 
 func (h *trendReportHandler) ReadAll(c echo.Context) error {
@@ -215,6 +216,59 @@ func (h *trendReportHandler) GetMonthlyData(c echo.Context) error {
 	})
 	if err != nil {
 		return responses.FailureWithError(c, fmt.Errorf("error fetching monthly data: %w", err))
+	}
+
+	return responses.SuccessWithData(c, data)
+}
+
+func (h *trendReportHandler) GetMonthlyDetails(c echo.Context) error {
+	id, err := utils.ParseIDParam(c)
+	if err != nil {
+		return responses.BadRequestWithError(c, err)
+	}
+
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "no logged in user")
+	}
+
+	isOwner, err := h.trendReportService.IsOwner(c.Request().Context(), claims.UserID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return responses.NotFound(c)
+		}
+		return responses.FailureWithError(c, err)
+	}
+	if !isOwner {
+		return responses.Unauthorized(c)
+	}
+
+	yearStr := c.QueryParam("year")
+	if yearStr == "" {
+		return responses.BadRequestWithMessage(c, "year query parameter is required")
+	}
+	year, err := strconv.Atoi(yearStr)
+	if err != nil || year <= 0 {
+		return responses.BadRequestWithMessage(c, "invalid year parameter")
+	}
+
+	var categoryType *types.CategoryType
+	if typeStr := c.QueryParam("type"); typeStr != "" {
+		ct := types.CategoryType(typeStr)
+		if !types.IsValidCategoryType(ct) {
+			return responses.BadRequestWithMessage(c, "invalid type parameter: must be INCOME or EXPENSE")
+		}
+		categoryType = &ct
+	}
+
+	data, err := h.trendReportService.GetMonthlyDetails(c.Request().Context(), requests.TrendReportMonthlyDataRequest{
+		ReportID: id,
+		UserID:   claims.UserID,
+		Year:     year,
+		Type:     categoryType,
+	})
+	if err != nil {
+		return responses.FailureWithError(c, fmt.Errorf("error fetching monthly details: %w", err))
 	}
 
 	return responses.SuccessWithData(c, data)
