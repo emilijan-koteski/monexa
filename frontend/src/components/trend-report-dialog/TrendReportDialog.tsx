@@ -35,6 +35,7 @@ function TrendReportDialog({ open, onClose, onSubmit, report, isLoading = false,
   const { data: allCategories = [] } = useCategories();
 
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [autocompleteOpen, setAutocompleteOpen] = useState(false);
   const colorSetRef = useRef(false);
 
   const {
@@ -106,6 +107,7 @@ function TrendReportDialog({ open, onClose, onSubmit, report, isLoading = false,
         setSelectedCategories(allCategories);
         setValue('categoryIds', allCategories.map(c => c.id), { shouldValidate: true });
       }
+      setAutocompleteOpen(false);
     } else {
       const filtered = value.filter(v => v.id !== SELECT_ALL_ID);
       setSelectedCategories(filtered);
@@ -173,6 +175,9 @@ function TrendReportDialog({ open, onClose, onSubmit, report, isLoading = false,
             onChange={handleAutocompleteChange}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.id === value.id}
+            open={autocompleteOpen}
+            onOpen={() => setAutocompleteOpen(true)}
+            onClose={() => setAutocompleteOpen(false)}
             disableCloseOnSelect
             renderOption={(props, option) => {
               const { key, ...rest } = props as { key: React.Key } & React.HTMLAttributes<HTMLLIElement>;
