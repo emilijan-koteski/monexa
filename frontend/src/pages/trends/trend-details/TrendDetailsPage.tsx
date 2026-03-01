@@ -95,7 +95,7 @@ const TrendDetailsPage = () => {
     if (!comparisonLocked) {
       setComparisonMonth(findDefaultComparison(defaultMonth, monthlyData.data));
     }
-  }, [monthlyData, activeYear]);
+  }, [monthlyData, activeYear, comparisonLocked]);
 
   const handleTypeChange = (_: React.MouseEvent<HTMLElement>, newType: CategoryType | null) => {
     if (newType === null) return;
