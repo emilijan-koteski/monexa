@@ -83,12 +83,6 @@
     }
   }
 
-  #month-summary {
-    @include sm-down {
-      margin: 0 0.5rem;
-    }
-  }
-
   .loading-container {
     display: flex;
     justify-content: center;
