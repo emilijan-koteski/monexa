@@ -34,7 +34,7 @@ const NavItem = ({ item, isExpanded, depth = 0 }: NavItemProps) => {
 
   const isActive = item.path
     ? (location.pathname === item.path ||
-       (hasChildren && location.pathname.startsWith(item.path + '/')))
+       location.pathname.startsWith(item.path + '/'))
     : false;
 
   const menuOpen = Boolean(anchorEl);
@@ -110,7 +110,7 @@ const NavItem = ({ item, isExpanded, depth = 0 }: NavItemProps) => {
 
     const isChildActive = child.path
       ? (location.pathname === child.path ||
-         (childHasChildren && location.pathname.startsWith(child.path + '/')))
+         location.pathname.startsWith(child.path + '/'))
       : false;
 
     const handleNestedOpen = (event: React.MouseEvent<HTMLElement>) => {
