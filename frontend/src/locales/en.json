@@ -202,5 +202,6 @@
   "NO_DATA_FOR_PERIOD": "No data for this period.",
   "COMPARED_TO": "Compared to",
   "NO_DATA_AVAILABLE": "No data available",
-  "UNGROUPED": "Ungrouped"
+  "UNGROUPED": "Ungrouped",
+  "NO_DIFFERENCE": "No difference"
 }

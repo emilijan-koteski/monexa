@@ -202,5 +202,6 @@
   "NO_DATA_FOR_PERIOD": "Нема податоци за овој период.",
   "COMPARED_TO": "Споредено со",
   "NO_DATA_AVAILABLE": "Нема достапни податоци",
-  "UNGROUPED": "Негрупирани"
+  "UNGROUPED": "Негрупирани",
+  "NO_DIFFERENCE": "Нема разлика"
 }

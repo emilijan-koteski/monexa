@@ -117,7 +117,7 @@ function TrendMonthlyBreakdown({ monthlyDetails, selectedMonth, comparisonMonth,
                         )}
                         {diff !== null && diff === 0 && (
                           <Typography variant="caption" className="detail-diff neutral" fontSize="0.7rem" fontWeight={500}>
-                            -
+                            {t('NO_DIFFERENCE')}
                           </Typography>
                         )}
                         {diff === null && comparisonMonth !== null && (
