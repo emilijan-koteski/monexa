@@ -62,7 +62,7 @@ const TrendDetailsPage = () => {
   const dateFnsLocale = i18n.language === Language.MK ? mk : enGB;
 
   const findDefaultComparison = (selected: number, data: { month: number; amount: number }[]): number | null => {
-    const others = data.filter(d => d.month !== selected);
+    const others = data.filter(d => d.month !== selected && d.amount !== 0);
     if (others.length === 0) return null;
 
     const before = others.filter(d => d.month < selected).sort((a, b) => b.month - a.month);
@@ -78,24 +78,25 @@ const TrendDetailsPage = () => {
     if (!monthlyData) return;
 
     const isCurrentYear = activeYear === CURRENT_YEAR;
-    const maxMonth = isCurrentYear ? CURRENT_MONTH : 12;
-    let defaultMonth: number | null = null;
+    let defaultMonth: number;
 
-    for (let m = maxMonth; m >= 1; m--) {
-      const point = monthlyData.data.find(d => d.month === m);
-      if (point && point.amount !== 0) {
-        defaultMonth = m;
-        break;
+    if (isCurrentYear) {
+      defaultMonth = CURRENT_MONTH;
+    } else {
+      defaultMonth = 12;
+      for (let m = 12; m >= 1; m--) {
+        const point = monthlyData.data.find(d => d.month === m);
+        if (point && point.amount !== 0) {
+          defaultMonth = m;
+          break;
+        }
       }
     }
 
-    if (defaultMonth === null) defaultMonth = maxMonth;
-
     setSelectedMonth(defaultMonth);
-    if (!comparisonLocked) {
-      setComparisonMonth(findDefaultComparison(defaultMonth, monthlyData.data));
-    }
-  }, [monthlyData, activeYear, comparisonLocked]);
+    setComparisonLocked(false);
+    setComparisonMonth(findDefaultComparison(defaultMonth, monthlyData.data));
+  }, [monthlyData, activeYear]);
 
   const handleTypeChange = (_: React.MouseEvent<HTMLElement>, newType: CategoryType | null) => {
     if (newType === null) return;
@@ -113,6 +114,14 @@ const TrendDetailsPage = () => {
       setComparisonMonth(monthlyData ? findDefaultComparison(month, monthlyData.data) : null);
     } else if (!comparisonLocked) {
       setComparisonMonth(monthlyData ? findDefaultComparison(month, monthlyData.data) : null);
+    }
+  };
+
+  const handleLockToggle = () => {
+    const newLocked = !comparisonLocked;
+    setComparisonLocked(newLocked);
+    if (!newLocked && monthlyData && selectedMonth !== null) {
+      setComparisonMonth(findDefaultComparison(selectedMonth, monthlyData.data));
     }
   };
 
@@ -238,7 +247,7 @@ const TrendDetailsPage = () => {
             }))}
             comparisonLocked={comparisonLocked}
             onComparisonChange={month => setComparisonMonth(month)}
-            onLockToggle={() => setComparisonLocked(prev => !prev)}
+            onLockToggle={handleLockToggle}
           />
         )}
 
