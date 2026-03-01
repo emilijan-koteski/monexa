@@ -248,6 +248,7 @@ const TrendDetailsPage = () => {
             height={300}
             isLoading={dataLoading}
             selectedMonth={selectedMonth}
+            comparisonMonth={comparisonMonth}
             onMonthClick={handleMonthClick}
           />
         </Stack>

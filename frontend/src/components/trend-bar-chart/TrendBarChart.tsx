@@ -20,10 +20,11 @@ interface TrendBarChartProps {
   height?: number;
   isLoading?: boolean;
   selectedMonth?: number | null;
+  comparisonMonth?: number | null;
   onMonthClick?: (month: number) => void;
 }
 
-const TrendBarChart = ({ data, color, currency, height = 200, isLoading, selectedMonth, onMonthClick }: TrendBarChartProps) => {
+const TrendBarChart = ({ data, color, currency, height = 200, isLoading, selectedMonth, comparisonMonth, onMonthClick }: TrendBarChartProps) => {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
 
@@ -40,11 +41,17 @@ const TrendBarChart = ({ data, color, currency, height = 200, isLoading, selecte
     const hasSelection = selectedMonth != null;
 
     const bgColors = amounts.map((a, i) => {
-      if (hasSelection && i + 1 !== selectedMonth) return disabledColor;
+      const month = i + 1;
+      if (hasSelection && month === selectedMonth) return a < 0 ? errorColor : color;
+      if (hasSelection && month === comparisonMonth) return (a < 0 ? errorColor : color) + '40';
+      if (hasSelection) return disabledColor;
       return a < 0 ? errorColor : color;
     });
     const hoverColors = amounts.map((a, i) => {
-      if (hasSelection && i + 1 !== selectedMonth) return disabledColor;
+      const month = i + 1;
+      if (hasSelection && month === selectedMonth) return (a < 0 ? errorColor : color) + 'cc';
+      if (hasSelection && month === comparisonMonth) return (a < 0 ? errorColor : color) + '60';
+      if (hasSelection) return disabledColor;
       return a < 0 ? errorColor + 'cc' : color + 'cc';
     });
 
@@ -61,7 +68,7 @@ const TrendBarChart = ({ data, color, currency, height = 200, isLoading, selecte
         },
       ],
     };
-  }, [data, color, selectedMonth, theme.palette.error.main, theme.palette.action.disabledBackground, monthLabels]);
+  }, [data, color, selectedMonth, comparisonMonth, theme.palette.error.main, theme.palette.action.disabledBackground, monthLabels]);
 
   const chartOptions = useMemo(() => ({
     responsive: true,
