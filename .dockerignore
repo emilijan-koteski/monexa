@@ -56,3 +56,4 @@ CLAUDE.md
 
 # MCP server
 mcp-server/
+.playwright-mcp/
