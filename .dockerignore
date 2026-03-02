@@ -52,3 +52,7 @@ temp/
 
 # Claude/AI files
 .claude/
+CLAUDE.md
+
+# MCP server
+mcp-server/
