@@ -128,9 +128,37 @@ services:
       - /var/cache/nginx
       - /var/run
 
+  portainer:
+    container_name: monexa_portainer
+    image: portainer/portainer-ce:alpine
+    ports:
+      - "127.0.0.1:${PORTAINER_PORT:-9443}:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data_monexa:/data
+    networks:
+      - monexa-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
 networks:
   monexa-network:
     driver: bridge
 
 volumes:
   psql_volume_monexa:
+  portainer_data_monexa:

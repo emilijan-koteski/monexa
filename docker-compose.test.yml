@@ -75,9 +75,22 @@ services:
       - monexa-network
     restart: unless-stopped
 
+  portainer:
+    container_name: monexa_portainer_test
+    image: portainer/portainer-ce:alpine
+    ports:
+      - "127.0.0.1:${PORTAINER_PORT:-9443}:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data_monexa_test:/data
+    networks:
+      - monexa-network
+    restart: unless-stopped
+
 networks:
   monexa-network:
     driver: bridge
 
 volumes:
   psql_volume_monexa_test:
+  portainer_data_monexa_test:
