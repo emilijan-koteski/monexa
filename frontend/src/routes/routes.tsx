@@ -8,6 +8,8 @@ import AuthRoute from '../components/auth-route/AuthRoute.tsx';
 const HomePage = lazy(() => import('../pages/home/HomePage.tsx'));
 const LoginPage = lazy(() => import('../pages/auth/LoginPage.tsx'));
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage.tsx'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage.tsx'));
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage.tsx'));
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage.tsx'));
 const CategoriesPage = lazy(() => import('../pages/categories/CategoriesPage.tsx'));
 const CategoryDetailsPage = lazy(() => import('../pages/categories/category-details/CategoryDetailsPage.tsx'));
@@ -32,6 +34,8 @@ function AppRoutes() {
           <Route element={<AuthRoute/>}>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
+            <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+            <Route path="/reset-password" element={<ResetPasswordPage/>}/>
           </Route>
 
           {/* Protected routes with layout */}

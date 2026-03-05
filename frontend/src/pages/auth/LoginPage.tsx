@@ -143,6 +143,12 @@ const LoginPage = () => {
                     )}
                   />
 
+                  <Box className="forgot-password-container">
+                    <Link component={RouterLink} to="/forgot-password" variant="body2">
+                      {t('FORGOT_PASSWORD')}
+                    </Link>
+                  </Box>
+
                   <Button
                     type="submit"
                     fullWidth
