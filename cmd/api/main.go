@@ -36,6 +36,7 @@ func main() {
 
 	// Init clients
 	exchangeRateClient := clients.NewExchangeRateAPIClient()
+	mailClient := clients.NewMailClient()
 	log.Println("👍 [4] Clients initiated successfully")
 
 	// Init services
@@ -51,6 +52,7 @@ func main() {
 	paymentMethodService := services.NewPaymentMethodService(db)
 	exportService := services.NewExportService(db, settingService)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
+	_ = services.NewMailService(mailClient) // TODO: pass to handlers when needed
 	log.Println("👍 [5] All services initiated successfully")
 
 	// Start background jobs
