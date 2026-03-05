@@ -23,6 +23,7 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY cmd/ cmd/
 COPY internal/ internal/
+COPY templates/ templates/
 
 # Build the binary
 # CGO_ENABLED=0 produces a statically linked binary
@@ -53,6 +54,7 @@ WORKDIR /app
 
 # Copy binary from builder
 COPY --from=builder /build/monexa-api /app/monexa-api
+COPY --from=builder /build/templates /app/templates
 
 # Change ownership to non-root user
 RUN chown -R monexa:monexa /app
