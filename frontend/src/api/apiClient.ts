@@ -12,7 +12,7 @@ let failedRequestsQueue: Array<{
   init?: RequestInit;
 }> = [];
 
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/logout', '/auth/tokens/renew'];
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/logout', '/auth/tokens/renew', '/auth/forgot-password', '/auth/reset-password'];
 
 const isAuthEndpoint = (url: string): boolean => {
   return AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));

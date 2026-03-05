@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { ENV } from '../config/env';
-import type { ChangePasswordRequest, LoginRequest, RegisterRequest } from '../types/requests';
+import type { ChangePasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest } from '../types/requests';
 import type { AuthResponse } from '../types/responses';
 import { apiClient } from '../api/apiClient';
 import { tokenUtils } from '../utils/tokenUtils';
@@ -87,6 +87,39 @@ export const authApi = {
       const error = await response.json();
       throw new Error(error.message || 'Account deletion failed');
     }
+  },
+
+  forgotPassword: async (email: string): Promise<void> => {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to send reset email');
+    }
+  },
+
+  resetPassword: async (data: ResetPasswordRequest): Promise<AuthResponse> => {
+    const response = await apiClient(`${ENV.API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Password reset failed');
+    }
+
+    const result = await response.json();
+    return result.data;
   },
 };
 
@@ -182,6 +215,31 @@ export const useDeleteAccount = () => {
       tokenUtils.clearTokens();
       queryClient.clear();
       navigate('/login');
+    },
+  });
+};
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: (email: string) => authApi.forgotPassword(email),
+  });
+};
+
+export const useResetPassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: authApi.resetPassword,
+    onSuccess: (data) => {
+      tokenUtils.setTokens(
+        data.accessToken,
+        data.accessTokenExpiresAt,
+        data.refreshToken,
+        data.refreshTokenExpiresAt
+      );
+      tokenUtils.setUser(data.user);
+
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
     },
   });
 };
