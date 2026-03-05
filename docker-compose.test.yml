@@ -43,6 +43,7 @@ services:
       SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Monexa}
       SMTP_USER: ${SMTP_USER:-noreply.monexa@gmail.com}
       SMTP_PASS: ${SMTP_PASS:-xxxx xxxx xxxx xxxx}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     ports:
       - "${SERVER_PORT:-9000}:9000"
     depends_on:

@@ -41,7 +41,8 @@ func main() {
 
 	// Init services
 	healthService := services.NewHealthService(db)
-	userService := services.NewUserService(db)
+	mailService := services.NewMailService(mailClient)
+	userService := services.NewUserService(db, mailService)
 	tokenMaker := token.NewJWTMaker()
 	sessionService := services.NewSessionService(db)
 	settingService := services.NewSettingService(db)
@@ -51,7 +52,6 @@ func main() {
 	paymentMethodService := services.NewPaymentMethodService(db)
 	exportService := services.NewExportService(db, settingService)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
-	_ = services.NewMailService(mailClient) // TODO: pass to handlers when needed
 	log.Println("👍 [5] All services initiated successfully")
 
 	// Start background jobs

@@ -362,6 +362,22 @@ func Migrate(db *gorm.DB) {
 				return tx.Migrator().DropTable("trend_reports")
 			},
 		},
+		{
+			ID: "20260305184000_create_password_reset_tokens_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := tx.AutoMigrate(&models.PasswordResetToken{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					ALTER TABLE public.password_reset_tokens
+					ADD CONSTRAINT fk_password_reset_tokens_user
+					FOREIGN KEY (user_id) REFERENCES public.users(id);
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("password_reset_tokens")
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {

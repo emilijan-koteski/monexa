@@ -1,9 +1,17 @@
 package services
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"html/template"
+	"log"
+	"os"
+	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
@@ -12,12 +20,18 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	PasswordResetTokenDuration = 30 * time.Minute
+	PasswordResetTokenBytes    = 32
+)
+
 type UserService struct {
-	db *gorm.DB
+	db          *gorm.DB
+	mailService *MailService
 }
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db: db}
+func NewUserService(db *gorm.DB, mailService *MailService) *UserService {
+	return &UserService{db: db, mailService: mailService}
 }
 
 func (s *UserService) GetUserByExample(ctx context.Context, example models.User) (*models.User, error) {
@@ -207,4 +221,141 @@ func (s *UserService) UpdateUser(ctx context.Context, userID uint, req requests.
 	}
 
 	return &user, nil
+}
+
+func (s *UserService) RequestPasswordReset(ctx context.Context, email string) error {
+	user, err := s.GetUserByExample(ctx, models.User{Email: email})
+	if err != nil {
+		return nil
+	}
+
+	plainToken, tokenHash, err := generateResetToken()
+	if err != nil {
+		return fmt.Errorf("failed to generate reset token: %w", err)
+	}
+
+	tx := s.db.WithContext(ctx).Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Model(&models.PasswordResetToken{}).
+		Where("user_id = ? AND used_at IS NULL", user.ID).
+		Update("used_at", time.Now()).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to invalidate existing tokens: %w", err)
+	}
+
+	resetToken := models.PasswordResetToken{
+		UserID:    user.ID,
+		TokenHash: tokenHash,
+		ExpiresAt: time.Now().Add(PasswordResetTokenDuration),
+	}
+	if err := tx.Create(&resetToken).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to store reset token: %w", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit password reset token: %w", err)
+	}
+
+	go func() {
+		resetURL := fmt.Sprintf("%s/reset-password?token=%s", os.Getenv("FRONTEND_URL"), plainToken)
+
+		tmpl, err := template.ParseFiles("templates/email/password_reset.html")
+		if err != nil {
+			log.Printf("failed to parse email template: %v", err)
+			return
+		}
+
+		var body bytes.Buffer
+		if err := tmpl.Execute(&body, map[string]string{
+			"UserName": user.Name,
+			"ResetURL": resetURL,
+		}); err != nil {
+			log.Printf("failed to render email template: %v", err)
+			return
+		}
+
+		if err := s.mailService.SendHTML(user.Email, "Reset your password", body.String()); err != nil {
+			log.Printf("failed to send reset email to %s: %v", user.Email, err)
+		}
+	}()
+
+	return nil
+}
+
+func (s *UserService) ResetPassword(ctx context.Context, token string, newPassword string) (*models.User, error) {
+	tokenHash := hashResetToken(token)
+
+	tx := s.db.WithContext(ctx).Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var resetToken models.PasswordResetToken
+	if err := tx.Where("token_hash = ? AND used_at IS NULL AND expires_at > ?", tokenHash, time.Now()).
+		First(&resetToken).Error; err != nil {
+		tx.Rollback()
+		return nil, errors.New("invalid or expired reset token")
+	}
+
+	now := time.Now()
+	if err := tx.Model(&resetToken).Update("used_at", now).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to mark token as used: %w", err)
+	}
+
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	if err := tx.Model(&models.User{}).
+		Where("id = ?", resetToken.UserID).
+		Update("password", hashedPassword).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to update password: %w", err)
+	}
+
+	if err := tx.Model(&models.PasswordResetToken{}).
+		Where("user_id = ? AND used_at IS NULL", resetToken.UserID).
+		Update("used_at", now).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to invalidate remaining tokens: %w", err)
+	}
+
+	var user models.User
+	if err := tx.First(&user, resetToken.UserID).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to fetch user: %w", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("failed to commit password reset: %w", err)
+	}
+
+	return &user, nil
+}
+
+func generateResetToken() (plain string, hash string, err error) {
+	b := make([]byte, PasswordResetTokenBytes)
+	if _, err := rand.Read(b); err != nil {
+		return "", "", fmt.Errorf("failed to generate random token: %w", err)
+	}
+	plain = base64.RawURLEncoding.EncodeToString(b)
+	return plain, hashResetToken(plain), nil
+}
+
+func hashResetToken(plainToken string) string {
+	h := sha256.Sum256([]byte(plainToken))
+	return base64.RawURLEncoding.EncodeToString(h[:])
 }
