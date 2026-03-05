@@ -39,6 +39,8 @@ func RegisterAuthHandler(
 	v1.POST("/logout", handler.Logout)
 	v1.POST("/tokens/renew", handler.RenewAccessToken)
 	v1.POST("/sessions/revoke", handler.RevokeSession)
+	v1.POST("/forgot-password", handler.ForgotPassword)
+	v1.POST("/reset-password", handler.ResetPassword)
 
 	// Restricted group
 	r1 := v1.Group("")
@@ -253,4 +255,66 @@ func (h *authHandler) ChangePassword(c echo.Context) error {
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), claims.UserID)
 
 	return responses.SuccessWithMessage(c, "password changed successfully")
+}
+
+func (h *authHandler) ForgotPassword(c echo.Context) error {
+	req := requests.ForgotPasswordRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
+	}
+
+	_ = h.userService.RequestPasswordReset(c.Request().Context(), req.Email)
+
+	return responses.SuccessWithMessage(c, "if that email is registered, a reset link has been sent")
+}
+
+func (h *authHandler) ResetPassword(c echo.Context) error {
+	req := requests.ResetPasswordRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
+	}
+
+	if req.NewPassword != req.ConfirmPassword {
+		return responses.BadRequestWithMessage(c, "passwords do not match")
+	}
+
+	user, err := h.userService.ResetPassword(c.Request().Context(), req.Token, req.NewPassword)
+	if err != nil {
+		return responses.BadRequestWithMessage(c, "invalid or expired reset token")
+	}
+
+	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), user.ID)
+
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating access token")
+	}
+
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user)
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating refresh token")
+	}
+
+	session, err := h.sessionService.CreateSessionFromExample(c.Request().Context(), models.Session{
+		ID:           refreshClaims.RegisteredClaims.ID,
+		UserID:       user.ID,
+		RefreshToken: refreshToken,
+		IsRevoked:    false,
+		ExpiresAt:    refreshClaims.RegisteredClaims.ExpiresAt.Time,
+		CreatedAt:    refreshClaims.RegisteredClaims.IssuedAt.Time,
+		UpdatedAt:    &refreshClaims.RegisteredClaims.IssuedAt.Time,
+	})
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating session")
+	}
+
+	response := map[string]interface{}{}
+	response["sessionId"] = session.ID
+	response["accessToken"] = accessToken
+	response["refreshToken"] = refreshToken
+	response["accessTokenExpiresAt"] = accessClaims.RegisteredClaims.ExpiresAt.Time
+	response["refreshTokenExpiresAt"] = refreshClaims.RegisteredClaims.ExpiresAt.Time
+	response["user"] = *user
+
+	return responses.SuccessWithData(c, response)
 }
