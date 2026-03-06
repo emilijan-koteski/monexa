@@ -263,28 +263,15 @@ func (s *UserService) RequestPasswordReset(ctx context.Context, email string) er
 		return fmt.Errorf("failed to commit password reset token: %w", err)
 	}
 
-	go func() {
-		resetURL := fmt.Sprintf("%s/reset-password?token=%s", os.Getenv("FRONTEND_URL"), plainToken)
+	var language types.LanguageType
+	var setting models.Setting
+	if err := s.db.WithContext(ctx).Where("user_id = ?", user.ID).First(&setting).Error; err == nil {
+		language = setting.Language
+	} else {
+		language = types.EnglishLanguage
+	}
 
-		tmpl, err := template.ParseFiles("templates/email/password_reset.html")
-		if err != nil {
-			log.Printf("failed to parse email template: %v", err)
-			return
-		}
-
-		var body bytes.Buffer
-		if err := tmpl.Execute(&body, map[string]string{
-			"UserName": user.Name,
-			"ResetURL": resetURL,
-		}); err != nil {
-			log.Printf("failed to render email template: %v", err)
-			return
-		}
-
-		if err := s.mailService.SendHTML(user.Email, "Reset your password", body.String()); err != nil {
-			log.Printf("failed to send reset email to %s: %v", user.Email, err)
-		}
-	}()
+	go s.sendPasswordResetEmail(user.Email, user.Name, plainToken, language)
 
 	return nil
 }
@@ -358,4 +345,30 @@ func generateResetToken() (plain string, hash string, err error) {
 func hashResetToken(plainToken string) string {
 	h := sha256.Sum256([]byte(plainToken))
 	return base64.RawURLEncoding.EncodeToString(h[:])
+}
+
+func (s *UserService) sendPasswordResetEmail(email, name, token string, language types.LanguageType) {
+	resetURL := fmt.Sprintf("%s/reset-password?token=%s", os.Getenv("FRONTEND_URL"), token)
+
+	templatePath := s.mailService.GetEmailTemplatePath(PasswordResetTemplate, language)
+	tmpl, err := template.ParseFiles(templatePath)
+	if err != nil {
+		log.Printf("failed to parse email template: %v", err)
+		return
+	}
+
+	var body bytes.Buffer
+	if err := tmpl.Execute(&body, map[string]string{
+		"UserName": name,
+		"ResetURL": resetURL,
+	}); err != nil {
+		log.Printf("failed to render email template: %v", err)
+		return
+	}
+
+	subject := s.mailService.GetEmailSubject(PasswordResetTemplate, language)
+
+	if err := s.mailService.SendHTML(email, subject, body.String()); err != nil {
+		log.Printf("failed to send reset email to %s: %v", email, err)
+	}
 }
