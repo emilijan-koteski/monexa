@@ -82,9 +82,14 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
+	language := types.EnglishLanguage
+	if req.Language != nil && types.LanguageType(*req.Language) == types.MacedonianLanguage {
+		language = types.MacedonianLanguage
+	}
+
 	defaultSetting := models.Setting{
 		UserID:   user.ID,
-		Language: types.EnglishLanguage,
+		Language: language,
 		Currency: types.MacedonianDenar,
 	}
 
@@ -93,31 +98,14 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
-	defaultPaymentMethods := []models.PaymentMethod{
-		{UserID: user.ID, Name: "Cash"},
-		{UserID: user.ID, Name: "Card"},
-	}
+	defaultPaymentMethods := getDefaultPaymentMethods(user.ID, language)
 
 	if err = tx.Create(&defaultPaymentMethods).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	defaultCategories := []models.Category{
-		{UserID: user.ID, Name: "Food", Type: types.Expense, Description: utils.Ptr("Meals, dining out (restaurants, takeout, fast food, etc.)"), Color: utils.Ptr("#FF5733")},
-		{UserID: user.ID, Name: "Groceries", Type: types.Expense, Description: utils.Ptr("Supermarket purchases, fresh produce, household food supplies"), Color: utils.Ptr("#4EFF33")},
-		{UserID: user.ID, Name: "Transportation", Type: types.Expense, Description: utils.Ptr("Gas, public transport, ride-sharing, parking fees"), Color: utils.Ptr("#33CFFF")},
-		{UserID: user.ID, Name: "Housing", Type: types.Expense, Description: utils.Ptr("Rent, mortgage, property taxes, home maintenance"), Color: utils.Ptr("#FF33A8")},
-		{UserID: user.ID, Name: "Medical", Type: types.Expense, Description: utils.Ptr("Doctor visits, medication, insurance co-pays"), Color: utils.Ptr("#FF3333")},
-		{UserID: user.ID, Name: "Shopping", Type: types.Expense, Description: utils.Ptr("Clothes, accessories, general retail purchases"), Color: utils.Ptr("#FF9F33")},
-		{UserID: user.ID, Name: "Entertainment", Type: types.Expense, Description: utils.Ptr("Movies, concerts, gaming, hobbies, streaming services"), Color: utils.Ptr("#F433FF")},
-		{UserID: user.ID, Name: "Drinks", Type: types.Expense, Description: utils.Ptr("Coffee, soft drinks, alcohol, bottled water"), Color: utils.Ptr("#33FFD1")},
-		{UserID: user.ID, Name: "Debt & Loans", Type: types.Expense, Description: utils.Ptr("Credit card payments, personal or student loans"), Color: utils.Ptr("#A833FF")},
-		{UserID: user.ID, Name: "Gifts & Donations", Type: types.Expense, Description: utils.Ptr("Charity contributions, birthday and wedding gifts"), Color: utils.Ptr("#FFD733")},
-		{UserID: user.ID, Name: "Pets", Type: types.Expense, Description: utils.Ptr("Pet food, vet visits, grooming, pet accessories"), Color: utils.Ptr("#33FF57")},
-		{UserID: user.ID, Name: "Others", Type: types.Expense, Description: utils.Ptr("Any expenses that don’t fit other categories"), Color: utils.Ptr("#8A8A8A")},
-		{UserID: user.ID, Name: "Income", Type: types.Income, Description: utils.Ptr("Salary, freelance, investments, gifts, refunds, and rebates"), Color: utils.Ptr("#33FFB5")},
-	}
+	defaultCategories := getDefaultCategories(user.ID, language)
 
 	if err = tx.Create(&defaultCategories).Error; err != nil {
 		tx.Rollback()
@@ -357,6 +345,54 @@ func (s *UserService) CleanupExpiredResetTokens(ctx context.Context) (int64, err
 	}
 
 	return result.RowsAffected, nil
+}
+
+func getDefaultPaymentMethods(userID uint, language types.LanguageType) []models.PaymentMethod {
+	if language == types.MacedonianLanguage {
+		return []models.PaymentMethod{
+			{UserID: userID, Name: "Кеш"},
+			{UserID: userID, Name: "Картичка"},
+		}
+	}
+	return []models.PaymentMethod{
+		{UserID: userID, Name: "Cash"},
+		{UserID: userID, Name: "Card"},
+	}
+}
+
+func getDefaultCategories(userID uint, language types.LanguageType) []models.Category {
+	if language == types.MacedonianLanguage {
+		return []models.Category{
+			{UserID: userID, Name: "Храна", Type: types.Expense, Description: utils.Ptr("Оброци, јадење надвор (ресторани, брза храна итн.)"), Color: utils.Ptr("#FF5733")},
+			{UserID: userID, Name: "Намирници", Type: types.Expense, Description: utils.Ptr("Купување во маркет, свежи производи, домашни потреби"), Color: utils.Ptr("#4EFF33")},
+			{UserID: userID, Name: "Транспорт", Type: types.Expense, Description: utils.Ptr("Гориво, јавен превоз, такси, паркирање"), Color: utils.Ptr("#33CFFF")},
+			{UserID: userID, Name: "Домување", Type: types.Expense, Description: utils.Ptr("Кирија, хипотека, данок на имот, одржување на дом"), Color: utils.Ptr("#FF33A8")},
+			{UserID: userID, Name: "Медицина", Type: types.Expense, Description: utils.Ptr("Доктор, лекарства, осигурување"), Color: utils.Ptr("#FF3333")},
+			{UserID: userID, Name: "Шопинг", Type: types.Expense, Description: utils.Ptr("Облека, додатоци, општо купување"), Color: utils.Ptr("#FF9F33")},
+			{UserID: userID, Name: "Забава", Type: types.Expense, Description: utils.Ptr("Филмови, концерти, игри, хобија, стриминг сервиси"), Color: utils.Ptr("#F433FF")},
+			{UserID: userID, Name: "Пијалаци", Type: types.Expense, Description: utils.Ptr("Кафе, безалкохолни пијалаци, алкохол, вода"), Color: utils.Ptr("#33FFD1")},
+			{UserID: userID, Name: "Долгови и заеми", Type: types.Expense, Description: utils.Ptr("Кредитни картички, лични или студентски заеми"), Color: utils.Ptr("#A833FF")},
+			{UserID: userID, Name: "Подароци и донации", Type: types.Expense, Description: utils.Ptr("Хуманитарни прилози, подароци за роденден и свадба"), Color: utils.Ptr("#FFD733")},
+			{UserID: userID, Name: "Домашни миленици", Type: types.Expense, Description: utils.Ptr("Храна за миленици, ветеринар, нега, додатоци"), Color: utils.Ptr("#33FF57")},
+			{UserID: userID, Name: "Останато", Type: types.Expense, Description: utils.Ptr("Трошоци кои не спаѓаат во други категории"), Color: utils.Ptr("#8A8A8A")},
+			{UserID: userID, Name: "Приход", Type: types.Income, Description: utils.Ptr("Плата, инвестиции, подароци, поврат на средства"), Color: utils.Ptr("#33FFB5")},
+		}
+	}
+	return []models.Category{
+		{UserID: userID, Name: "Food", Type: types.Expense, Description: utils.Ptr("Meals, dining out (restaurants, takeout, fast food, etc.)"), Color: utils.Ptr("#FF5733")},
+		{UserID: userID, Name: "Groceries", Type: types.Expense, Description: utils.Ptr("Supermarket purchases, fresh produce, household food supplies"), Color: utils.Ptr("#4EFF33")},
+		{UserID: userID, Name: "Transportation", Type: types.Expense, Description: utils.Ptr("Gas, public transport, ride-sharing, parking fees"), Color: utils.Ptr("#33CFFF")},
+		{UserID: userID, Name: "Housing", Type: types.Expense, Description: utils.Ptr("Rent, mortgage, property taxes, home maintenance"), Color: utils.Ptr("#FF33A8")},
+		{UserID: userID, Name: "Medical", Type: types.Expense, Description: utils.Ptr("Doctor visits, medication, insurance co-pays"), Color: utils.Ptr("#FF3333")},
+		{UserID: userID, Name: "Shopping", Type: types.Expense, Description: utils.Ptr("Clothes, accessories, general retail purchases"), Color: utils.Ptr("#FF9F33")},
+		{UserID: userID, Name: "Entertainment", Type: types.Expense, Description: utils.Ptr("Movies, concerts, gaming, hobbies, streaming services"), Color: utils.Ptr("#F433FF")},
+		{UserID: userID, Name: "Drinks", Type: types.Expense, Description: utils.Ptr("Coffee, soft drinks, alcohol, bottled water"), Color: utils.Ptr("#33FFD1")},
+		{UserID: userID, Name: "Debt & Loans", Type: types.Expense, Description: utils.Ptr("Credit card payments, personal or student loans"), Color: utils.Ptr("#A833FF")},
+		{UserID: userID, Name: "Gifts & Donations", Type: types.Expense, Description: utils.Ptr("Charity contributions, birthday and wedding gifts"), Color: utils.Ptr("#FFD733")},
+		{UserID: userID, Name: "Pets", Type: types.Expense, Description: utils.Ptr("Pet food, vet visits, grooming, pet accessories"), Color: utils.Ptr("#33FF57")},
+		{UserID: userID, Name: "Others", Type: types.Expense, Description: utils.Ptr("Any expenses that don't fit other categories"), Color: utils.Ptr("#8A8A8A")},
+		{UserID: userID, Name: "Income", Type: types.Income, Description: utils.Ptr("Salary, freelance, investments, gifts, refunds, and rebates"), Color: utils.Ptr("#33FFB5")},
+	}
 }
 
 func (s *UserService) sendPasswordResetEmail(email, name, token string, language types.LanguageType) {

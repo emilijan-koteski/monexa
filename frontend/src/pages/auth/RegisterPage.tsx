@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { useRegister } from '../../services/authService.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
+import { getLanguage } from '../../utils/storage.ts';
 import './register-page.scss';
 
 const RegisterPage = () => {
@@ -56,8 +57,8 @@ const RegisterPage = () => {
   const registerMutation = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
-    const { ...registerData } = data;
-    registerMutation.mutate(registerData, {
+    const { confirmPassword, ...registerData } = data;
+    registerMutation.mutate({ ...registerData, language: getLanguage() }, {
       onSuccess: () => {
         navigate('/');
       },
