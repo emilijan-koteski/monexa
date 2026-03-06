@@ -57,8 +57,7 @@ const RegisterPage = () => {
   const registerMutation = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
-    const { confirmPassword: _, ...registerData } = data;
-    registerMutation.mutate({ ...registerData, language: getLanguage() }, {
+    registerMutation.mutate({ name: data.name, email: data.email, password: data.password, language: getLanguage() }, {
       onSuccess: () => {
         navigate('/');
       },
