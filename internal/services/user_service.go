@@ -347,8 +347,20 @@ func hashResetToken(plainToken string) string {
 	return base64.RawURLEncoding.EncodeToString(h[:])
 }
 
+func (s *UserService) CleanupExpiredResetTokens(ctx context.Context) (int64, error) {
+	result := s.db.WithContext(ctx).
+		Where("expires_at < ? OR used_at IS NOT NULL", time.Now()).
+		Delete(&models.PasswordResetToken{})
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return result.RowsAffected, nil
+}
+
 func (s *UserService) sendPasswordResetEmail(email, name, token string, language types.LanguageType) {
-	resetURL := fmt.Sprintf("%s/reset-password?token=%s", os.Getenv("FRONTEND_URL"), token)
+	resetURL := fmt.Sprintf("%s/reset-password?token=%s&lang=%s", os.Getenv("FRONTEND_URL"), token, string(language))
 
 	templatePath := s.mailService.GetEmailTemplatePath(PasswordResetTemplate, language)
 	tmpl, err := template.ParseFiles(templatePath)

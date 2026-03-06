@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faLock } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router';
 import { useResetPassword } from '../../services/authService.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
+import { changeLanguage } from '../../i18n.ts';
+import { Language } from '../../enums/Language.ts';
 import './reset-password-page.scss';
 
 const ResetPasswordPage = () => {
@@ -16,8 +18,15 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const lang = searchParams.get('lang');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (lang && Object.values(Language).includes(lang as Language)) {
+      changeLanguage(lang as Language);
+    }
+  }, [lang]);
 
   const resetPasswordSchema = z.object({
     newPassword: z
