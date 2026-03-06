@@ -61,6 +61,8 @@ func main() {
 	exchangeRateUpdateJob.Start()
 	resetTokenCleanupJob := jobs.NewResetTokenCleanupJob(userService, 24*time.Hour)
 	resetTokenCleanupJob.Start()
+	accountDeletionJob := jobs.NewAccountDeletionJob(userService, 24*time.Hour)
+	accountDeletionJob.Start()
 	log.Println("👍 [6] Background jobs started successfully")
 
 	// Init new echo client

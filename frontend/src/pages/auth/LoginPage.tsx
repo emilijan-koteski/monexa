@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faEye, faEyeSlash, faLock } from '@fortawesome/free-solid-svg-icons';
@@ -6,15 +6,25 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { Link as RouterLink, useNavigate } from 'react-router';
+import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router';
 import { useLogin } from '../../services/authService.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
+import { changeLanguage } from '../../i18n.ts';
+import { Language } from '../../enums/Language.ts';
 import './login-page.scss';
 
 const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const lang = searchParams.get('lang');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (lang && Object.values(Language).includes(lang as Language)) {
+      changeLanguage(lang as Language);
+    }
+  }, [lang]);
 
   const loginSchema = z.object({
     email: z

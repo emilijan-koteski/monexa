@@ -378,6 +378,24 @@ func Migrate(db *gorm.DB) {
 				return tx.Migrator().DropTable("password_reset_tokens")
 			},
 		},
+		{
+			ID: "20260306195500_add_soft_delete_to_settings",
+			Migrate: func(tx *gorm.DB) error {
+				if !tx.Migrator().HasColumn(&models.Setting{}, "DeletedAt") {
+					if err := tx.Migrator().AddColumn(&models.Setting{}, "DeletedAt"); err != nil {
+						return err
+					}
+				}
+				return tx.Exec("CREATE INDEX IF NOT EXISTS idx_settings_deleted_at ON settings (deleted_at)").Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				_ = tx.Exec("DROP INDEX IF EXISTS idx_settings_deleted_at").Error
+				if tx.Migrator().HasColumn(&models.Setting{}, "DeletedAt") {
+					return tx.Migrator().DropColumn(&models.Setting{}, "DeletedAt")
+				}
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
