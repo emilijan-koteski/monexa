@@ -11,6 +11,7 @@ import { useRegister } from '../../services/authService.ts';
 import { useActiveDocuments } from '../../services/legalDocumentService.ts';
 import { DocumentType } from '../../enums/DocumentType.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
+import { getLanguage } from '../../utils/storage.ts';
 import './register-page.scss';
 
 const RegisterPage = () => {
@@ -82,7 +83,8 @@ const RegisterPage = () => {
       name: data.name,
       email: data.email,
       password: data.password,
-      acceptedDocumentIds,
+      acceptedDocumentIds: acceptedDocumentIds,
+      language: getLanguage()
     };
 
     registerMutation.mutate(registerData, {

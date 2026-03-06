@@ -9,6 +9,7 @@ export interface RegisterRequest {
   password: string;
   name: string;
   acceptedDocumentIds: number[];
+  language?: string;
 }
 
 export interface ChangePasswordRequest {
