@@ -8,13 +8,18 @@ import (
 )
 
 const (
-	PasswordResetTemplate = "templates/email/password_reset.html"
+	PasswordResetTemplate   = "templates/email/password_reset.html"
+	AccountDeletionTemplate = "templates/email/account_deletion.html"
 )
 
 var emailSubjects = map[string]map[types.LanguageType]string{
 	PasswordResetTemplate: {
 		types.EnglishLanguage:    "Reset your password",
 		types.MacedonianLanguage: "Ресетирајте ја вашата лозинка",
+	},
+	AccountDeletionTemplate: {
+		types.EnglishLanguage:    "Account Deletion Notice",
+		types.MacedonianLanguage: "Известување за бришење на сметка",
 	},
 }
 

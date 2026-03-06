@@ -56,13 +56,20 @@ func (h *authHandler) Login(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{Email: req.Email})
+	user, err := h.userService.GetUserByEmailUnscoped(c.Request().Context(), req.Email)
 	if err != nil {
 		return responses.UnauthorizedWithMessage(c, "invalid credentials")
 	}
 
 	if err = utils.CheckPassword(req.Password, user.Password); err != nil {
 		return responses.UnauthorizedWithMessage(c, "invalid credentials")
+	}
+
+	if user.DeletedAt.Valid {
+		if err = h.userService.ReactivateUser(c.Request().Context(), user.ID); err != nil {
+			return responses.FailureWithMessage(c, "error reactivating account")
+		}
+		user.DeletedAt.Valid = false
 	}
 
 	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)

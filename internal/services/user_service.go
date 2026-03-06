@@ -21,6 +21,10 @@ import (
 )
 
 const (
+	AccountDeletionGraceDays = 7
+)
+
+const (
 	PasswordResetTokenDuration = 30 * time.Minute
 	PasswordResetTokenBytes    = 32
 )
@@ -163,25 +167,38 @@ func (s *UserService) DeleteUser(ctx context.Context, userID uint) error {
 		return errors.New("user not found")
 	}
 
-	anonymized := fmt.Sprintf("[Deleted User #%d]", userID)
-	if err := tx.Model(&user).Updates(map[string]any{
-		"email": anonymized,
-		"name":  anonymized,
-	}).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("failed to anonymize user: %w", err)
-	}
-
 	if err := tx.Delete(&user).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to delete user: %w", err)
+		return fmt.Errorf("failed to schedule user deletion: %w", err)
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return fmt.Errorf("failed to commit account deletion: %w", err)
+		return fmt.Errorf("failed to commit account deletion scheduling: %w", err)
 	}
 
+	var language types.LanguageType
+	var setting models.Setting
+	if err := s.db.WithContext(ctx).Where("user_id = ?", userID).First(&setting).Error; err == nil {
+		language = setting.Language
+	} else {
+		language = types.EnglishLanguage
+	}
+
+	go s.sendAccountDeletionEmail(user.Email, user.Name, "initial", language)
+
 	return nil
+}
+
+func (s *UserService) GetUserByEmailUnscoped(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+	if err := s.db.WithContext(ctx).Unscoped().Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (s *UserService) ReactivateUser(ctx context.Context, userID uint) error {
+	return s.db.WithContext(ctx).Unscoped().Model(&models.User{}).Where("id = ?", userID).Update("deleted_at", nil).Error
 }
 
 func (s *UserService) ChangePassword(ctx context.Context, userID uint, req requests.ChangePasswordRequest) error {
@@ -404,6 +421,182 @@ func getDefaultCategories(userID uint, language types.LanguageType) []models.Cat
 		{UserID: userID, Name: "Pets", Type: types.Expense, Description: utils.Ptr("Pet food, vet visits, grooming, pet accessories"), Color: utils.Ptr("#33FF57")},
 		{UserID: userID, Name: "Others", Type: types.Expense, Description: utils.Ptr("Any expenses that don't fit other categories"), Color: utils.Ptr("#8A8A8A")},
 		{UserID: userID, Name: "Income", Type: types.Income, Description: utils.Ptr("Salary, freelance, investments, gifts, refunds, and rebates"), Color: utils.Ptr("#33FFB5")},
+	}
+}
+
+func (s *UserService) GetUsersForDeletionReminder(ctx context.Context) ([]models.User, error) {
+	var users []models.User
+	now := time.Now()
+	windowStart := now.AddDate(0, 0, -AccountDeletionGraceDays)
+	windowEnd := now.AddDate(0, 0, -(AccountDeletionGraceDays - 1))
+
+	if err := s.db.WithContext(ctx).Unscoped().
+		Where("deleted_at IS NOT NULL AND deleted_at BETWEEN ? AND ? AND email NOT LIKE ?", windowStart, windowEnd, "[Deleted User%").
+		Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (s *UserService) GetUsersForFinalDeletion(ctx context.Context) ([]models.User, error) {
+	var users []models.User
+	threshold := time.Now().AddDate(0, 0, -AccountDeletionGraceDays)
+
+	if err := s.db.WithContext(ctx).Unscoped().
+		Where("deleted_at IS NOT NULL AND deleted_at <= ? AND email NOT LIKE ?", threshold, "[Deleted User%").
+		Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (s *UserService) SendDeletionReminderEmail(ctx context.Context, user models.User) {
+	var language types.LanguageType
+	var setting models.Setting
+	if err := s.db.WithContext(ctx).Where("user_id = ?", user.ID).First(&setting).Error; err == nil {
+		language = setting.Language
+	} else {
+		language = types.EnglishLanguage
+	}
+
+	s.sendAccountDeletionEmail(user.Email, user.Name, "reminder", language)
+}
+
+func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) error {
+	tx := s.db.WithContext(ctx).Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Re-check user is still soft-deleted (race condition guard)
+	var user models.User
+	if err := tx.Unscoped().Where("id = ? AND deleted_at IS NOT NULL", userID).First(&user).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("user %d not found or already reactivated: %w", userID, err)
+	}
+
+	now := time.Now()
+
+	// Anonymize and soft-delete categories
+	if err := tx.Unscoped().Model(&models.Category{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
+		"name":        gorm.Expr("CONCAT('[Deleted Category #', id, ']')"),
+		"description": gorm.Expr("CONCAT('[Deleted Category #', id, ']')"),
+		"color":       nil,
+		"deleted_at":  now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize categories: %w", err)
+	}
+
+	// Anonymize and soft-delete records
+	if err := tx.Unscoped().Model(&models.Record{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
+		"description": gorm.Expr("CONCAT('[Deleted Record #', id, ']')"),
+		"amount":      0,
+		"deleted_at":  now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize records: %w", err)
+	}
+
+	// Anonymize and soft-delete payment methods
+	if err := tx.Unscoped().Model(&models.PaymentMethod{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
+		"name":       gorm.Expr("CONCAT('[Deleted Payment Method #', id, ']')"),
+		"deleted_at": now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize payment methods: %w", err)
+	}
+
+	// Anonymize and soft-delete trend reports
+	if err := tx.Unscoped().Model(&models.TrendReport{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
+		"title":       gorm.Expr("CONCAT('[Deleted Trend Report #', id, ']')"),
+		"description": gorm.Expr("CONCAT('[Deleted Trend Report #', id, ']')"),
+		"color":       nil,
+		"deleted_at":  now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize trend reports: %w", err)
+	}
+
+	// Anonymize and soft-delete settings
+	if err := tx.Unscoped().Model(&models.Setting{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
+		"language":   gorm.Expr("CONCAT('[Deleted Setting #', id, ']')"),
+		"currency":   gorm.Expr("CONCAT('[Deleted Setting #', id, ']')"),
+		"deleted_at": now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize settings: %w", err)
+	}
+
+	// Anonymize user and randomize password
+	randomBytes := make([]byte, 32)
+	if _, err := rand.Read(randomBytes); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to generate random password: %w", err)
+	}
+	hashedPassword, err := utils.HashPassword(base64.RawURLEncoding.EncodeToString(randomBytes))
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to hash random password: %w", err)
+	}
+
+	anonymized := fmt.Sprintf("[Deleted User #%d]", userID)
+	if err := tx.Unscoped().Model(&user).Updates(map[string]any{
+		"email":    anonymized,
+		"name":     anonymized,
+		"password": hashedPassword,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize user: %w", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit final user deletion: %w", err)
+	}
+
+	return nil
+}
+
+func (s *UserService) sendAccountDeletionEmail(email, name, period string, language types.LanguageType) {
+	var deletePeriod string
+	if period == "reminder" {
+		deletePeriod = "tomorrow"
+		if language == types.MacedonianLanguage {
+			deletePeriod = "утре"
+		}
+	} else {
+		deletePeriod = "in 7 days"
+		if language == types.MacedonianLanguage {
+			deletePeriod = "за 7 дена"
+		}
+	}
+
+	reactivateURL := fmt.Sprintf("%s/login?lang=%s", os.Getenv("FRONTEND_URL"), string(language))
+
+	templatePath := s.mailService.GetEmailTemplatePath(AccountDeletionTemplate, language)
+	tmpl, err := template.ParseFiles(templatePath)
+	if err != nil {
+		log.Printf("failed to parse account deletion email template: %v", err)
+		return
+	}
+
+	var body bytes.Buffer
+	if err := tmpl.Execute(&body, map[string]string{
+		"UserName":      name,
+		"DeletePeriod":  deletePeriod,
+		"ReactivateURL": reactivateURL,
+	}); err != nil {
+		log.Printf("failed to render account deletion email template: %v", err)
+		return
+	}
+
+	subject := s.mailService.GetEmailSubject(AccountDeletionTemplate, language)
+
+	if err := s.mailService.SendHTML(email, subject, body.String()); err != nil {
+		log.Printf("failed to send account deletion email to %s: %v", email, err)
 	}
 }
 
