@@ -232,5 +232,8 @@
   "LEGAL_DOCUMENT_ACCEPT_ERROR": "Неуспешно прифаќање на документот. Обидете се повторно.",
   "LEGAL_DOCUMENTS_ACCEPTED_SUCCESS": "Ви благодариме што ги прифативте нашите правни документи!",
   "ACCEPT_AND_CONTINUE": "Прифати и продолжи",
-  "ACCEPT_AND_NEXT": "Прифати и следно"
+  "ACCEPT_AND_NEXT": "Прифати и следно",
+  "LEGAL_DECLINE_SECTION_TITLE": "Не сакате да прифатите?",
+  "LEGAL_DECLINE_SECTION_MESSAGE": "Можете да ги преземете вашите податоци или да ја избришете сметката.",
+  "DOWNLOAD_MY_DATA": "Преземи ги моите податоци"
 }

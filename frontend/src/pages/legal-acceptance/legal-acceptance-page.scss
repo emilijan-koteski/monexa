@@ -8,10 +8,20 @@
   justify-content: center;
   background: $gradient-background;
 
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .page-container {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
     align-items: center;
     justify-content: center;
 
@@ -27,35 +37,41 @@
     max-height: 90vh;
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
 
     @include sm-down {
-      padding: 1.5rem;
-      max-height: 100vh;
-      height: 100vh;
+      padding: 1.25rem;
+      max-height: none;
+      min-height: 100vh;
       border-radius: 0;
       border: none;
       box-shadow: none;
-      overflow: hidden;
+      overflow: visible;
+      gap: 0.75rem;
     }
   }
 
   .acceptance-header {
-    display: flex;
+    flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
+    gap: 0.75rem;
 
-  .acceptance-stepper {
-    margin-bottom: 1.5rem;
+    .header-text {
+      gap: 0.75rem;
+    }
+
+    .header-title {
+      @include sm-down {
+        font-size: 1.25rem;
+      }
+    }
   }
 
   .document-section {
-    display: flex;
-    flex-direction: column;
     flex: 1;
-    min-height: 0; // allow flex child to shrink below content size
+    min-height: 0;
+    gap: 0.25rem;
   }
 
   .document-content {
@@ -63,7 +79,14 @@
     color: $color-text-secondary;
     overflow-y: auto;
     flex: 1;
-    padding: 0.5rem 0.5rem 0.5rem 0;
+    padding-right: 0.75rem;
+    margin-top: 0.75rem;
+
+    @include sm-down {
+      overflow-y: visible;
+      flex: none;
+      padding-right: 0;
+    }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -107,7 +130,7 @@
       font-weight: 600;
       color: $color-text-primary;
       margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
     p {
@@ -138,10 +161,45 @@
   .acceptance-footer {
     flex-shrink: 0;
     margin-top: auto;
-    padding-top: 0.5rem;
+    gap: 0.75rem;
 
     .accept-checkbox {
-      margin-left: -6px; // offset so hover ripple isn't clipped
+      margin-left: -6px;
+    }
+
+    .accept-button {
+      align-self: flex-end;
+      min-width: 180px;
+
+      @include sm-down {
+        align-self: stretch;
+      }
+    }
+  }
+
+  .alternatives-section {
+    flex-shrink: 0;
+    gap: 0.75rem;
+
+    .alternatives-divider {
+      &::before,
+      &::after {
+        border-color: $color-border;
+      }
+    }
+
+    .alternatives-message {
+      text-align: center;
+    }
+
+    .alternatives-buttons {
+      flex-direction: row;
+      justify-content: center;
+      gap: 0.75rem;
+
+      @include sm-down {
+        flex-direction: column;
+      }
     }
   }
 }

@@ -232,5 +232,8 @@
   "LEGAL_DOCUMENT_ACCEPT_ERROR": "Failed to accept document. Please try again.",
   "LEGAL_DOCUMENTS_ACCEPTED_SUCCESS": "Thank you for accepting our legal documents!",
   "ACCEPT_AND_CONTINUE": "Accept and Continue",
-  "ACCEPT_AND_NEXT": "Accept and Next"
+  "ACCEPT_AND_NEXT": "Accept and Next",
+  "LEGAL_DECLINE_SECTION_TITLE": "Don't want to accept?",
+  "LEGAL_DECLINE_SECTION_MESSAGE": "You can download your data or delete your account instead.",
+  "DOWNLOAD_MY_DATA": "Download My Data"
 }
