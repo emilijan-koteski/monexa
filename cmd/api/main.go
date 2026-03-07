@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/clients"
@@ -39,11 +40,14 @@ func main() {
 	mailClient := clients.NewMailClient()
 	log.Println("👍 [4] Clients initiated successfully")
 
+	// Feature flags
+	legalComplianceEnabled := strings.ToLower(os.Getenv("LEGAL_COMPLIANCE_ENABLED")) != "false"
+
 	// Init services
 	healthService := services.NewHealthService(db)
 	mailService := services.NewMailService(mailClient)
 	legalDocumentService := services.NewLegalDocumentService(db)
-	userService := services.NewUserService(db, mailService, legalDocumentService)
+	userService := services.NewUserService(db, mailService, legalDocumentService, legalComplianceEnabled)
 	tokenMaker := token.NewJWTMaker()
 	sessionService := services.NewSessionService(db)
 	settingService := services.NewSettingService(db)
@@ -85,14 +89,16 @@ func main() {
 
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
-	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService)
+	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService, legalComplianceEnabled)
 	handlers.RegisterUserHandler(e, userService, exportService)
 	handlers.RegisterRecordHandler(e, recordService)
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService)
 	handlers.RegisterCategoryHandler(e, categoryService)
 	handlers.RegisterSettingHandler(e, settingService)
 	handlers.RegisterTrendReportHandler(e, trendReportService)
-	handlers.RegisterLegalDocumentHandler(e, legalDocumentService)
+	if legalComplianceEnabled {
+		handlers.RegisterLegalDocumentHandler(e, legalDocumentService)
+	}
 	log.Println("👍 [9] All handlers and routes registered successfully")
 
 	// Start HTTP server

@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Divider, Paper, Stack, Typography } from '@mui/material';
+import { CircularProgress, Container, Divider, Paper, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDocumentByType } from '../../services/legalDocumentService';
 import { DocumentType } from '../../enums/DocumentType';
@@ -12,19 +12,21 @@ const TermsOfServicePage = () => {
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
+      <div id="terms-of-service-page">
+        <div className="loading-container">
+          <CircularProgress />
+        </div>
+      </div>
     );
   }
 
   if (error || !document) {
     return (
-      <Container maxWidth="md">
-        <Box py={4}>
+      <div id="terms-of-service-page">
+        <Container maxWidth="md" className="error-container">
           <Typography color="text.secondary">{t('LEGAL_DOCUMENT_LOAD_ERROR')}</Typography>
-        </Box>
-      </Container>
+        </Container>
+      </div>
     );
   }
 
@@ -32,19 +34,19 @@ const TermsOfServicePage = () => {
     <div id="terms-of-service-page">
       <Container maxWidth="md" className="page-container">
         <Paper className="document-paper">
-          <Box className="document-header">
-            <Stack gap={1.25}>
-              <Typography variant="h4" className="document-title">
+          <Stack className="document-header">
+            <Stack className="header-text">
+              <Typography variant="h4" fontWeight={600} className="document-title">
                 {t(document.type)}
               </Typography>
-              <Typography variant="body2" className="document-meta">
+              <Typography variant="body2" color="text.secondary">
                 {t('VERSION')}: {document.version} | {t('EFFECTIVE')}: {formatDate(document.effectiveAt)}
               </Typography>
             </Stack>
             <LanguageChange />
-          </Box>
+          </Stack>
           <Divider className="document-divider" />
-          <Box
+          <div
             className="document-content"
             dangerouslySetInnerHTML={{ __html: document.content }}
           />

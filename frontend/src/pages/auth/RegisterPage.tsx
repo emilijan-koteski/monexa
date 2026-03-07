@@ -12,6 +12,7 @@ import { useActiveDocuments } from '../../services/legalDocumentService.ts';
 import { DocumentType } from '../../enums/DocumentType.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
 import { getLanguage } from '../../utils/storage.ts';
+import { ENV } from '../../config/env.ts';
 import './register-page.scss';
 
 const RegisterPage = () => {
@@ -20,11 +21,11 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
-  const { data: legalDocuments } = useActiveDocuments();
+  const { data: legalDocuments } = useActiveDocuments({ enabled: ENV.LEGAL_COMPLIANCE_ENABLED });
   const privacyPolicy = legalDocuments?.find(doc => doc.type === DocumentType.PRIVACY_POLICY);
   const termsOfService = legalDocuments?.find(doc => doc.type === DocumentType.TERMS_OF_SERVICE);
 
-  const registerSchema = z.object({
+  const baseSchema = z.object({
     name: z
       .string({ message: t('NAME_REQUIRED') })
       .min(1, { message: t('NAME_REQUIRED') })
@@ -39,16 +40,18 @@ const RegisterPage = () => {
     confirmPassword: z
       .string({ message: t('CONFIRM_PASSWORD_REQUIRED') })
       .min(1, { message: t('CONFIRM_PASSWORD_REQUIRED') }),
-    acceptPrivacyPolicy: z
-      .boolean()
-      .refine(val => val === true, { message: t('PRIVACY_POLICY_REQUIRED') }),
-    acceptTermsOfService: z
-      .boolean()
-      .refine(val => val === true, { message: t('TERMS_OF_SERVICE_REQUIRED') }),
+    acceptPrivacyPolicy: z.boolean().optional(),
+    acceptTermsOfService: z.boolean().optional(),
   }).refine((data) => data.password === data.confirmPassword, {
     message: t('PASSWORDS_DONT_MATCH'),
     path: ['confirmPassword'],
   });
+
+  const registerSchema = ENV.LEGAL_COMPLIANCE_ENABLED
+    ? baseSchema
+        .refine((data) => data.acceptPrivacyPolicy === true, { message: t('PRIVACY_POLICY_REQUIRED'), path: ['acceptPrivacyPolicy'] })
+        .refine((data) => data.acceptTermsOfService === true, { message: t('TERMS_OF_SERVICE_REQUIRED'), path: ['acceptTermsOfService'] })
+    : baseSchema;
 
   type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -72,11 +75,13 @@ const RegisterPage = () => {
 
   const onSubmit = (data: RegisterFormData) => {
     const acceptedDocumentIds: number[] = [];
-    if (data.acceptPrivacyPolicy && privacyPolicy) {
-      acceptedDocumentIds.push(privacyPolicy.id);
-    }
-    if (data.acceptTermsOfService && termsOfService) {
-      acceptedDocumentIds.push(termsOfService.id);
+    if (ENV.LEGAL_COMPLIANCE_ENABLED) {
+      if (data.acceptPrivacyPolicy && privacyPolicy) {
+        acceptedDocumentIds.push(privacyPolicy.id);
+      }
+      if (data.acceptTermsOfService && termsOfService) {
+        acceptedDocumentIds.push(termsOfService.id);
+      }
     }
 
     const registerData = {
@@ -250,77 +255,79 @@ const RegisterPage = () => {
                     )}
                   />
 
-                  <Box className="legal-consent-section">
-                    <Controller
-                      name="acceptPrivacyPolicy"
-                      control={control}
-                      render={({ field }) => (
-                        <Box>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                {...field}
-                                checked={field.value}
-                                onChange={(e) => field.onChange(e.target.checked)}
-                              />
-                            }
-                            label={
-                              <Typography variant="body2">
-                                {t('ACCEPT_PRIVACY_POLICY_PREFIX')}{' '}
-                                <Link
-                                  href="/privacy-policy"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {t('PRIVACY_POLICY')}
-                                </Link>
-                              </Typography>
-                            }
-                          />
-                          {errors.acceptPrivacyPolicy && (
-                            <FormHelperText error>
-                              {errors.acceptPrivacyPolicy.message}
-                            </FormHelperText>
-                          )}
-                        </Box>
-                      )}
-                    />
+                  {ENV.LEGAL_COMPLIANCE_ENABLED && (
+                    <Box className="legal-consent-section">
+                      <Controller
+                        name="acceptPrivacyPolicy"
+                        control={control}
+                        render={({ field }) => (
+                          <Box>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  {...field}
+                                  checked={field.value ?? false}
+                                  onChange={(e) => field.onChange(e.target.checked)}
+                                />
+                              }
+                              label={
+                                <Typography variant="body2">
+                                  {t('ACCEPT_PRIVACY_POLICY_PREFIX')}{' '}
+                                  <Link
+                                    href="/privacy-policy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {t('PRIVACY_POLICY')}
+                                  </Link>
+                                </Typography>
+                              }
+                            />
+                            {errors.acceptPrivacyPolicy && (
+                              <FormHelperText error>
+                                {errors.acceptPrivacyPolicy.message}
+                              </FormHelperText>
+                            )}
+                          </Box>
+                        )}
+                      />
 
-                    <Controller
-                      name="acceptTermsOfService"
-                      control={control}
-                      render={({ field }) => (
-                        <Box>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                {...field}
-                                checked={field.value}
-                                onChange={(e) => field.onChange(e.target.checked)}
-                              />
-                            }
-                            label={
-                              <Typography variant="body2">
-                                {t('ACCEPT_TERMS_PREFIX')}{' '}
-                                <Link
-                                  href="/terms-of-service"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {t('TERMS_OF_SERVICE')}
-                                </Link>
-                              </Typography>
-                            }
-                          />
-                          {errors.acceptTermsOfService && (
-                            <FormHelperText error>
-                              {errors.acceptTermsOfService.message}
-                            </FormHelperText>
-                          )}
-                        </Box>
-                      )}
-                    />
-                  </Box>
+                      <Controller
+                        name="acceptTermsOfService"
+                        control={control}
+                        render={({ field }) => (
+                          <Box>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  {...field}
+                                  checked={field.value ?? false}
+                                  onChange={(e) => field.onChange(e.target.checked)}
+                                />
+                              }
+                              label={
+                                <Typography variant="body2">
+                                  {t('ACCEPT_TERMS_PREFIX')}{' '}
+                                  <Link
+                                    href="/terms-of-service"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {t('TERMS_OF_SERVICE')}
+                                  </Link>
+                                </Typography>
+                              }
+                            />
+                            {errors.acceptTermsOfService && (
+                              <FormHelperText error>
+                                {errors.acceptTermsOfService.message}
+                              </FormHelperText>
+                            )}
+                          </Box>
+                        )}
+                      />
+                    </Box>
+                  )}
 
                   <Button
                     type="submit"

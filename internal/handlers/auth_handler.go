@@ -14,9 +14,10 @@ import (
 )
 
 type authHandler struct {
-	userService    *services.UserService
-	tokenMaker     *token.JWTMaker
-	sessionService *services.SessionService
+	userService            *services.UserService
+	tokenMaker             *token.JWTMaker
+	sessionService         *services.SessionService
+	legalComplianceEnabled bool
 }
 
 func RegisterAuthHandler(
@@ -24,11 +25,13 @@ func RegisterAuthHandler(
 	userService *services.UserService,
 	tokenMaker *token.JWTMaker,
 	sessionService *services.SessionService,
+	legalComplianceEnabled bool,
 ) {
 	handler := &authHandler{
-		userService:    userService,
-		tokenMaker:     tokenMaker,
-		sessionService: sessionService,
+		userService:            userService,
+		tokenMaker:             tokenMaker,
+		sessionService:         sessionService,
+		legalComplianceEnabled: legalComplianceEnabled,
 	}
 
 	// Unauthenticated group
@@ -112,7 +115,7 @@ func (h *authHandler) Register(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
-	if len(req.AcceptedDocumentIds) == 0 {
+	if h.legalComplianceEnabled && len(req.AcceptedDocumentIds) == 0 {
 		return responses.BadRequestWithMessage(c, "you must accept the required legal documents")
 	}
 

@@ -30,16 +30,18 @@ const (
 )
 
 type UserService struct {
-	db                   *gorm.DB
-	mailService          *MailService
-	legalDocumentService *LegalDocumentService
+	db                     *gorm.DB
+	mailService            *MailService
+	legalDocumentService   *LegalDocumentService
+	legalComplianceEnabled bool
 }
 
-func NewUserService(db *gorm.DB, mailService *MailService, legalDocumentService *LegalDocumentService) *UserService {
+func NewUserService(db *gorm.DB, mailService *MailService, legalDocumentService *LegalDocumentService, legalComplianceEnabled bool) *UserService {
 	return &UserService{
-		db:                   db,
-		mailService:          mailService,
-		legalDocumentService: legalDocumentService,
+		db:                     db,
+		mailService:            mailService,
+		legalDocumentService:   legalDocumentService,
+		legalComplianceEnabled: legalComplianceEnabled,
 	}
 }
 
@@ -121,7 +123,7 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
-	if len(req.AcceptedDocumentIds) > 0 {
+	if s.legalComplianceEnabled && len(req.AcceptedDocumentIds) > 0 {
 		if err = s.legalDocumentService.AcceptDocumentsTx(ctx, tx, user.ID, req.AcceptedDocumentIds, req.IpAddress, req.UserAgent); err != nil {
 			tx.Rollback()
 			return nil, err
@@ -145,7 +147,7 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		}
 	}
 
-	if len(req.AcceptedDocumentIds) > 0 {
+	if s.legalComplianceEnabled && len(req.AcceptedDocumentIds) > 0 {
 		if err = s.legalDocumentService.AcceptDocumentsTx(ctx, tx, user.ID, req.AcceptedDocumentIds, req.IpAddress, req.UserAgent); err != nil {
 			tx.Rollback()
 			return nil, err

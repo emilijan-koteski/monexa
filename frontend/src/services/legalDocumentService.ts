@@ -71,11 +71,12 @@ export const legalDocumentQueryKeys = {
   byType: (type: DocumentType) => [...legalDocumentQueryKeys.all, 'type', type] as const,
 };
 
-export const useActiveDocuments = () => {
+export const useActiveDocuments = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: legalDocumentQueryKeys.active(),
     queryFn: legalDocumentApi.getActiveDocuments,
     staleTime: 60 * 60 * 1000,
+    enabled: options?.enabled ?? true,
   });
 };
 
