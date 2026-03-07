@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Box, Button, Container, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -113,7 +113,7 @@ const ForgotPasswordPage = () => {
                     disabled={forgotPasswordMutation.isPending}
                     className="forgot-password-button"
                   >
-                    {forgotPasswordMutation.isPending ? '...' : t('SEND_RESET_LINK')}
+                    {forgotPasswordMutation.isPending ? <CircularProgress size={24} color="inherit" /> : t('SEND_RESET_LINK')}
                   </Button>
                 </Stack>
               </form>

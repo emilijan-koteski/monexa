@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faLock } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -224,7 +224,7 @@ const ResetPasswordPage = () => {
                     disabled={resetPasswordMutation.isPending}
                     className="reset-password-button"
                   >
-                    {resetPasswordMutation.isPending ? '...' : t('SET_NEW_PASSWORD')}
+                    {resetPasswordMutation.isPending ? <CircularProgress size={24} color="inherit" /> : t('SET_NEW_PASSWORD')}
                   </Button>
                 </Stack>
               </form>

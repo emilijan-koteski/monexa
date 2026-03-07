@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faEye, faEyeSlash, faLock } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -167,7 +167,7 @@ const LoginPage = () => {
                     disabled={loginMutation.isPending}
                     className="login-button"
                   >
-                    {loginMutation.isPending ? '...' : t('SIGN_IN')}
+                    {loginMutation.isPending ? <CircularProgress size={24} color="inherit" /> : t('SIGN_IN')}
                   </Button>
                 </Stack>
               </form>
