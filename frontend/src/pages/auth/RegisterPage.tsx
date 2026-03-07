@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Box, Button, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, IconButton, InputAdornment, Link, Paper, Stack, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faEye, faEyeSlash, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -228,7 +228,7 @@ const RegisterPage = () => {
                     disabled={registerMutation.isPending}
                     className="register-button"
                   >
-                    {registerMutation.isPending ? '...' : t('SIGN_UP')}
+                    {registerMutation.isPending ? <CircularProgress size={24} color="inherit" /> : t('SIGN_UP')}
                   </Button>
                 </Stack>
               </form>
