@@ -30,12 +30,12 @@ const (
 )
 
 type UserService struct {
-	db          *gorm.DB
-	mailService *MailService
+	db                   *gorm.DB
+	mailService          *MailService
 	legalDocumentService *LegalDocumentService
 }
 
-func NewUserService(db *gorm.DB, mailService *MailService) *UserService {
+func NewUserService(db *gorm.DB, mailService *MailService, legalDocumentService *LegalDocumentService) *UserService {
 	return &UserService{
 		db:                   db,
 		mailService:          mailService,
