@@ -4,10 +4,11 @@ import { useDocumentByType } from '../../services/legalDocumentService';
 import { DocumentType } from '../../enums/DocumentType';
 import LanguageChange from '../../components/language-change/LanguageChange';
 import { formatDate } from '../../utils/date';
+import { getLocalizedTitle, getLocalizedContent } from '../../utils/legalDocument';
 import './privacy-policy-page.scss';
 
 const PrivacyPolicyPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: document, isLoading, error } = useDocumentByType(DocumentType.PRIVACY_POLICY);
 
   if (isLoading) {
@@ -37,7 +38,7 @@ const PrivacyPolicyPage = () => {
           <Stack className="document-header">
             <Stack className="header-text">
               <Typography variant="h4" fontWeight={600} className="document-title">
-                {t(document.type)}
+                {getLocalizedTitle(document, i18n.language)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {t('VERSION')}: {document.version} | {t('EFFECTIVE')}: {formatDate(document.effectiveAt)}
@@ -48,7 +49,7 @@ const PrivacyPolicyPage = () => {
           <Divider className="document-divider" />
           <div
             className="document-content"
-            dangerouslySetInnerHTML={{ __html: document.content }}
+            dangerouslySetInnerHTML={{ __html: getLocalizedContent(document, i18n.language) }}
           />
         </Paper>
       </Container>

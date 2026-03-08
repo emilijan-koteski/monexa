@@ -15,7 +15,9 @@ type LegalDocument struct {
 	Type              types.DocumentType `gorm:"not null" json:"type"`
 	Version           int                `gorm:"not null" json:"version"`
 	Title             string             `gorm:"not null" json:"title"`
+	TitleMk           string             `gorm:"not null" json:"titleMk"`
 	Content           string             `gorm:"not null" json:"content"`
+	ContentMk         string             `gorm:"not null" json:"contentMk"`
 	EffectiveAt       time.Time          `gorm:"not null" json:"effectiveAt"`
 	IsActive          bool               `gorm:"not null;default:false" json:"isActive"`
 	RequiresReconsent bool               `gorm:"not null;default:true" json:"requiresReconsent"`

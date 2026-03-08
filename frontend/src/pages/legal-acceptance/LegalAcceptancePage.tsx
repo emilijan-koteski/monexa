@@ -12,13 +12,14 @@ import { useDownloadData } from '../../services/userService';
 import { DocumentType } from '../../enums/DocumentType';
 import { formatDate } from '../../utils/date';
 import type { LegalDocument } from '../../types/models';
+import { getLocalizedTitle, getLocalizedContent } from '../../utils/legalDocument';
 import LanguageChange from '../../components/language-change/LanguageChange';
 import DownloadDataDialog from '../../components/download-data-dialog/DownloadDataDialog';
 import ConfirmationDialog from '../../components/confirmation-dialog/ConfirmationDialog';
 import './legal-acceptance-page.scss';
 
 const LegalAcceptancePage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, error, refetch } = usePendingDocuments();
   const acceptMutation = useAcceptDocument();
@@ -28,6 +29,7 @@ const LegalAcceptancePage = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [accepted, setAccepted] = useState<Record<number, boolean>>({});
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -77,6 +79,7 @@ const LegalAcceptancePage = () => {
       await acceptMutation.mutateAsync(currentDoc.id);
 
       if (isLastStep) {
+        setIsRedirecting(true);
         toast.success(t('LEGAL_DOCUMENTS_ACCEPTED_SUCCESS'));
         await refetch();
         const redirectPath = sessionStorage.getItem('redirectAfterLegal') || '/home';
@@ -168,7 +171,7 @@ const LegalAcceptancePage = () => {
 
           <Stack className="document-section">
             <Typography variant="h5" fontWeight={600}>
-              {t(currentDoc.type)}
+              {getLocalizedTitle(currentDoc, i18n.language)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {t('VERSION')}: {currentDoc.version} | {t('EFFECTIVE')}: {formatDate(currentDoc.effectiveAt)}
@@ -176,7 +179,7 @@ const LegalAcceptancePage = () => {
 
             <div
               className="document-content"
-              dangerouslySetInnerHTML={{ __html: currentDoc.content }}
+              dangerouslySetInnerHTML={{ __html: getLocalizedContent(currentDoc, i18n.language) }}
             />
           </Stack>
 
@@ -188,7 +191,7 @@ const LegalAcceptancePage = () => {
                   onChange={(e) => setAccepted({ ...accepted, [currentDoc.id]: e.target.checked })}
                 />
               }
-              label={t('LEGAL_DOCUMENT_ACCEPT_CHECKBOX', { title: t(currentDoc.type) })}
+              label={t('LEGAL_DOCUMENT_ACCEPT_CHECKBOX', { title: getLocalizedTitle(currentDoc, i18n.language) })}
               className="accept-checkbox"
             />
 
@@ -196,10 +199,10 @@ const LegalAcceptancePage = () => {
               variant="contained"
               size="large"
               onClick={handleAccept}
-              disabled={!canProceed || acceptMutation.isPending}
+              disabled={!canProceed || acceptMutation.isPending || isRedirecting}
               className="accept-button"
             >
-              {acceptMutation.isPending ? (
+              {acceptMutation.isPending || isRedirecting ? (
                 <CircularProgress size={26} color="inherit" />
               ) : isLastStep ? (
                 t('ACCEPT_AND_CONTINUE')

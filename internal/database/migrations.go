@@ -397,7 +397,7 @@ func Migrate(db *gorm.DB) {
 			},
 		},
 		{
-			ID: "20260307142500_create_legal_documents_tables",
+			ID: "20260308221000_create_legal_documents_tables",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(&models.LegalDocument{}); err != nil {
 					return err
@@ -436,20 +436,24 @@ func Migrate(db *gorm.DB) {
 						"type":               "PRIVACY_POLICY",
 						"version":            1,
 						"title":              "Privacy Policy",
+						"title_mk":           "Политика за приватност",
 						"content":            `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
+						"content_mk":         `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`,
 						"effective_at":       now,
 						"is_active":          true,
-						"requires_reconsent": false,
+						"requires_reconsent": true,
 						"created_at":         now,
 					},
 					{
 						"type":               "TERMS_OF_SERVICE",
 						"version":            1,
 						"title":              "Terms of Service",
+						"title_mk":           "Услови за користење",
 						"content":            `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
+						"content_mk":         `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`,
 						"effective_at":       now,
 						"is_active":          true,
-						"requires_reconsent": false,
+						"requires_reconsent": true,
 						"created_at":         now,
 					},
 				}

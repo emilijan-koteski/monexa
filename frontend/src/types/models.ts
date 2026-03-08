@@ -72,7 +72,9 @@ export interface LegalDocument {
   type: DocumentType;
   version: number;
   title: string;
+  titleMk: string;
   content: string;
+  contentMk: string;
   effectiveAt: string;
   isActive: boolean;
   requiresReconsent: boolean;
