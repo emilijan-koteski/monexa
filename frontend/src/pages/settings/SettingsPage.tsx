@@ -5,14 +5,23 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useSettings } from '../../services/settingService';
 import { settingsGroups } from './constants/SettingsGroups.ts';
+import { ENV } from '../../config/env';
+
+const groups = ENV.LEGAL_COMPLIANCE_ENABLED
+  ? settingsGroups
+  : settingsGroups.filter((group) => group.categoryKey !== 'LEGAL');
 
 const SettingsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: settings } = useSettings();
 
-  const handleNavigate = (path: string) => {
-    navigate(path);
+  const handleNavigate = (path: string, external?: boolean) => {
+    if (external) {
+      window.open(path, '_blank');
+    } else {
+      navigate(path);
+    }
   };
 
   return (
@@ -23,7 +32,7 @@ const SettingsPage = () => {
         </Typography>
       </Box>
 
-      {settingsGroups.map((group) => (
+      {groups.map((group) => (
         <Box key={group.categoryKey} className="settings-group">
           <Typography variant="overline" color='text.secondary' className="group-header">
             {t(group.categoryKey)}
@@ -37,7 +46,7 @@ const SettingsPage = () => {
                 className="settings-list-item"
               >
                 <ListItemButton
-                  onClick={() => handleNavigate(item.path)}
+                  onClick={() => handleNavigate(item.path, item.external)}
                   className="settings-button"
                 >
                   <ListItemIcon className="settings-icon">

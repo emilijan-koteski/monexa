@@ -4,6 +4,7 @@ import Loader from '../components/loader/Loader.tsx';
 import AppLayout from '../layouts/AppLayout.tsx';
 import ProtectedRoute from '../components/protected-route/ProtectedRoute.tsx';
 import AuthRoute from '../components/auth-route/AuthRoute.tsx';
+import { ENV } from '../config/env';
 
 const HomePage = lazy(() => import('../pages/home/HomePage.tsx'));
 const LoginPage = lazy(() => import('../pages/auth/LoginPage.tsx'));
@@ -35,8 +36,12 @@ function AppRoutes() {
           <Route path="/" element={<Navigate to="/home" replace/>}/>
 
           {/* Public legal document pages */}
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage/>}/>
-          <Route path="/terms-of-service" element={<TermsOfServicePage/>}/>
+          {ENV.LEGAL_COMPLIANCE_ENABLED && (
+            <>
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage/>}/>
+              <Route path="/terms-of-service" element={<TermsOfServicePage/>}/>
+            </>
+          )}
 
           {/* Auth routes - redirect to /home if already logged in */}
           <Route element={<AuthRoute/>}>
@@ -49,7 +54,9 @@ function AppRoutes() {
           {/* Protected routes */}
           <Route element={<ProtectedRoute/>}>
             {/* Legal acceptance page without layout. Blocks app until acceptance */}
-            <Route path="/legal-acceptance" element={<LegalAcceptancePage/>}/>
+            {ENV.LEGAL_COMPLIANCE_ENABLED && (
+              <Route path="/legal-acceptance" element={<LegalAcceptancePage/>}/>
+            )}
 
             {/* Main app routes with layout */}
             <Route element={<AppLayout/>}>
