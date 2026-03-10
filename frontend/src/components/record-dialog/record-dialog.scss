@@ -34,6 +34,25 @@
       gap: 1rem;
       padding-top: 0.5rem;
 
+      .quick-create-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: -6px;
+        padding: 0 14px;
+        color: $color-text-secondary;
+        cursor: pointer;
+        transition: color $transition-fast;
+
+        .quick-create-icon {
+          font-size: 10px;
+        }
+
+        &:hover {
+          color: $color-text-primary;
+        }
+      }
+
       .description-suggestions {
         display: flex;
         flex-wrap: wrap;

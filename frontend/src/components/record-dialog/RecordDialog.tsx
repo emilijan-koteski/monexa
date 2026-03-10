@@ -1,34 +1,26 @@
 import './record-dialog.scss';
-import { useEffect } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Autocomplete,
-  MenuItem,
-  Box,
-  Chip,
-  Skeleton,
-  CircularProgress,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete, MenuItem, Box, Chip, Skeleton, CircularProgress, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import type { FinancialRecord } from '../../types/models';
-import { useCategories } from '../../services/categoryService';
-import { usePaymentMethods } from '../../services/paymentMethodService';
+import { useCategories, useCreateCategory } from '../../services/categoryService';
+import { usePaymentMethods, useCreatePaymentMethod } from '../../services/paymentMethodService';
 import { useSettings } from '../../services/settingService';
 import { useDescriptionSuggestions } from '../../services/recordService';
 import { formatAmount, stripCommas } from '../../utils/amount';
 import { truncateText } from '../../utils/string';
 import { Currency } from '../../enums/Currency';
+import CategoryDialog from '../category-dialog/CategoryDialog';
+import type { CategoryFormData } from '../category-dialog/CategoryDialog';
+import PaymentTypeDialog from '../payment-type-dialog/PaymentTypeDialog';
+import type { PaymentTypeFormData } from '../payment-type-dialog/PaymentTypeDialog';
 
 interface RecordDialogProps {
   open: boolean;
@@ -163,6 +155,34 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
     }
   };
 
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [paymentMethodDialogOpen, setPaymentMethodDialogOpen] = useState(false);
+
+  const createCategoryMutation = useCreateCategory();
+  const createPaymentMethodMutation = useCreatePaymentMethod();
+
+  const handleCategoryCreate = async (data: CategoryFormData) => {
+    try {
+      const newCategory = await createCategoryMutation.mutateAsync(data);
+      setValue('categoryId', newCategory.id);
+      setCategoryDialogOpen(false);
+      toast.success(t('QUICK_CATEGORY_CREATED'));
+    } catch {
+      toast.error(t('QUICK_CATEGORY_CREATE_ERROR'));
+    }
+  };
+
+  const handlePaymentMethodCreate = async (data: PaymentTypeFormData) => {
+    try {
+      const newMethod = await createPaymentMethodMutation.mutateAsync(data);
+      setValue('paymentMethodId', newMethod.id);
+      setPaymentMethodDialogOpen(false);
+      toast.success(t('QUICK_PAYMENT_METHOD_CREATED'));
+    } catch {
+      toast.error(t('QUICK_PAYMENT_METHOD_CREATE_ERROR'));
+    }
+  };
+
   const watchedCategoryId = watch('categoryId');
   const { data: suggestions, isLoading: suggestionsLoading } = useDescriptionSuggestions(watchedCategoryId);
 
@@ -201,6 +221,14 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                 />
               )}
             />
+            <Typography
+              variant="caption"
+              className="quick-create-link"
+              onClick={() => setCategoryDialogOpen(true)}
+            >
+              <FontAwesomeIcon icon={faPlus} className="quick-create-icon" />
+              {t('ADD_NEW_CATEGORY')}
+            </Typography>
 
             <Controller
               name="paymentMethodId"
@@ -227,6 +255,14 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                 </TextField>
               )}
             />
+            <Typography
+              variant="caption"
+              className="quick-create-link"
+              onClick={() => setPaymentMethodDialogOpen(true)}
+            >
+              <FontAwesomeIcon icon={faPlus} className="quick-create-icon" />
+              {t('ADD_NEW_PAYMENT_METHOD')}
+            </Typography>
 
             <Box className="amount-currency-row">
               <Controller
@@ -357,6 +393,20 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
           {isLoading ? <CircularProgress size={24} /> : record ? t('UPDATE') : t('CREATE')}
         </Button>
       </DialogActions>
+
+      <CategoryDialog
+        open={categoryDialogOpen}
+        onClose={() => setCategoryDialogOpen(false)}
+        onSubmit={handleCategoryCreate}
+        isLoading={createCategoryMutation.isPending}
+      />
+
+      <PaymentTypeDialog
+        open={paymentMethodDialogOpen}
+        onClose={() => setPaymentMethodDialogOpen(false)}
+        onSubmit={handlePaymentMethodCreate}
+        isLoading={createPaymentMethodMutation.isPending}
+      />
     </Dialog>
   );
 }

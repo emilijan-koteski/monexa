@@ -215,5 +215,11 @@
   "RESET_PASSWORD_ERROR": "Невалиден или истечен линк. Побарајте нов.",
   "SEND_RESET_LINK": "Испрати линк за ресетирање",
   "SET_NEW_PASSWORD": "Постави нова лозинка",
-  "RESET_LINK_INVALID": "Овој линк е невалиден или истечен. Побарајте нов."
+  "RESET_LINK_INVALID": "Овој линк е невалиден или истечен. Побарајте нов.",
+  "ADD_NEW_CATEGORY": "Нова категорија",
+  "ADD_NEW_PAYMENT_METHOD": "Нов начин на плаќање",
+  "QUICK_CATEGORY_CREATED": "Категоријата е креирана!",
+  "QUICK_PAYMENT_METHOD_CREATED": "Начинот на плаќање е креиран!",
+  "QUICK_CATEGORY_CREATE_ERROR": "Неуспешно креирање на категорија.",
+  "QUICK_PAYMENT_METHOD_CREATE_ERROR": "Неуспешно креирање на начин на плаќање."
 }

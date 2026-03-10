@@ -215,5 +215,11 @@
   "RESET_PASSWORD_ERROR": "Invalid or expired reset link. Please request a new one.",
   "SEND_RESET_LINK": "Send Reset Link",
   "SET_NEW_PASSWORD": "Set New Password",
-  "RESET_LINK_INVALID": "This reset link is invalid or has expired. Please request a new one."
+  "RESET_LINK_INVALID": "This reset link is invalid or has expired. Please request a new one.",
+  "ADD_NEW_CATEGORY": "New category",
+  "ADD_NEW_PAYMENT_METHOD": "New payment method",
+  "QUICK_CATEGORY_CREATED": "Category created!",
+  "QUICK_PAYMENT_METHOD_CREATED": "Payment method created!",
+  "QUICK_CATEGORY_CREATE_ERROR": "Failed to create category.",
+  "QUICK_PAYMENT_METHOD_CREATE_ERROR": "Failed to create payment method."
 }
