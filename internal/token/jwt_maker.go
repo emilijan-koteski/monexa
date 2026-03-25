@@ -53,16 +53,16 @@ func (maker *JWTMaker) GetRefreshTokenDuration() time.Duration {
 	return maker.refreshTokenDuration
 }
 
-func (maker *JWTMaker) CreateAccessToken(user models.User) (string, *UserClaims, error) {
-	return maker.createToken(user, maker.accessTokenDuration, TokenTypeAccess)
+func (maker *JWTMaker) CreateAccessToken(user models.User, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
+	return maker.createToken(user, maker.accessTokenDuration, TokenTypeAccess, legalAcceptedAt)
 }
 
-func (maker *JWTMaker) CreateRefreshToken(user models.User) (string, *UserClaims, error) {
-	return maker.createToken(user, maker.refreshTokenDuration, TokenTypeRefresh)
+func (maker *JWTMaker) CreateRefreshToken(user models.User, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
+	return maker.createToken(user, maker.refreshTokenDuration, TokenTypeRefresh, legalAcceptedAt)
 }
 
-func (maker *JWTMaker) createToken(user models.User, duration time.Duration, tokenType TokenType) (string, *UserClaims, error) {
-	claims, err := NewUserClaims(user, duration, tokenType)
+func (maker *JWTMaker) createToken(user models.User, duration time.Duration, tokenType TokenType, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
+	claims, err := NewUserClaims(user, duration, tokenType, legalAcceptedAt)
 	if err != nil {
 		return "", nil, err
 	}

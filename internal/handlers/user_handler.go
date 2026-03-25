@@ -17,13 +17,16 @@ type userHandler struct {
 	exportService *services.ExportService
 }
 
-func RegisterUserHandler(e *echo.Echo, userService *services.UserService, exportService *services.ExportService) {
+func RegisterUserHandler(e *echo.Echo, userService *services.UserService, exportService *services.ExportService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &userHandler{userService: userService, exportService: exportService}
 
 	v1 := e.Group("/api/v1/users")
 
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
+	for _, m := range restrictedMiddlewares {
+		r1.Use(m)
+	}
 
 	r1.PATCH("", handler.Update)
 	r1.GET("/data/export", handler.ExportData)

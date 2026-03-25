@@ -19,7 +19,7 @@ type trendReportHandler struct {
 	trendReportService *services.TrendReportService
 }
 
-func RegisterTrendReportHandler(e *echo.Echo, trendReportService *services.TrendReportService) {
+func RegisterTrendReportHandler(e *echo.Echo, trendReportService *services.TrendReportService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &trendReportHandler{trendReportService: trendReportService}
 
 	// Unauthenticated group
@@ -28,6 +28,9 @@ func RegisterTrendReportHandler(e *echo.Echo, trendReportService *services.Trend
 	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
+	for _, m := range restrictedMiddlewares {
+		r1.Use(m)
+	}
 
 	r1.GET("", handler.ReadAll)
 	r1.GET("/:id", handler.Read)

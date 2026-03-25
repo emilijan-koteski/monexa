@@ -17,30 +17,33 @@ const (
 )
 
 type UserClaims struct {
-	UserID    uint      `json:"userId"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	TokenType TokenType `json:"tokenType"`
+	UserID          uint       `json:"userId"`
+	Email           string     `json:"email"`
+	Name            string     `json:"name"`
+	TokenType       TokenType  `json:"tokenType"`
+	LegalAcceptedAt *time.Time `json:"legalAcceptedAt,omitempty"`
 	jwt.RegisteredClaims
 }
 
-func NewUserClaims(user models.User, duration time.Duration, tokenType TokenType) (*UserClaims, error) {
+func NewUserClaims(user models.User, duration time.Duration, tokenType TokenType, legalAcceptedAt *time.Time) (*UserClaims, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("error generating token id: %w", err)
 	}
+	now := time.Now()
 
 	return &UserClaims{
-		UserID:    user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		TokenType: tokenType,
+		UserID:          user.ID,
+		Email:           user.Email,
+		Name:            user.Name,
+		TokenType:       tokenType,
+		LegalAcceptedAt: legalAcceptedAt,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        tokenID.String(),
 			Subject:   user.Email,
 			Issuer:    "monexa",
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(duration)),
 		},
 	}, nil
 }

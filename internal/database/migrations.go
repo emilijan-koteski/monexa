@@ -149,6 +149,7 @@ func Migrate(db *gorm.DB) {
 				if err != nil {
 					return err
 				}
+				now := time.Now()
 
 				fallbackRates := []map[string]interface{}{
 					{
@@ -156,48 +157,48 @@ func Migrate(db *gorm.DB) {
 						"to_currency":   "MKD",
 						"rate":          61.55,
 						"source":        "FALLBACK",
-						"fetched_at":    time.Now(),
-						"created_at":    time.Now(),
+						"fetched_at":    now,
+						"created_at":    now,
 					},
 					{
 						"from_currency": "MKD",
 						"to_currency":   "EUR",
 						"rate":          0.016,
 						"source":        "FALLBACK",
-						"fetched_at":    time.Now(),
-						"created_at":    time.Now(),
+						"fetched_at":    now,
+						"created_at":    now,
 					},
 					{
 						"from_currency": "MKD",
 						"to_currency":   "USD",
 						"rate":          0.019,
 						"source":        "FALLBACK",
-						"fetched_at":    time.Now(),
-						"created_at":    time.Now(),
+						"fetched_at":    now,
+						"created_at":    now,
 					},
 					{
 						"from_currency": "USD",
 						"to_currency":   "MKD",
 						"rate":          52.40,
 						"source":        "FALLBACK",
-						"fetched_at":    time.Now(),
-						"created_at":    time.Now(),
+						"fetched_at":    now,
+						"created_at":    now,
 					},
 					{
 						"from_currency": "EUR",
 						"to_currency":   "USD",
 						"rate":          1.17,
 						"source":        "FALLBACK",
-						"fetched_at":    time.Now(),
-						"created_at":    time.Now(),
+						"fetched_at":    now,
+						"created_at":    now,
 					},
 					{
 						"from_currency": "USD",
 						"to_currency":   "EUR",
 						"rate":          0.85,
 						"source":        "FALLBACK",
-						"fetched_at":    time.Now(),
-						"created_at":    time.Now(),
+						"fetched_at":    now,
+						"created_at":    now,
 					},
 				}
 
@@ -301,31 +302,32 @@ func Migrate(db *gorm.DB) {
 		{
 			ID: "20260131145000_add_aud_chf_gbp_exchange_rates",
 			Migrate: func(tx *gorm.DB) error {
+				now := time.Now()
 				fallbackRates := []map[string]interface{}{
-					{"from_currency": "MKD", "to_currency": "AUD", "rate": 0.027, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "MKD", "to_currency": "CHF", "rate": 0.015, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "MKD", "to_currency": "GBP", "rate": 0.014, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "EUR", "to_currency": "AUD", "rate": 1.70, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "EUR", "to_currency": "CHF", "rate": 0.92, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "EUR", "to_currency": "GBP", "rate": 0.87, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "USD", "to_currency": "AUD", "rate": 1.44, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "USD", "to_currency": "CHF", "rate": 0.77, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "USD", "to_currency": "GBP", "rate": 0.73, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "AUD", "to_currency": "MKD", "rate": 33.0, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "AUD", "to_currency": "EUR", "rate": 0.58, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "AUD", "to_currency": "USD", "rate": 0.63, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "AUD", "to_currency": "CHF", "rate": 0.56, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "AUD", "to_currency": "GBP", "rate": 0.50, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "CHF", "to_currency": "MKD", "rate": 67.29, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "CHF", "to_currency": "EUR", "rate": 1.09, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "CHF", "to_currency": "USD", "rate": 1.29, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "CHF", "to_currency": "AUD", "rate": 1.86, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "CHF", "to_currency": "GBP", "rate": 0.95, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "GBP", "to_currency": "MKD", "rate": 71.18, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "GBP", "to_currency": "EUR", "rate": 1.15, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "GBP", "to_currency": "USD", "rate": 1.37, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "GBP", "to_currency": "AUD", "rate": 1.97, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
-					{"from_currency": "GBP", "to_currency": "CHF", "rate": 1.06, "source": "FALLBACK", "fetched_at": time.Now(), "created_at": time.Now()},
+					{"from_currency": "MKD", "to_currency": "AUD", "rate": 0.027, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "MKD", "to_currency": "CHF", "rate": 0.015, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "MKD", "to_currency": "GBP", "rate": 0.014, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "EUR", "to_currency": "AUD", "rate": 1.70, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "EUR", "to_currency": "CHF", "rate": 0.92, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "EUR", "to_currency": "GBP", "rate": 0.87, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "USD", "to_currency": "AUD", "rate": 1.44, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "USD", "to_currency": "CHF", "rate": 0.77, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "USD", "to_currency": "GBP", "rate": 0.73, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "AUD", "to_currency": "MKD", "rate": 33.0, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "AUD", "to_currency": "EUR", "rate": 0.58, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "AUD", "to_currency": "USD", "rate": 0.63, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "AUD", "to_currency": "CHF", "rate": 0.56, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "AUD", "to_currency": "GBP", "rate": 0.50, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "CHF", "to_currency": "MKD", "rate": 67.29, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "CHF", "to_currency": "EUR", "rate": 1.09, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "CHF", "to_currency": "USD", "rate": 1.29, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "CHF", "to_currency": "AUD", "rate": 1.86, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "CHF", "to_currency": "GBP", "rate": 0.95, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "GBP", "to_currency": "MKD", "rate": 71.18, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "GBP", "to_currency": "EUR", "rate": 1.15, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "GBP", "to_currency": "USD", "rate": 1.37, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "GBP", "to_currency": "AUD", "rate": 1.97, "source": "FALLBACK", "fetched_at": now, "created_at": now},
+					{"from_currency": "GBP", "to_currency": "CHF", "rate": 1.06, "source": "FALLBACK", "fetched_at": now, "created_at": now},
 				}
 
 				for _, rate := range fallbackRates {
@@ -394,6 +396,83 @@ func Migrate(db *gorm.DB) {
 					return tx.Migrator().DropColumn(&models.Setting{}, "DeletedAt")
 				}
 				return nil
+			},
+		},
+		{
+			ID: "20260325000000_create_legal_documents_tables",
+			Migrate: func(tx *gorm.DB) error {
+				if err := tx.AutoMigrate(&models.LegalDocument{}); err != nil {
+					return err
+				}
+
+				if err := tx.Exec(`
+					CREATE UNIQUE INDEX IF NOT EXISTS unique_active_document_per_type
+					ON legal_documents (type)
+					WHERE is_active = true AND deleted_at IS NULL;
+				`).Error; err != nil {
+					return err
+				}
+
+				if err := tx.AutoMigrate(&models.UserLegalAcceptance{}); err != nil {
+					return err
+				}
+
+				if err := tx.Exec(`
+					ALTER TABLE public.user_legal_acceptances
+					ADD CONSTRAINT fk_acceptances_user
+					FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+					ALTER TABLE public.user_legal_acceptances
+					ADD CONSTRAINT fk_acceptances_document
+					FOREIGN KEY (legal_document_id) REFERENCES public.legal_documents(id);
+
+					CREATE UNIQUE INDEX IF NOT EXISTS unique_user_document_acceptance
+					ON public.user_legal_acceptances (user_id, legal_document_id);
+				`).Error; err != nil {
+					return err
+				}
+
+				now := time.Now()
+				initialDocuments := []map[string]interface{}{
+					{
+						"type":               "PRIVACY_POLICY",
+						"version":            1,
+						"title":              "Privacy Policy",
+						"title_mk":           "Политика за приватност",
+						"content":            `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
+						"content_mk":         `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`,
+						"effective_at":       now,
+						"is_active":          false,
+						"requires_reconsent": false,
+						"created_at":         now,
+					},
+					{
+						"type":               "TERMS_OF_SERVICE",
+						"version":            1,
+						"title":              "Terms of Service",
+						"title_mk":           "Услови за користење",
+						"content":            `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
+						"content_mk":         `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`,
+						"effective_at":       now,
+						"is_active":          false,
+						"requires_reconsent": false,
+						"created_at":         now,
+					},
+				}
+
+				for _, doc := range initialDocuments {
+					if err := tx.Table("legal_documents").Create(doc).Error; err != nil {
+						return err
+					}
+				}
+
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				if err := tx.Migrator().DropTable("user_legal_acceptances"); err != nil {
+					return err
+				}
+				return tx.Migrator().DropTable("legal_documents")
 			},
 		},
 	})

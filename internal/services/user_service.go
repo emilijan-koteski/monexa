@@ -30,12 +30,17 @@ const (
 )
 
 type UserService struct {
-	db          *gorm.DB
-	mailService *MailService
+	db                   *gorm.DB
+	mailService          *MailService
+	legalDocumentService *LegalDocumentService
 }
 
-func NewUserService(db *gorm.DB, mailService *MailService) *UserService {
-	return &UserService{db: db, mailService: mailService}
+func NewUserService(db *gorm.DB, mailService *MailService, legalDocumentService *LegalDocumentService) *UserService {
+	return &UserService{
+		db:                   db,
+		mailService:          mailService,
+		legalDocumentService: legalDocumentService,
+	}
 }
 
 func (s *UserService) GetUserByExample(ctx context.Context, example models.User) (*models.User, error) {
@@ -128,6 +133,13 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 
 	for i := range defaultTrendReports {
 		if err = tx.Create(&defaultTrendReports[i]).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if s.legalDocumentService.IsEnabled() && len(req.AcceptedDocumentIds) > 0 {
+		if err = s.legalDocumentService.AcceptDocumentsTx(ctx, tx, user.ID, req.AcceptedDocumentIds, req.IpAddress, req.UserAgent); err != nil {
 			tx.Rollback()
 			return nil, err
 		}

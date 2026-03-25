@@ -15,7 +15,7 @@ type settingHandler struct {
 	settingService *services.SettingService
 }
 
-func RegisterSettingHandler(e *echo.Echo, settingService *services.SettingService) {
+func RegisterSettingHandler(e *echo.Echo, settingService *services.SettingService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &settingHandler{settingService: settingService}
 
 	// Unauthenticated group
@@ -24,6 +24,9 @@ func RegisterSettingHandler(e *echo.Echo, settingService *services.SettingServic
 	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
+	for _, m := range restrictedMiddlewares {
+		r1.Use(m)
+	}
 
 	r1.GET("", handler.Get)
 	r1.PATCH("", handler.Update)

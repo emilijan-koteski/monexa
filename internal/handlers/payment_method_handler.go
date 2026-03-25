@@ -17,7 +17,7 @@ type paymentMethodHandler struct {
 	paymentMethodService *services.PaymentMethodService
 }
 
-func RegisterPaymentMethodHandler(e *echo.Echo, paymentMethodService *services.PaymentMethodService) {
+func RegisterPaymentMethodHandler(e *echo.Echo, paymentMethodService *services.PaymentMethodService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &paymentMethodHandler{paymentMethodService: paymentMethodService}
 
 	// Unauthenticated group
@@ -26,6 +26,9 @@ func RegisterPaymentMethodHandler(e *echo.Echo, paymentMethodService *services.P
 	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
+	for _, m := range restrictedMiddlewares {
+		r1.Use(m)
+	}
 
 	r1.GET("/:id", handler.Read)
 	r1.GET("", handler.ReadAll)

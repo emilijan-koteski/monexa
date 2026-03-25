@@ -19,7 +19,7 @@ type recordHandler struct {
 	recordService *services.RecordService
 }
 
-func RegisterRecordHandler(e *echo.Echo, recordService *services.RecordService) {
+func RegisterRecordHandler(e *echo.Echo, recordService *services.RecordService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &recordHandler{recordService: recordService}
 
 	// Unauthenticated group
@@ -28,6 +28,9 @@ func RegisterRecordHandler(e *echo.Echo, recordService *services.RecordService) 
 	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
+	for _, m := range restrictedMiddlewares {
+		r1.Use(m)
+	}
 
 	r1.GET("/:id", handler.Read)
 	r1.GET("", handler.ReadAll)

@@ -14,9 +14,10 @@ import (
 )
 
 type authHandler struct {
-	userService    *services.UserService
-	tokenMaker     *token.JWTMaker
-	sessionService *services.SessionService
+	userService          *services.UserService
+	tokenMaker           *token.JWTMaker
+	sessionService       *services.SessionService
+	legalDocumentService *services.LegalDocumentService
 }
 
 func RegisterAuthHandler(
@@ -24,11 +25,13 @@ func RegisterAuthHandler(
 	userService *services.UserService,
 	tokenMaker *token.JWTMaker,
 	sessionService *services.SessionService,
+	legalDocumentService *services.LegalDocumentService,
 ) {
 	handler := &authHandler{
-		userService:    userService,
-		tokenMaker:     tokenMaker,
-		sessionService: sessionService,
+		userService:          userService,
+		tokenMaker:           tokenMaker,
+		sessionService:       sessionService,
+		legalDocumentService: legalDocumentService,
 	}
 
 	// Unauthenticated group
@@ -72,12 +75,13 @@ func (h *authHandler) Login(c echo.Context) error {
 		user.DeletedAt.Valid = false
 	}
 
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)
+	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
@@ -112,17 +116,35 @@ func (h *authHandler) Register(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
+	if h.legalDocumentService.IsEnabled() {
+		if len(req.AcceptedDocumentIds) == 0 {
+			return responses.BadRequestWithMessage(c, "you must accept the required legal documents")
+		}
+
+		requiredCount, err := h.legalDocumentService.GetRequiredDocumentCount(c.Request().Context())
+		if err != nil {
+			return responses.FailureWithMessage(c, "error checking required documents")
+		}
+		if len(req.AcceptedDocumentIds) < requiredCount {
+			return responses.BadRequestWithMessage(c, "you must accept all required legal documents")
+		}
+	}
+
+	req.IpAddress = c.RealIP()
+	req.UserAgent = c.Request().UserAgent()
+
 	user, err := h.userService.CreateUser(c.Request().Context(), req)
 	if err != nil {
 		return responses.FailureWithError(c, fmt.Errorf("error creating user: %w", err))
 	}
 
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)
+	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
@@ -194,7 +216,8 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 		Email: refreshClaims.Email,
 		Name:  refreshClaims.Name,
 	}
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(tmpUser)
+	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), refreshClaims.UserID)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(tmpUser, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
@@ -285,12 +308,13 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), user.ID)
 
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user)
+	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
+	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
