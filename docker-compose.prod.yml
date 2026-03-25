@@ -58,6 +58,7 @@ services:
       SMTP_USER: ${SMTP_USER:-noreply.monexa@gmail.com}
       SMTP_PASS: ${SMTP_PASS}
       FRONTEND_URL: ${FRONTEND_URL:-https://monexa.world}
+      LEGAL_COMPLIANCE_ENABLED: ${LEGAL_COMPLIANCE_ENABLED:-false}
     ports:
       - "${SERVER_PORT:-9000}:9000"
     depends_on:
@@ -99,6 +100,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-https://api.monexa.world/api/v1}
+        VITE_LEGAL_COMPLIANCE_ENABLED: ${VITE_LEGAL_COMPLIANCE_ENABLED:-false}
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     depends_on:
