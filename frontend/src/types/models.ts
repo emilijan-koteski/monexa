@@ -1,6 +1,7 @@
-import {CategoryType} from '../enums/CategoryType.ts';
-import {Language} from '../enums/Language.ts';
-import {Currency} from '../enums/Currency.ts';
+import { CategoryType } from '../enums/CategoryType.ts';
+import { Language } from '../enums/Language.ts';
+import { Currency } from '../enums/Currency.ts';
+import { DocumentType } from '../enums/DocumentType.ts';
 
 export interface User {
   id: number;
@@ -62,4 +63,24 @@ export interface TrendReport {
   description?: string;
   color?: string;
   categories: Category[];
+}
+
+export interface LegalDocument {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  type: DocumentType;
+  version: number;
+  title: string;
+  titleMk: string;
+  content: string;
+  contentMk: string;
+  effectiveAt: string;
+  isActive: boolean;
+  requiresReconsent: boolean;
+}
+
+export interface PendingDocumentsResponse {
+  hasPendingDocuments: boolean;
+  pendingDocuments: LegalDocument[];
 }

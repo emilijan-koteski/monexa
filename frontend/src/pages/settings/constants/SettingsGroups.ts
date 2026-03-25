@@ -1,5 +1,5 @@
 import type { SettingGroup } from '../types/SettingGroup.ts';
-import { faCreditCard, faDollarSign, faLanguage, faList, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faDollarSign, faFileContract, faLanguage, faList, faShieldHalved, faUser } from '@fortawesome/free-solid-svg-icons';
 
 export const settingsGroups: SettingGroup[] = [
   {
@@ -33,6 +33,23 @@ export const settingsGroups: SettingGroup[] = [
         path: '/settings/language',
         showValue: true,
         getValue: (settings) => settings?.language,
+      },
+    ],
+  },
+  {
+    categoryKey: 'LEGAL_DOCUMENTS',
+    items: [
+      {
+        icon: faShieldHalved,
+        titleKey: 'PRIVACY_POLICY',
+        path: '/privacy-policy',
+        external: true
+      },
+      {
+        icon: faFileContract,
+        titleKey: 'TERMS_OF_SERVICE',
+        path: '/terms-of-service',
+        external: true
       },
     ],
   },

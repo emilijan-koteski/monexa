@@ -1,12 +1,5 @@
 import type { User } from '../types/models';
-
-const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'accessToken',
-  ACCESS_TOKEN_EXPIRES_AT: 'accessTokenExpiresAt',
-  REFRESH_TOKEN: 'refreshToken',
-  REFRESH_TOKEN_EXPIRES_AT: 'refreshTokenExpiresAt',
-  USER: 'user',
-};
+import { localStorageUtils } from './storage';
 
 export const tokenUtils = {
   setTokens: (
@@ -15,32 +8,32 @@ export const tokenUtils = {
     refreshToken: string,
     refreshTokenExpiresAt: string
   ): void => {
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT, accessTokenExpiresAt);
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN_EXPIRES_AT, refreshTokenExpiresAt);
+    localStorageUtils.setAccessToken(accessToken);
+    localStorageUtils.setAccessTokenExpiresAt(accessTokenExpiresAt);
+    localStorageUtils.setRefreshToken(refreshToken);
+    localStorageUtils.setRefreshTokenExpiresAt(refreshTokenExpiresAt);
   },
 
   setAccessToken: (accessToken: string, accessTokenExpiresAt: string): void => {
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT, accessTokenExpiresAt);
+    localStorageUtils.setAccessToken(accessToken);
+    localStorageUtils.setAccessTokenExpiresAt(accessTokenExpiresAt);
   },
 
   getAccessToken: (): string | null => {
-    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    return localStorageUtils.getAccessToken();
   },
 
   getRefreshToken: (): string | null => {
-    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    return localStorageUtils.getRefreshToken();
   },
 
   getAccessTokenExpiry: (): Date | null => {
-    const expiresAt = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT);
+    const expiresAt = localStorageUtils.getAccessTokenExpiresAt();
     return expiresAt ? new Date(expiresAt) : null;
   },
 
   getRefreshTokenExpiry: (): Date | null => {
-    const expiresAt = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN_EXPIRES_AT);
+    const expiresAt = localStorageUtils.getRefreshTokenExpiresAt();
     return expiresAt ? new Date(expiresAt) : null;
   },
 
@@ -66,21 +59,21 @@ export const tokenUtils = {
   },
 
   clearTokens: (): void => {
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN_EXPIRES_AT);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN_EXPIRES_AT);
-    localStorage.removeItem(STORAGE_KEYS.USER);
+    localStorageUtils.removeAccessToken();
+    localStorageUtils.removeAccessTokenExpiresAt();
+    localStorageUtils.removeRefreshToken();
+    localStorageUtils.removeRefreshTokenExpiresAt();
+    localStorageUtils.removeUser();
     window.dispatchEvent(new Event('user-updated'));
   },
 
   setUser: (user: User): void => {
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    localStorageUtils.setUser(JSON.stringify(user));
     window.dispatchEvent(new Event('user-updated'));
   },
 
   getUser: (): User | null => {
-    const userString = localStorage.getItem(STORAGE_KEYS.USER);
+    const userString = localStorageUtils.getUser();
     return userString ? JSON.parse(userString) : null;
   },
 

@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-
-const DRAWER_STATE_KEY = 'monexa_drawer_expanded';
+import { localStorageUtils } from '../utils/storage';
 
 export const useDrawerState = () => {
   const [isExpanded, setIsExpanded] = useState<boolean>(() => {
-    const stored = localStorage.getItem(DRAWER_STATE_KEY);
+    const stored = localStorageUtils.getDrawerState();
     return stored === 'true';
   });
 
   useEffect(() => {
-    localStorage.setItem(DRAWER_STATE_KEY, String(isExpanded));
+    localStorageUtils.setDrawerState(String(isExpanded));
   }, [isExpanded]);
 
   const toggleDrawer = () => {

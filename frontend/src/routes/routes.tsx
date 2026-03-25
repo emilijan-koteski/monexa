@@ -4,6 +4,7 @@ import Loader from '../components/loader/Loader.tsx';
 import AppLayout from '../layouts/AppLayout.tsx';
 import ProtectedRoute from '../components/protected-route/ProtectedRoute.tsx';
 import AuthRoute from '../components/auth-route/AuthRoute.tsx';
+import { ENV } from '../config/env';
 
 const HomePage = lazy(() => import('../pages/home/HomePage.tsx'));
 const LoginPage = lazy(() => import('../pages/auth/LoginPage.tsx'));
@@ -22,6 +23,10 @@ const PaymentTypePage = lazy(() => import('../pages/settings/payment-type/Paymen
 const DisplayCurrencyPage = lazy(() => import('../pages/settings/display-currency/DisplayCurrencyPage.tsx'));
 const LanguagePage = lazy(() => import('../pages/settings/language/LanguagePage.tsx'));
 
+const PrivacyPolicyPage = lazy(() => import('../pages/privacy-policy/PrivacyPolicyPage.tsx'));
+const TermsOfServicePage = lazy(() => import('../pages/terms-of-service/TermsOfServicePage.tsx'));
+const LegalAcceptancePage = lazy(() => import('../pages/legal-acceptance/LegalAcceptancePage.tsx'));
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -29,6 +34,14 @@ function AppRoutes() {
         <Routes>
           {/* Public routes without layout. Redirect root to home for now */}
           <Route path="/" element={<Navigate to="/home" replace/>}/>
+
+          {/* Public legal document pages */}
+          {ENV.LEGAL_COMPLIANCE_ENABLED && (
+            <>
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage/>}/>
+              <Route path="/terms-of-service" element={<TermsOfServicePage/>}/>
+            </>
+          )}
 
           {/* Auth routes - redirect to /home if already logged in */}
           <Route element={<AuthRoute/>}>
@@ -38,8 +51,14 @@ function AppRoutes() {
             <Route path="/reset-password" element={<ResetPasswordPage/>}/>
           </Route>
 
-          {/* Protected routes with layout */}
+          {/* Protected routes */}
           <Route element={<ProtectedRoute/>}>
+            {/* Legal acceptance page without layout. Blocks app until acceptance */}
+            {ENV.LEGAL_COMPLIANCE_ENABLED && (
+              <Route path="/legal-acceptance" element={<LegalAcceptancePage/>}/>
+            )}
+
+            {/* Main app routes with layout */}
             <Route element={<AppLayout/>}>
               <Route path="/home" element={<HomePage/>}/>
               <Route path="/categories" element={<CategoriesPage/>}/>

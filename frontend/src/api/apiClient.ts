@@ -1,4 +1,5 @@
 import { ENV } from '../config/env';
+import { sessionStorageUtils } from '../utils/storage';
 import { tokenUtils } from '../utils/tokenUtils';
 
 const REFRESH_THRESHOLD_MS = 24 * 60 * 60 * 1000;
@@ -18,7 +19,7 @@ const isAuthEndpoint = (url: string): boolean => {
   return AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));
 };
 
-const refreshAccessToken = async (): Promise<boolean> => {
+export const refreshAccessToken = async (): Promise<boolean> => {
   const refreshToken = tokenUtils.getRefreshToken();
 
   if (!refreshToken || tokenUtils.isRefreshTokenExpired()) {
@@ -80,6 +81,14 @@ const handleLogout = (): void => {
   window.location.href = '/login';
 };
 
+const handleLegalRequired = (): void => {
+  const currentPath = window.location.pathname;
+  if (currentPath !== '/legal-acceptance') {
+    sessionStorageUtils.setRedirectAfterLegal(currentPath);
+    window.location.href = '/legal-acceptance';
+  }
+};
+
 export const apiClient = async (
   input: RequestInfo | URL,
   init?: RequestInit
@@ -111,6 +120,11 @@ export const apiClient = async (
   }
 
   const response = await fetch(input, init);
+
+  if (ENV.LEGAL_COMPLIANCE_ENABLED && response.status === 451) {
+    handleLegalRequired();
+    return response;
+  }
 
   if (response.status === 401) {
     if (isRefreshing && refreshPromise) {

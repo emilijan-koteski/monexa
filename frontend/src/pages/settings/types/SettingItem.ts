@@ -7,4 +7,5 @@ export interface SettingItem {
   path: string;
   showValue?: boolean;
   getValue?: (settings: Setting | undefined) => string | undefined;
+  external?: boolean;
 }

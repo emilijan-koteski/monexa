@@ -7,7 +7,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { format, isToday } from 'date-fns';
 import { enGB, mk } from 'date-fns/locale';
-import { getLanguage } from '../../utils/storage';
+import { localStorageUtils } from '../../utils/storage';
 import { Language } from '../../enums/Language';
 
 interface DateSelectorProps {
@@ -19,7 +19,7 @@ function DateSelector({ selectedDate, onChange }: DateSelectorProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement | null>(null);
-  const currentLanguage = getLanguage();
+  const currentLanguage = localStorageUtils.getLanguage();
   const locale = currentLanguage === Language.MK ? mk : enGB;
   const formattedDate = format(selectedDate, 'EEEE, d MMMM, yyyy', { locale });
   const isTodaySelected = isToday(selectedDate);

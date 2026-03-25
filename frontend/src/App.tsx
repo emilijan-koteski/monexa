@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './styles/toast.scss';
 import { enGB, mk } from 'date-fns/locale';
 import { Language } from './enums/Language.ts';
-import { getLanguage } from './utils/storage.ts';
+import { localStorageUtils } from './utils/storage.ts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,7 +21,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const currentLanguage = getLanguage();
+  const currentLanguage = localStorageUtils.getLanguage();
   const adapterLocale = currentLanguage === Language.MK ? mk : enGB;
 
   return (
