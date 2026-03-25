@@ -29,11 +29,13 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
-# Build argument for API URL (injected at build time)
+# Build arguments (injected at build time)
 ARG VITE_API_BASE_URL=http://localhost:9000/api/v1
+ARG VITE_LEGAL_COMPLIANCE_ENABLED=false
 
-# Set environment variable for Vite build
+# Set environment variables for Vite build
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_LEGAL_COMPLIANCE_ENABLED=$VITE_LEGAL_COMPLIANCE_ENABLED
 
 # Build the application
 RUN npm run build
