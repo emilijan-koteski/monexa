@@ -458,8 +458,8 @@ func Migrate(db *gorm.DB) {
 						"content_mk":         ppContentMk,
 						"content_hash":       computeContentHash("PRIVACY_POLICY", 1, "Privacy Policy", "Политика за приватност", ppContent, ppContentMk),
 						"effective_at":       now,
-						"is_active":          true,
-						"requires_reconsent": true,
+						"is_active":          false,
+						"requires_reconsent": false,
 						"created_at":         now,
 					},
 					{
@@ -471,8 +471,8 @@ func Migrate(db *gorm.DB) {
 						"content_mk":         tosContentMk,
 						"content_hash":       computeContentHash("TERMS_OF_SERVICE", 1, "Terms of Service", "Услови за користење", tosContent, tosContentMk),
 						"effective_at":       now,
-						"is_active":          true,
-						"requires_reconsent": true,
+						"is_active":          false,
+						"requires_reconsent": false,
 						"created_at":         now,
 					},
 				}
