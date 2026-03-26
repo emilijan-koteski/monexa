@@ -531,6 +531,16 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize settings: %w", err)
 	}
 
+	// Anonymize and soft-delete legal acceptances
+	if err := tx.Model(&models.UserLegalAcceptance{}).Where("user_id = ?", userID).Updates(map[string]any{
+		"ip_address": gorm.Expr("CONCAT('[Deleted UserLegalAcceptance #', id, ']')"),
+		"user_agent": gorm.Expr("CONCAT('[Deleted UserLegalAcceptance #', id, ']')"),
+		"deleted_at": now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize legal acceptances: %w", err)
+	}
+
 	// Anonymize user and randomize password
 	randomBytes := make([]byte, 32)
 	if _, err := rand.Read(randomBytes); err != nil {
