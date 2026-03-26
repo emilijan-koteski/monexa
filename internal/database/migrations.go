@@ -436,7 +436,8 @@ func Migrate(db *gorm.DB) {
 					FOREIGN KEY (legal_document_id) REFERENCES public.legal_documents(id);
 
 					CREATE UNIQUE INDEX IF NOT EXISTS unique_user_document_acceptance
-					ON public.user_legal_acceptances (user_id, legal_document_id);
+					ON public.user_legal_acceptances (user_id, legal_document_id)
+					WHERE deleted_at IS NULL;
 				`).Error; err != nil {
 					return err
 				}

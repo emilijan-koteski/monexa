@@ -126,7 +126,7 @@ func (s *LegalDocumentService) GetActiveDocumentByType(ctx context.Context, docT
 func (s *LegalDocumentService) GetPendingDocuments(ctx context.Context, userID uint) ([]models.LegalDocument, error) {
 	var pendingDocs []models.LegalDocument
 
-	acceptedSubquery := s.db.Table("user_legal_acceptances").
+	acceptedSubquery := s.db.WithContext(ctx).Model(&models.UserLegalAcceptance{}).
 		Select("legal_document_id").
 		Where("user_id = ?", userID)
 
