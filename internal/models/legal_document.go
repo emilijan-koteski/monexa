@@ -21,4 +21,5 @@ type LegalDocument struct {
 	EffectiveAt       time.Time          `gorm:"not null" json:"effectiveAt"`
 	IsActive          bool               `gorm:"not null;default:false" json:"isActive"`
 	RequiresReconsent bool               `gorm:"not null;default:true" json:"requiresReconsent"`
+	ContentHash       string             `gorm:"not null" json:"contentHash"`
 }

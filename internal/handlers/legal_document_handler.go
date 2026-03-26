@@ -4,6 +4,7 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
+	"github.com/emilijan-koteski/monexa/internal/requests"
 	dtoResponses "github.com/emilijan-koteski/monexa/internal/responses"
 	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/labstack/echo/v4"
@@ -20,6 +21,8 @@ func RegisterLegalDocumentHandler(e *echo.Echo, legalDocumentService *services.L
 	v1 := e.Group("/api/v1/legal-documents")
 
 	v1.GET("", handler.GetActiveDocuments)
+	v1.POST("/hash/compute", handler.ComputeHash)
+	v1.POST("/hash/verify", handler.VerifyHash)
 
 	// Restricted group
 	r1 := v1.Group("")
@@ -92,4 +95,26 @@ func (h *legalDocumentHandler) AcceptDocument(c echo.Context) error {
 	}
 
 	return responses.Success(c)
+}
+
+func (h *legalDocumentHandler) ComputeHash(c echo.Context) error {
+	req := requests.ComputeHashRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
+	}
+
+	hash := services.ComputeContentHash(req.Type, req.Version, req.Title, req.TitleMk, req.Content, req.ContentMk)
+
+	return responses.SuccessWithData(c, map[string]string{"hash": hash})
+}
+
+func (h *legalDocumentHandler) VerifyHash(c echo.Context) error {
+	req := requests.VerifyHashRequest{}
+	if err := c.Bind(&req); err != nil {
+		return responses.BadRequestWithMessage(c, "invalid input")
+	}
+
+	valid := services.VerifyContentHash(req.Type, req.Version, req.Title, req.TitleMk, req.Content, req.ContentMk, req.Hash)
+
+	return responses.SuccessWithData(c, map[string]bool{"valid": valid})
 }

@@ -12,4 +12,5 @@ type UserLegalAcceptance struct {
 	AcceptedAt      time.Time `gorm:"not null" json:"acceptedAt"`
 	IPAddress       *string   `json:"-"`
 	UserAgent       *string   `json:"-"`
+	ContentHash     string    `gorm:"not null" json:"-"`
 }

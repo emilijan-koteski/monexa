@@ -1,7 +1,10 @@
 package database
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -9,6 +12,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
+
+func computeContentHash(docType string, version int, title, titleMk, content, contentMk string) string {
+	canonical := docType + "\n" + strconv.Itoa(version) + "\n" + title + "\n" + titleMk + "\n" + content + "\n" + contentMk
+	hash := sha256.Sum256([]byte(canonical))
+	return hex.EncodeToString(hash[:])
+}
 
 func createUniqueEmailIndex(tx *gorm.DB) error {
 	query := `
@@ -433,17 +442,24 @@ func Migrate(db *gorm.DB) {
 				}
 
 				now := time.Now()
+
+				ppContent := `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`
+				ppContentMk := `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`
+				tosContent := ppContent
+				tosContentMk := ppContentMk
+
 				initialDocuments := []map[string]interface{}{
 					{
 						"type":               "PRIVACY_POLICY",
 						"version":            1,
 						"title":              "Privacy Policy",
 						"title_mk":           "Политика за приватност",
-						"content":            `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
-						"content_mk":         `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`,
+						"content":            ppContent,
+						"content_mk":         ppContentMk,
+						"content_hash":       computeContentHash("PRIVACY_POLICY", 1, "Privacy Policy", "Политика за приватност", ppContent, ppContentMk),
 						"effective_at":       now,
-						"is_active":          false,
-						"requires_reconsent": false,
+						"is_active":          true,
+						"requires_reconsent": true,
 						"created_at":         now,
 					},
 					{
@@ -451,11 +467,12 @@ func Migrate(db *gorm.DB) {
 						"version":            1,
 						"title":              "Terms of Service",
 						"title_mk":           "Услови за користење",
-						"content":            `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor</h2><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h2>Lorem ipsum</h2><p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p><h2>Lorem ipsum dolor sit amet</h2><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>`,
-						"content_mk":         `<p>Лорем ипсум долор сит амет, консектетур адиписцинг елит. Сед до еиусмод темпор инцидидунт ут лаборе ет долоре магна аликуа.</p><h2>Лорем ипсум долор</h2><p>Дуис ауте ируре долор ин репрехендерит ин волуптате велит ессе циллум долоре еу фугиат нулла париатур.</p><h2>Лорем ипсум</h2><p>Сед ут перспициатис унде омнис исте натус еррор сит волуптатем акусантиум доллоремкуе лаудантиум, тотам рем аперијам.</p><h2>Лорем ипсум долор сит амет</h2><p>Немо еним ипсам волуптатем куиа волуптас сит аспернатур аут одит аут фугит, сед куиа консекуунтур магни долорес.</p>`,
+						"content":            tosContent,
+						"content_mk":         tosContentMk,
+						"content_hash":       computeContentHash("TERMS_OF_SERVICE", 1, "Terms of Service", "Услови за користење", tosContent, tosContentMk),
 						"effective_at":       now,
-						"is_active":          false,
-						"requires_reconsent": false,
+						"is_active":          true,
+						"requires_reconsent": true,
 						"created_at":         now,
 					},
 				}

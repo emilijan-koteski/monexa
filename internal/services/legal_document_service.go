@@ -2,7 +2,10 @@ package services
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"strconv"
 	"sync"
 	"time"
 
@@ -181,6 +184,7 @@ func (s *LegalDocumentService) AcceptDocument(ctx context.Context, userID uint, 
 		AcceptedAt:      time.Now(),
 		IPAddress:       &ipAddress,
 		UserAgent:       &userAgent,
+		ContentHash:     document.ContentHash,
 	}
 
 	return s.db.WithContext(ctx).Create(&acceptance).Error
@@ -206,6 +210,11 @@ func (s *LegalDocumentService) AcceptDocumentsTx(ctx context.Context, tx *gorm.D
 		return errors.New("one or more documents not found or not active")
 	}
 
+	docHashMap := make(map[uint]string, len(documents))
+	for _, doc := range documents {
+		docHashMap[doc.ID] = doc.ContentHash
+	}
+
 	now := time.Now()
 	acceptances := make([]models.UserLegalAcceptance, len(documentIDs))
 	for i, docID := range documentIDs {
@@ -215,8 +224,19 @@ func (s *LegalDocumentService) AcceptDocumentsTx(ctx context.Context, tx *gorm.D
 			AcceptedAt:      now,
 			IPAddress:       &ipAddress,
 			UserAgent:       &userAgent,
+			ContentHash:     docHashMap[docID],
 		}
 	}
 
 	return tx.WithContext(ctx).Create(&acceptances).Error
+}
+
+func ComputeContentHash(docType string, version int, title, titleMk, content, contentMk string) string {
+	canonical := docType + "\n" + strconv.Itoa(version) + "\n" + title + "\n" + titleMk + "\n" + content + "\n" + contentMk
+	hash := sha256.Sum256([]byte(canonical))
+	return hex.EncodeToString(hash[:])
+}
+
+func VerifyContentHash(docType string, version int, title, titleMk, content, contentMk, hash string) bool {
+	return ComputeContentHash(docType, version, title, titleMk, content, contentMk) == hash
 }
