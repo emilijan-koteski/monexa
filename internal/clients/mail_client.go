@@ -4,63 +4,65 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
-	"github.com/wneessen/go-mail"
+	"github.com/resend/resend-go/v3"
 )
 
 type MailClient struct {
-	client      *mail.Client
+	client      *resend.Client
 	fromName    string
 	fromAddress string
 }
 
 func NewMailClient() *MailClient {
-	port, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	if err != nil {
-		log.Fatal("⛔ Exit!!! Invalid or missing SMTP_PORT")
+	apiKey := os.Getenv("RESEND_API_KEY")
+	if apiKey == "" {
+		log.Fatal("⛔ Exit!!! Missing RESEND_API_KEY")
 	}
 
-	client, err := mail.NewClient(os.Getenv("SMTP_HOST"),
-		mail.WithPort(port),
-		mail.WithTLSPortPolicy(mail.TLSMandatory),
-		mail.WithSMTPAuth(mail.SMTPAuthPlain),
-		mail.WithUsername(os.Getenv("SMTP_USER")),
-		mail.WithPassword(os.Getenv("SMTP_PASS")),
-	)
-	if err != nil {
-		log.Fatal("⛔ Exit!!! Failed to create mail client")
+	fromName := os.Getenv("RESEND_FROM_NAME")
+	if fromName == "" {
+		log.Fatal("⛔ Exit!!! Missing RESEND_FROM_NAME")
 	}
+
+	fromAddress := os.Getenv("RESEND_FROM_ADDRESS")
+	if fromAddress == "" {
+		log.Fatal("⛔ Exit!!! Missing RESEND_FROM_ADDRESS")
+	}
+
+	client := resend.NewClient(apiKey)
 
 	return &MailClient{
 		client:      client,
-		fromName:    os.Getenv("SMTP_FROM_NAME"),
-		fromAddress: os.Getenv("SMTP_USER"),
+		fromName:    fromName,
+		fromAddress: fromAddress,
 	}
 }
 
 func (c *MailClient) SendText(to, subject, body string) error {
-	return c.send(to, subject, body, mail.TypeTextPlain)
+	params := &resend.SendEmailRequest{
+		From:    fmt.Sprintf("%s <%s>", c.fromName, c.fromAddress),
+		To:      []string{to},
+		Subject: subject,
+		Text:    body,
+	}
+	_, err := c.client.Emails.Send(params)
+	if err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+	return nil
 }
 
 func (c *MailClient) SendHTML(to, subject, htmlBody string) error {
-	return c.send(to, subject, htmlBody, mail.TypeTextHTML)
-}
-
-func (c *MailClient) send(to, subject, body string, contentType mail.ContentType) error {
-	msg := mail.NewMsg()
-	if err := msg.FromFormat(c.fromName, c.fromAddress); err != nil {
-		return fmt.Errorf("failed to set FROM address: %w", err)
+	params := &resend.SendEmailRequest{
+		From:    fmt.Sprintf("%s <%s>", c.fromName, c.fromAddress),
+		To:      []string{to},
+		Subject: subject,
+		Html:    htmlBody,
 	}
-	if err := msg.To(to); err != nil {
-		return fmt.Errorf("failed to set TO address: %w", err)
+	_, err := c.client.Emails.Send(params)
+	if err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
 	}
-	msg.Subject(subject)
-	msg.SetBodyString(contentType, body)
-
-	if err := c.client.DialAndSend(msg); err != nil {
-		return fmt.Errorf("failed to send mail: %w", err)
-	}
-
 	return nil
 }
