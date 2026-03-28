@@ -42,6 +42,7 @@ services:
       RESEND_FROM_NAME: ${RESEND_FROM_NAME:-Monexa}
       RESEND_FROM_ADDRESS: ${RESEND_FROM_ADDRESS:-no-reply@monexa.world}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      CORS_ORIGINS: ${CORS_ORIGINS}
       LEGAL_COMPLIANCE_ENABLED: ${LEGAL_COMPLIANCE_ENABLED:-false}
     ports:
       - "${SERVER_PORT:-9000}:9000"
