@@ -56,7 +56,7 @@ func main() {
 	categoryService := services.NewCategoryService(db, settingService, currencyService)
 	recordService := services.NewRecordService(db, settingService, categoryService, currencyService)
 	paymentMethodService := services.NewPaymentMethodService(db)
-	exportService := services.NewExportService(db, settingService)
+	exportService := services.NewExportService(db, settingService, legalComplianceEnabled)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
 	log.Println("👍 [5] All services initiated successfully")
 

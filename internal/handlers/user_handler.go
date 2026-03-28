@@ -3,8 +3,11 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
+	dtotypes "github.com/emilijan-koteski/monexa/internal/dtos/types"
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/requests"
@@ -57,6 +60,25 @@ func (h *userHandler) ExportData(c echo.Context) error {
 		return responses.UnauthorizedWithMessage(c, "not authenticated")
 	}
 
+	format := dtotypes.ExportFormatType(c.QueryParam("format"))
+	if format == "" {
+		format = dtotypes.ExportFormatCSV
+	}
+	if !dtotypes.ValidExportFormats[format] {
+		return responses.BadRequestWithMessage(c, "invalid format, expected csv or json")
+	}
+
+	var categories []dtotypes.ExportCategoryType
+	if cats := c.QueryParam("categories"); cats != "" {
+		for _, cat := range strings.Split(cats, ",") {
+			ec := dtotypes.ExportCategoryType(cat)
+			if !dtotypes.ValidExportCategories[ec] {
+				return responses.BadRequestWithMessage(c, fmt.Sprintf("invalid category: %s", cat))
+			}
+			categories = append(categories, ec)
+		}
+	}
+
 	var startDate, endDate *time.Time
 
 	if sd := c.QueryParam("startDate"); sd != "" {
@@ -75,15 +97,24 @@ func (h *userHandler) ExportData(c echo.Context) error {
 		endDate = &parsed
 	}
 
-	csvBytes, err := h.exportService.ExportRecordsCSV(c.Request().Context(), claims.UserID, startDate, endDate)
+	req := requests.ExportRequest{
+		UserID:     claims.UserID,
+		Format:     format,
+		Categories: categories,
+		StartDate:  startDate,
+		EndDate:    endDate,
+	}
+
+	zipBytes, err := h.exportService.ExportData(c.Request().Context(), req)
 	if err != nil {
 		return responses.FailureWithError(c, fmt.Errorf("error exporting data: %w", err))
 	}
 
-	filename := fmt.Sprintf("monexa-export-%s.csv", time.Now().Format("2006-01-02"))
+	filename := fmt.Sprintf("monexa-data-export-%s.zip", time.Now().Format("2006-01-02"))
 
-	c.Response().Header().Set("Content-Type", "text/csv; charset=utf-8")
+	c.Response().Header().Set("Content-Type", "application/zip")
 	c.Response().Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	c.Response().Header().Set("Content-Length", strconv.Itoa(len(zipBytes)))
 
-	return c.Blob(http.StatusOK, "text/csv; charset=utf-8", csvBytes)
+	return c.Blob(http.StatusOK, "application/zip", zipBytes)
 }

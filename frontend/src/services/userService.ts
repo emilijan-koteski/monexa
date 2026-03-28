@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { ENV } from '../config/env';
 import type { User } from '../types/models';
-import type { UpdateUserRequest } from '../types/requests';
+import type { ExportDataRequest, UpdateUserRequest } from '../types/requests';
 import { apiClient } from '../api/apiClient';
 import { tokenUtils } from '../utils/tokenUtils';
 
@@ -25,10 +25,14 @@ export const userApi = {
     return result.data;
   },
 
-  downloadData: async (startDate?: string, endDate?: string): Promise<Blob> => {
+  downloadData: async (request: ExportDataRequest): Promise<Blob> => {
     const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
+    if (request.format) params.append('format', request.format);
+    if (request.categories && request.categories.length > 0) {
+      params.append('categories', request.categories.join(','));
+    }
+    if (request.startDate) params.append('startDate', request.startDate);
+    if (request.endDate) params.append('endDate', request.endDate);
 
     const response = await apiClient(`${ENV.API_BASE_URL}/users/data/export?${params.toString()}`, {
       method: 'GET',
@@ -57,7 +61,6 @@ export const useUpdateUser = () => {
 
 export const useDownloadData = () => {
   return useMutation({
-    mutationFn: ({ startDate, endDate }: { startDate?: string; endDate?: string }) =>
-      userApi.downloadData(startDate, endDate),
+    mutationFn: (request: ExportDataRequest) => userApi.downloadData(request),
   });
 };

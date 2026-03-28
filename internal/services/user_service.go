@@ -376,10 +376,6 @@ func (s *UserService) CleanupExpiredResetTokens(ctx context.Context) (int64, err
 	return result.RowsAffected, nil
 }
 
-func (s *UserService) DeletePasswordResetTokensByUser(ctx context.Context, userID uint) error {
-	return s.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&models.PasswordResetToken{}).Error
-}
-
 func getDefaultPaymentMethods(userID uint, language types.LanguageType) []models.PaymentMethod {
 	if language == types.MacedonianLanguage {
 		return []models.PaymentMethod{
