@@ -376,6 +376,10 @@ func (s *UserService) CleanupExpiredResetTokens(ctx context.Context) (int64, err
 	return result.RowsAffected, nil
 }
 
+func (s *UserService) DeletePasswordResetTokensByUser(ctx context.Context, userID uint) error {
+	return s.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&models.PasswordResetToken{}).Error
+}
+
 func getDefaultPaymentMethods(userID uint, language types.LanguageType) []models.PaymentMethod {
 	if language == types.MacedonianLanguage {
 		return []models.PaymentMethod{
@@ -539,6 +543,18 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 	}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to anonymize legal acceptances: %w", err)
+	}
+
+	// Hard-delete all sessions for this user
+	if err := tx.Where("user_id = ?", userID).Delete(&models.Session{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete sessions: %w", err)
+	}
+
+	// Hard-delete all password reset tokens for this user
+	if err := tx.Where("user_id = ?", userID).Delete(&models.PasswordResetToken{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete password reset tokens: %w", err)
 	}
 
 	// Anonymize user and randomize password

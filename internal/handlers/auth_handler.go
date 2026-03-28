@@ -256,6 +256,7 @@ func (h *authHandler) DeleteAccount(c echo.Context) error {
 	}
 
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), userID)
+	_ = h.userService.DeletePasswordResetTokensByUser(c.Request().Context(), userID)
 
 	return responses.Success(c)
 }
