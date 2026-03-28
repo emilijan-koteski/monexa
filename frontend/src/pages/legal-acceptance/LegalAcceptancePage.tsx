@@ -16,7 +16,9 @@ import type { LegalDocument } from '../../types/models';
 import { getLocalizedTitle, getLocalizedContent } from '../../utils/legalDocument';
 import LanguageChange from '../../components/language-change/LanguageChange';
 import DownloadDataDialog from '../../components/download-data-dialog/DownloadDataDialog';
+import type { DownloadDataParams } from '../../components/download-data-dialog/DownloadDataDialog';
 import ConfirmationDialog from '../../components/confirmation-dialog/ConfirmationDialog';
+import { DownloadDataDialogMode } from '../../enums/DownloadDataDialogMode';
 import './legal-acceptance-page.scss';
 
 const LegalAcceptancePage = () => {
@@ -100,18 +102,17 @@ const LegalAcceptancePage = () => {
     }
   };
 
-  const handleDownloadData = (startDate: Date | null, endDate: Date | null) => {
+  const handleDownloadData = (params: DownloadDataParams) => {
     downloadMutation.mutate(
       {
-        startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
-        endDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+        format: params.format,
       },
       {
         onSuccess: (blob) => {
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `monexa-export-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+          link.download = `monexa-data-export-${format(new Date(), 'yyyy-MM-dd')}.zip`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -254,6 +255,7 @@ const LegalAcceptancePage = () => {
           onClose={() => setIsDownloadDialogOpen(false)}
           onDownload={handleDownloadData}
           isLoading={downloadMutation.isPending}
+          mode={DownloadDataDialogMode.ALL_DATA}
         />
 
         <ConfirmationDialog

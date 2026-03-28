@@ -16,6 +16,37 @@
     gap: 1.5rem;
   }
 
+  .section-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .category-section {
+    gap: 0;
+
+    .all-data-checkbox {
+      font-weight: 600;
+    }
+
+    .all-data-divider {
+      margin: 4px 0;
+    }
+
+    .category-checkbox {
+      margin-left: 8px;
+    }
+
+    .date-pickers {
+      margin: 4px 0 8px 40px;
+    }
+  }
+
+  .format-section {
+    gap: 4px;
+  }
+
   .dialog-actions {
     @include sm-down {
       padding: 12px 20px 16px;

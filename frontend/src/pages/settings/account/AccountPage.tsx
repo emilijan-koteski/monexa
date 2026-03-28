@@ -23,6 +23,7 @@ import ConfirmationDialog from '../../../components/confirmation-dialog/Confirma
 import DownloadDataDialog from '../../../components/download-data-dialog/DownloadDataDialog';
 import { useChangePassword, useDeleteAccount } from '../../../services/authService';
 import { useDownloadData } from '../../../services/userService';
+import type { DownloadDataParams } from '../../../components/download-data-dialog/DownloadDataDialog';
 
 const AccountPage = () => {
   const { t } = useTranslation();
@@ -94,18 +95,20 @@ const AccountPage = () => {
     );
   };
 
-  const handleDownloadData = (startDate: Date | null, endDate: Date | null) => {
+  const handleDownloadData = (params: DownloadDataParams) => {
     downloadMutation.mutate(
       {
-        startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
-        endDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+        format: params.format,
+        categories: params.categories,
+        startDate: params.startDate ? format(params.startDate, 'yyyy-MM-dd') : undefined,
+        endDate: params.endDate ? format(params.endDate, 'yyyy-MM-dd') : undefined,
       },
       {
         onSuccess: (blob) => {
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `monexa-export-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+          link.download = `monexa-data-export-${format(new Date(), 'yyyy-MM-dd')}.zip`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);

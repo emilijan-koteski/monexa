@@ -28,6 +28,14 @@ export interface UpdateUserRequest {
   name: string;
 }
 
+// Export Requests
+export interface ExportDataRequest {
+  format?: string;
+  categories?: string[];
+  startDate?: string;
+  endDate?: string;
+}
+
 // Record Requests
 export interface RecordRequest {
   categoryId: number;
