@@ -25,6 +25,9 @@ func main() {
 		if os.Getenv("APP_ENV") == "" {
 			log.Fatal("⛔ Exit!!! Error loading .env file")
 		}
+		if os.Getenv("PPID_SECRET") == "" {
+			log.Fatal("⛔ Exit!!! Error loading PPID_SECRET environment variable")
+		}
 	}
 	log.Println("👍 [1] Environment variables loaded successfully")
 

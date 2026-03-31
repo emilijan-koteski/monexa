@@ -76,12 +76,12 @@ func (h *authHandler) Login(c echo.Context) error {
 	}
 
 	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user, legalAcceptedAt)
+	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user, legalAcceptedAt)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(user.ID, user.PPID)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
@@ -103,9 +103,6 @@ func (h *authHandler) Login(c echo.Context) error {
 	response["sessionId"] = session.ID
 	response["accessToken"] = accessToken
 	response["refreshToken"] = refreshToken
-	response["accessTokenExpiresAt"] = accessClaims.RegisteredClaims.ExpiresAt.Time
-	response["refreshTokenExpiresAt"] = refreshClaims.RegisteredClaims.ExpiresAt.Time
-	response["user"] = *user
 
 	return responses.SuccessWithData(c, response)
 }
@@ -139,12 +136,12 @@ func (h *authHandler) Register(c echo.Context) error {
 	}
 
 	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user, legalAcceptedAt)
+	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user, legalAcceptedAt)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(user.ID, user.PPID)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
@@ -166,9 +163,6 @@ func (h *authHandler) Register(c echo.Context) error {
 	response["sessionId"] = session.ID
 	response["accessToken"] = accessToken
 	response["refreshToken"] = refreshToken
-	response["accessTokenExpiresAt"] = accessClaims.RegisteredClaims.ExpiresAt.Time
-	response["refreshTokenExpiresAt"] = refreshClaims.RegisteredClaims.ExpiresAt.Time
-	response["user"] = *user
 
 	return responses.SuccessWithData(c, response)
 }
@@ -211,20 +205,19 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 		return responses.UnauthorizedWithMessage(c, "invalid session")
 	}
 
-	tmpUser := models.User{
-		ID:    refreshClaims.UserID,
-		Email: refreshClaims.Email,
-		Name:  refreshClaims.Name,
+	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{ID: refreshClaims.UserID})
+	if err != nil {
+		return responses.UnauthorizedWithMessage(c, "user not found")
 	}
+
 	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), refreshClaims.UserID)
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(tmpUser, legalAcceptedAt)
+	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
 	response := map[string]interface{}{}
 	response["accessToken"] = accessToken
-	response["accessTokenExpiresAt"] = accessClaims.RegisteredClaims.ExpiresAt.Time
 
 	return responses.SuccessWithData(c, response)
 }
@@ -309,12 +302,12 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), user.ID)
 
 	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
-	accessToken, accessClaims, err := h.tokenMaker.CreateAccessToken(*user, legalAcceptedAt)
+	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
-	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(*user, legalAcceptedAt)
+	refreshToken, refreshClaims, err := h.tokenMaker.CreateRefreshToken(user.ID, user.PPID)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating refresh token")
 	}
@@ -336,9 +329,6 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 	response["sessionId"] = session.ID
 	response["accessToken"] = accessToken
 	response["refreshToken"] = refreshToken
-	response["accessTokenExpiresAt"] = accessClaims.RegisteredClaims.ExpiresAt.Time
-	response["refreshTokenExpiresAt"] = refreshClaims.RegisteredClaims.ExpiresAt.Time
-	response["user"] = *user
 
 	return responses.SuccessWithData(c, response)
 }

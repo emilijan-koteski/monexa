@@ -33,5 +33,9 @@ func GetUserClaims(c echo.Context) (*token.UserClaims, error) {
 		return nil, fmt.Errorf("invalid token claims")
 	}
 
+	if claims.TokenType != token.TokenTypeAccess {
+		return nil, fmt.Errorf("invalid token type")
+	}
+
 	return claims, nil
 }

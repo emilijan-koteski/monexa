@@ -10,6 +10,7 @@ import (
 	dtotypes "github.com/emilijan-koteski/monexa/internal/dtos/types"
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
+	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/requests"
 	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/labstack/echo/v4"
@@ -31,8 +32,23 @@ func RegisterUserHandler(e *echo.Echo, userService *services.UserService, export
 		r1.Use(m)
 	}
 
+	r1.GET("/me", handler.GetMe)
 	r1.PATCH("", handler.Update)
 	r1.GET("/data/export", handler.ExportData)
+}
+
+func (h *userHandler) GetMe(c echo.Context) error {
+	claims, err := middlewares.GetUserClaims(c)
+	if err != nil {
+		return responses.UnauthorizedWithMessage(c, "not authenticated")
+	}
+
+	user, err := h.userService.GetUserByExample(c.Request().Context(), models.User{ID: claims.UserID})
+	if err != nil {
+		return responses.FailureWithMessage(c, "user not found")
+	}
+
+	return responses.SuccessWithData(c, user)
 }
 
 func (h *userHandler) Update(c echo.Context) error {

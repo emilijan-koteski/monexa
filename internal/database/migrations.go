@@ -4,10 +4,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
+	"github.com/emilijan-koteski/monexa/internal/utils"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -226,7 +228,7 @@ func Migrate(db *gorm.DB) {
 		{
 			ID: "20241214104212_add_test_user",
 			Migrate: func(tx *gorm.DB) error {
-				hashedPassword, err := bcrypt.GenerateFromPassword([]byte("test"), bcrypt.DefaultCost)
+				hashedPassword, err := bcrypt.GenerateFromPassword([]byte("Test@123"), bcrypt.DefaultCost)
 				if err != nil {
 					return err
 				}
@@ -243,6 +245,11 @@ func Migrate(db *gorm.DB) {
 
 				var userID uint
 				if err := tx.Table("users").Select("id").Where("email = ?", "test@monexa.com").Scan(&userID).Error; err != nil {
+					return err
+				}
+
+				ppid := utils.GeneratePPID(os.Getenv("PPID_SECRET"), userID)
+				if err := tx.Table("users").Where("id = ?", userID).Update("ppid", ppid).Error; err != nil {
 					return err
 				}
 
@@ -491,6 +498,38 @@ func Migrate(db *gorm.DB) {
 					return err
 				}
 				return tx.Migrator().DropTable("legal_documents")
+			},
+		},
+		{
+			ID: "20260329000000_add_ppid_to_users",
+			Migrate: func(tx *gorm.DB) error {
+				if !tx.Migrator().HasColumn(&models.User{}, "PPID") {
+					if err := tx.Migrator().AddColumn(&models.User{}, "PPID"); err != nil {
+						return err
+					}
+				}
+
+				var users []struct{ ID uint }
+				if err := tx.Table("users").Where("ppid IS NULL OR ppid = ''").Select("id").Find(&users).Error; err != nil {
+					return err
+				}
+
+				ppidSecret := os.Getenv("PPID_SECRET")
+				for _, u := range users {
+					ppid := utils.GeneratePPID(ppidSecret, u.ID)
+					if err := tx.Table("users").Where("id = ?", u.ID).Update("ppid", ppid).Error; err != nil {
+						return err
+					}
+				}
+
+				return tx.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_ppid ON users (ppid) WHERE deleted_at IS NULL").Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				_ = tx.Exec("DROP INDEX IF EXISTS idx_users_ppid").Error
+				if tx.Migrator().HasColumn(&models.User{}, "PPID") {
+					return tx.Migrator().DropColumn(&models.User{}, "PPID")
+				}
+				return nil
 			},
 		},
 	})

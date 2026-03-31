@@ -91,6 +91,12 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, err
 	}
 
+	user.PPID = utils.GeneratePPID(os.Getenv("PPID_SECRET"), user.ID)
+	if err = tx.Model(&user).Update("ppid", user.PPID).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	language := types.EnglishLanguage
 	if req.Language != nil && types.LanguageType(*req.Language) == types.MacedonianLanguage {
 		language = types.MacedonianLanguage

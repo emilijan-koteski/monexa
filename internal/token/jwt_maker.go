@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -53,16 +52,23 @@ func (maker *JWTMaker) GetRefreshTokenDuration() time.Duration {
 	return maker.refreshTokenDuration
 }
 
-func (maker *JWTMaker) CreateAccessToken(user models.User, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
-	return maker.createToken(user, maker.accessTokenDuration, TokenTypeAccess, legalAcceptedAt)
+func (maker *JWTMaker) CreateAccessToken(userID uint, ppid string, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
+	claims, err := NewUserClaims(userID, ppid, maker.accessTokenDuration, TokenTypeAccess, legalAcceptedAt)
+	if err != nil {
+		return "", nil, err
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(maker.secretKey))
+	if err != nil {
+		return "", nil, fmt.Errorf("error signing token: %w", err)
+	}
+
+	return tokenString, claims, nil
 }
 
-func (maker *JWTMaker) CreateRefreshToken(user models.User, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
-	return maker.createToken(user, maker.refreshTokenDuration, TokenTypeRefresh, legalAcceptedAt)
-}
-
-func (maker *JWTMaker) createToken(user models.User, duration time.Duration, tokenType TokenType, legalAcceptedAt *time.Time) (string, *UserClaims, error) {
-	claims, err := NewUserClaims(user, duration, tokenType, legalAcceptedAt)
+func (maker *JWTMaker) CreateRefreshToken(userID uint, ppid string) (string, *RefreshClaims, error) {
+	claims, err := NewRefreshClaims(userID, ppid, maker.refreshTokenDuration)
 	if err != nil {
 		return "", nil, err
 	}
@@ -108,10 +114,21 @@ func (maker *JWTMaker) VerifyAccessToken(tokenString string) (*UserClaims, error
 	return claims, nil
 }
 
-func (maker *JWTMaker) VerifyRefreshToken(tokenString string) (*UserClaims, error) {
-	claims, err := maker.VerifyToken(tokenString)
+func (maker *JWTMaker) VerifyRefreshToken(tokenString string) (*RefreshClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return []byte(maker.secretKey), nil
+	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing token: %w", err)
+	}
+
+	claims, ok := token.Claims.(*RefreshClaims)
+	if !ok {
+		return nil, fmt.Errorf("error parsing token claims")
 	}
 	if claims.TokenType != TokenTypeRefresh {
 		return nil, fmt.Errorf("invalid token type: expected refresh token")
