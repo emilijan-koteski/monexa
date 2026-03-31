@@ -1,22 +1,13 @@
-import type { User } from '../types/models';
 import { localStorageUtils } from './storage';
 
 export const tokenUtils = {
-  setTokens: (
-    accessToken: string,
-    accessTokenExpiresAt: string,
-    refreshToken: string,
-    refreshTokenExpiresAt: string
-  ): void => {
+  setTokens: (accessToken: string, refreshToken: string): void => {
     localStorageUtils.setAccessToken(accessToken);
-    localStorageUtils.setAccessTokenExpiresAt(accessTokenExpiresAt);
     localStorageUtils.setRefreshToken(refreshToken);
-    localStorageUtils.setRefreshTokenExpiresAt(refreshTokenExpiresAt);
   },
 
-  setAccessToken: (accessToken: string, accessTokenExpiresAt: string): void => {
+  setAccessToken: (accessToken: string): void => {
     localStorageUtils.setAccessToken(accessToken);
-    localStorageUtils.setAccessTokenExpiresAt(accessTokenExpiresAt);
   },
 
   getAccessToken: (): string | null => {
@@ -28,13 +19,30 @@ export const tokenUtils = {
   },
 
   getAccessTokenExpiry: (): Date | null => {
-    const expiresAt = localStorageUtils.getAccessTokenExpiresAt();
-    return expiresAt ? new Date(expiresAt) : null;
+    const token = localStorageUtils.getAccessToken();
+    if (!token) return null;
+    return tokenUtils.getTokenExpiry(token);
   },
 
   getRefreshTokenExpiry: (): Date | null => {
-    const expiresAt = localStorageUtils.getRefreshTokenExpiresAt();
-    return expiresAt ? new Date(expiresAt) : null;
+    const token = localStorageUtils.getRefreshToken();
+    if (!token) return null;
+    return tokenUtils.getTokenExpiry(token);
+  },
+
+  getTokenExpiry: (token: string): Date | null => {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+
+      const payload = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
+      const claims = JSON.parse(payload);
+
+      if (typeof claims.exp !== 'number') return null;
+      return new Date(claims.exp * 1000);
+    } catch {
+      return null;
+    }
   },
 
   isAccessTokenExpiringSoon: (thresholdMs: number = 24 * 60 * 60 * 1000): boolean => {
@@ -60,21 +68,7 @@ export const tokenUtils = {
 
   clearTokens: (): void => {
     localStorageUtils.removeAccessToken();
-    localStorageUtils.removeAccessTokenExpiresAt();
     localStorageUtils.removeRefreshToken();
-    localStorageUtils.removeRefreshTokenExpiresAt();
-    localStorageUtils.removeUser();
-    window.dispatchEvent(new Event('user-updated'));
-  },
-
-  setUser: (user: User): void => {
-    localStorageUtils.setUser(JSON.stringify(user));
-    window.dispatchEvent(new Event('user-updated'));
-  },
-
-  getUser: (): User | null => {
-    const userString = localStorageUtils.getUser();
-    return userString ? JSON.parse(userString) : null;
   },
 
   isAuthenticated: (): boolean => {

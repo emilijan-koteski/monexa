@@ -1,4 +1,4 @@
-import type { FinancialRecord, User } from './models';
+import type { FinancialRecord } from './models';
 import { CategoryType } from '../enums/CategoryType.ts';
 
 // Generic API Response Wrapper
@@ -13,9 +13,6 @@ export interface AuthResponse {
   sessionId: string;
   accessToken: string;
   refreshToken: string;
-  accessTokenExpiresAt: string;
-  refreshTokenExpiresAt: string;
-  user: User;
 }
 
 // Record Responses

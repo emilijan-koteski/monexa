@@ -40,9 +40,9 @@ export const refreshAccessToken = async (): Promise<boolean> => {
     }
 
     const result = await response.json();
-    const { accessToken, accessTokenExpiresAt } = result.data;
+    const { accessToken } = result.data;
 
-    tokenUtils.setAccessToken(accessToken, accessTokenExpiresAt);
+    tokenUtils.setAccessToken(accessToken);
     return true;
   } catch {
     return false;

@@ -7,6 +7,7 @@ export interface User {
   id: number;
   createdAt: string;
   updatedAt: string;
+  ppid: string;
   email: string;
   name: string;
 }

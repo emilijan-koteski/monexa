@@ -5,6 +5,7 @@ import type { ChangePasswordRequest, LoginRequest, RegisterRequest, ResetPasswor
 import type { AuthResponse } from '../types/responses';
 import { apiClient } from '../api/apiClient';
 import { tokenUtils } from '../utils/tokenUtils';
+import { userQueryKeys } from './userService';
 
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
@@ -123,26 +124,14 @@ export const authApi = {
   },
 };
 
-export const authQueryKeys = {
-  all: ['auth'] as const,
-  user: () => [...authQueryKeys.all, 'user'] as const,
-};
-
 export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      tokenUtils.setTokens(
-        data.accessToken,
-        data.accessTokenExpiresAt,
-        data.refreshToken,
-        data.refreshTokenExpiresAt
-      );
-      tokenUtils.setUser(data.user);
-
-      queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
+      tokenUtils.setTokens(data.accessToken, data.refreshToken);
+      queryClient.invalidateQueries({ queryKey: userQueryKeys.me() });
     },
   });
 };
@@ -153,15 +142,8 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
-      tokenUtils.setTokens(
-        data.accessToken,
-        data.accessTokenExpiresAt,
-        data.refreshToken,
-        data.refreshTokenExpiresAt
-      );
-      tokenUtils.setUser(data.user);
-
-      queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
+      tokenUtils.setTokens(data.accessToken, data.refreshToken);
+      queryClient.invalidateQueries({ queryKey: userQueryKeys.me() });
     },
   });
 };
@@ -231,15 +213,8 @@ export const useResetPassword = () => {
   return useMutation({
     mutationFn: authApi.resetPassword,
     onSuccess: (data) => {
-      tokenUtils.setTokens(
-        data.accessToken,
-        data.accessTokenExpiresAt,
-        data.refreshToken,
-        data.refreshTokenExpiresAt
-      );
-      tokenUtils.setUser(data.user);
-
-      queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
+      tokenUtils.setTokens(data.accessToken, data.refreshToken);
+      queryClient.invalidateQueries({ queryKey: userQueryKeys.me() });
     },
   });
 };

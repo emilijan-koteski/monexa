@@ -1,21 +1,12 @@
 import { useState } from 'react';
-import {
-  Avatar,
-  Box,
-  Divider,
-  Menu,
-  MenuItem,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Avatar, Box, Divider, Menu, MenuItem, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router';
 import { useLogout } from '../../services/authService';
-import { useUser } from '../../hooks/useUser';
 import './user-avatar.scss';
+import { useUser } from '../../services/userService.ts';
 
 const UserAvatar = () => {
   const { t } = useTranslation();

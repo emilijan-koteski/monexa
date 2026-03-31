@@ -1,19 +1,11 @@
 import './profile-page.scss';
 import { useState } from 'react';
-import {
-  Avatar,
-  Box,
-  Container,
-  IconButton,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Avatar, Box, Container, IconButton, TextField, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faPen, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useUser } from '../../hooks/useUser';
-import { useUpdateUser } from '../../services/userService';
+import { useUpdateUser, useUser } from '../../services/userService';
 
 const ProfilePage = () => {
   const { t } = useTranslation();
