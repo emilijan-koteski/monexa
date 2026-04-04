@@ -10,6 +10,10 @@ export const tokenUtils = {
     localStorageUtils.setAccessToken(accessToken);
   },
 
+  setRefreshToken: (refreshToken: string): void => {
+    localStorageUtils.setRefreshToken(refreshToken);
+  },
+
   getAccessToken: (): string | null => {
     return localStorageUtils.getAccessToken();
   },

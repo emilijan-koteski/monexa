@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
@@ -10,7 +11,9 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/emilijan-koteski/monexa/internal/token"
 	"github.com/emilijan-koteski/monexa/internal/utils"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type authHandler struct {
@@ -91,6 +94,7 @@ func (h *authHandler) Login(c echo.Context) error {
 	session, err := h.sessionService.CreateSessionFromExample(c.Request().Context(), models.Session{
 		ID:           refreshClaims.RegisteredClaims.ID,
 		UserID:       user.ID,
+		TokenFamily:  uuid.New().String(),
 		RefreshToken: refreshToken,
 		IsRevoked:    false,
 		ExpiresAt:    refreshClaims.RegisteredClaims.ExpiresAt.Time,
@@ -153,6 +157,7 @@ func (h *authHandler) Register(c echo.Context) error {
 	session, err := h.sessionService.CreateSessionFromExample(c.Request().Context(), models.Session{
 		ID:           refreshClaims.RegisteredClaims.ID,
 		UserID:       user.ID,
+		TokenFamily:  uuid.New().String(),
 		RefreshToken: refreshToken,
 		IsRevoked:    false,
 		ExpiresAt:    refreshClaims.RegisteredClaims.ExpiresAt.Time,
@@ -198,11 +203,15 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 
 	session, err := h.sessionService.GetSessionByExample(c.Request().Context(), models.Session{ID: refreshClaims.RegisteredClaims.ID})
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return responses.UnauthorizedWithMessage(c, "invalid session")
+		}
 		return responses.FailureWithMessage(c, "error getting session")
 	}
 
 	if session.IsRevoked {
-		return responses.UnauthorizedWithMessage(c, "session is revoked")
+		_ = h.sessionService.RevokeSessionFamily(c.Request().Context(), session.TokenFamily)
+		return responses.UnauthorizedWithMessage(c, "session compromised")
 	}
 
 	if session.UserID != refreshClaims.UserID {
@@ -214,14 +223,35 @@ func (h *authHandler) RenewAccessToken(c echo.Context) error {
 		return responses.UnauthorizedWithMessage(c, "user not found")
 	}
 
-	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), refreshClaims.UserID)
+	newRefreshToken, newRefreshClaims, err := h.tokenMaker.CreateRefreshToken(user.ID, user.PPID)
+	if err != nil {
+		return responses.FailureWithMessage(c, "error creating refresh token")
+	}
+
+	newSession, err := h.sessionService.RotateSession(c.Request().Context(), session, models.Session{
+		ID:           newRefreshClaims.RegisteredClaims.ID,
+		UserID:       user.ID,
+		TokenFamily:  session.TokenFamily,
+		RefreshToken: newRefreshToken,
+		IsRevoked:    false,
+		ExpiresAt:    newRefreshClaims.RegisteredClaims.ExpiresAt.Time,
+		CreatedAt:    newRefreshClaims.RegisteredClaims.IssuedAt.Time,
+		UpdatedAt:    &newRefreshClaims.RegisteredClaims.IssuedAt.Time,
+	})
+	if err != nil {
+		return responses.FailureWithMessage(c, "error rotating session")
+	}
+
+	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
 	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)
 	if err != nil {
 		return responses.FailureWithMessage(c, "error creating access token")
 	}
 
 	response := map[string]interface{}{}
+	response["sessionId"] = newSession.ID
 	response["accessToken"] = accessToken
+	response["refreshToken"] = newRefreshToken
 
 	return responses.SuccessWithData(c, response)
 }
@@ -321,6 +351,7 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 	session, err := h.sessionService.CreateSessionFromExample(c.Request().Context(), models.Session{
 		ID:           refreshClaims.RegisteredClaims.ID,
 		UserID:       user.ID,
+		TokenFamily:  uuid.New().String(),
 		RefreshToken: refreshToken,
 		IsRevoked:    false,
 		ExpiresAt:    refreshClaims.RegisteredClaims.ExpiresAt.Time,

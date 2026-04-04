@@ -532,6 +532,35 @@ func Migrate(db *gorm.DB) {
 				return nil
 			},
 		},
+		{
+			ID: "20260404165500_add_token_family_to_sessions",
+			Migrate: func(tx *gorm.DB) error {
+				if tx.Migrator().HasColumn(&models.Session{}, "TokenFamily") {
+					return nil
+				}
+
+				if err := tx.Exec(`ALTER TABLE sessions ADD COLUMN token_family text`).Error; err != nil {
+					return err
+				}
+
+				if err := tx.Exec(`UPDATE sessions SET token_family = gen_random_uuid()::text WHERE token_family IS NULL OR token_family = ''`).Error; err != nil {
+					return err
+				}
+
+				if err := tx.Exec(`ALTER TABLE sessions ALTER COLUMN token_family SET NOT NULL`).Error; err != nil {
+					return err
+				}
+
+				return tx.Exec(`CREATE INDEX IF NOT EXISTS idx_sessions_token_family ON sessions (token_family)`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				_ = tx.Exec("DROP INDEX IF EXISTS idx_sessions_token_family").Error
+				if tx.Migrator().HasColumn(&models.Session{}, "TokenFamily") {
+					return tx.Migrator().DropColumn(&models.Session{}, "TokenFamily")
+				}
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {

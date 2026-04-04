@@ -40,6 +40,9 @@ func (s *SessionService) CreateSessionFromExample(ctx context.Context, example m
 	if example.RefreshToken == "" {
 		return nil, errors.New("refresh token is required")
 	}
+	if example.TokenFamily == "" {
+		return nil, errors.New("token family is required")
+	}
 	if example.ExpiresAt.Before(time.Now()) {
 		return nil, errors.New("expiration time must be in the future")
 	}
@@ -115,6 +118,34 @@ func (s *SessionService) GetUserSessions(ctx context.Context, userID uint) ([]mo
 	}
 
 	return sessions, nil
+}
+
+func (s *SessionService) RotateSession(ctx context.Context, oldSession *models.Session, newSession models.Session) (*models.Session, error) {
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(oldSession).Update("is_revoked", true).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&newSession).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &newSession, nil
+}
+
+func (s *SessionService) RevokeSessionFamily(ctx context.Context, tokenFamily string) error {
+	result := s.db.WithContext(ctx).
+		Model(&models.Session{}).
+		Where("token_family = ?", tokenFamily).
+		Update("is_revoked", true)
+
+	return result.Error
 }
 
 func (s *SessionService) RevokeAllUserSessions(ctx context.Context, userID uint) error {
