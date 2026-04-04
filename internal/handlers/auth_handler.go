@@ -59,6 +59,8 @@ func (h *authHandler) Login(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
 
+	req.Email = utils.NormalizeEmail(req.Email)
+
 	user, err := h.userService.GetUserByEmailUnscoped(c.Request().Context(), req.Email)
 	if err != nil {
 		return responses.UnauthorizedWithMessage(c, "invalid credentials")
@@ -112,6 +114,8 @@ func (h *authHandler) Register(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
+
+	req.Email = utils.NormalizeEmail(req.Email)
 
 	if h.legalDocumentService.IsEnabled() {
 		if len(req.AcceptedDocumentIds) == 0 {
@@ -278,6 +282,8 @@ func (h *authHandler) ForgotPassword(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return responses.BadRequestWithMessage(c, "invalid input")
 	}
+
+	req.Email = utils.NormalizeEmail(req.Email)
 
 	_ = h.userService.RequestPasswordReset(c.Request().Context(), req.Email)
 

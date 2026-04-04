@@ -37,7 +37,7 @@ const ForgotPasswordPage = () => {
   const forgotPasswordMutation = useForgotPassword();
 
   const onSubmit = (data: ForgotPasswordFormData) => {
-    forgotPasswordMutation.mutate(data.email, {
+    forgotPasswordMutation.mutate(data.email.trim().toLowerCase(), {
       onSuccess: () => {
         setEmailSent(true);
       },

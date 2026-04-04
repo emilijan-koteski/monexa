@@ -86,7 +86,7 @@ const RegisterPage = () => {
 
     const registerData = {
       name: data.name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       password: data.password,
       acceptedDocumentIds: acceptedDocumentIds,
       language: localStorageUtils.getLanguage()

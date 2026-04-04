@@ -60,6 +60,8 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 		return nil, errors.New("email, password and name are required")
 	}
 
+	req.Email = utils.NormalizeEmail(req.Email)
+
 	tx := s.db.WithContext(ctx).Begin()
 
 	defer func() {
@@ -69,7 +71,7 @@ func (s *UserService) CreateUser(ctx context.Context, req requests.RegisterReque
 	}()
 
 	var existingUser models.User
-	if err := tx.Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
+	if err := tx.Where("LOWER(email) = ?", req.Email).First(&existingUser).Error; err == nil {
 		tx.Rollback()
 		return nil, errors.New("email already registered")
 	}
@@ -196,8 +198,9 @@ func (s *UserService) DeleteUser(ctx context.Context, userID uint) error {
 }
 
 func (s *UserService) GetUserByEmailUnscoped(ctx context.Context, email string) (*models.User, error) {
+	email = utils.NormalizeEmail(email)
 	var user models.User
-	if err := s.db.WithContext(ctx).Unscoped().Where("email = ?", email).First(&user).Error; err != nil {
+	if err := s.db.WithContext(ctx).Unscoped().Where("LOWER(email) = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -247,7 +250,9 @@ func (s *UserService) UpdateUser(ctx context.Context, userID uint, req requests.
 }
 
 func (s *UserService) RequestPasswordReset(ctx context.Context, email string) error {
-	user, err := s.GetUserByExample(ctx, models.User{Email: email})
+	email = utils.NormalizeEmail(email)
+	var user models.User
+	err := s.db.WithContext(ctx).Where("LOWER(email) = ?", email).First(&user).Error
 	if err != nil {
 		return nil
 	}

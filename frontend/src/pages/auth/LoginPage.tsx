@@ -53,7 +53,7 @@ const LoginPage = () => {
   const loginMutation = useLogin();
 
   const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data, {
+    loginMutation.mutate({ ...data, email: data.email.trim().toLowerCase() }, {
       onSuccess: () => {
         navigate('/home');
       },
