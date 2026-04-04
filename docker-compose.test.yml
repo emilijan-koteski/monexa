@@ -35,6 +35,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_SSLMODE: ${DB_SSLMODE:-disable}
       JWT_SECRET: ${JWT_SECRET:-monexasupersecretkeythatismorethan32byteslong!}
+      PPID_SECRET: ${PPID_SECRET:-monexappidsecretkeythatismorethan32byteslong!}
       ACCESS_TOKEN_DURATION: ${ACCESS_TOKEN_DURATION:-168h}
       REFRESH_TOKEN_DURATION: ${REFRESH_TOKEN_DURATION:-720h}
       EXCHANGE_RATE_API_KEY: ${EXCHANGE_RATE_API_KEY:-monexaexchangerateapikey}
