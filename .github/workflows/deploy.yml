@@ -130,7 +130,7 @@ jobs:
           && needs.build-frontend.result != 'failure'
           && (needs.build-backend.result == 'success' || needs.build-frontend.result == 'success') }}
     env:
-      DOKPLOY_URL: https://dokploy.monexa.world
+      DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
       DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
     steps:
       - uses: actions/checkout@v5
