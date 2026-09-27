@@ -1,7 +1,6 @@
 import type { User, LoginResponse, RenewTokenResponse } from "./types.js";
+import { API_BASE_URL as BASE_URL } from "./config.js";
 
-const BASE_URL =
-  process.env.MONEXA_API_BASE_URL ?? "https://api.monexa.world/api/v1";
 const REFRESH_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 interface TokenState {

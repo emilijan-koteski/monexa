@@ -1,6 +1,9 @@
 package services
 
 import (
+	"bytes"
+	"html/template"
+	"os"
 	"path/filepath"
 
 	"github.com/emilijan-koteski/monexa/internal/clients"
@@ -55,4 +58,24 @@ func (s *MailService) GetEmailSubject(template string, language types.LanguageTy
 		}
 	}
 	return ""
+}
+
+// RenderTemplate renders an email template for the given language. FrontendURL is always
+// available to templates (from FRONTEND_URL) so links and assets follow the deployed domain.
+func (s *MailService) RenderTemplate(templateName string, language types.LanguageType, data map[string]string) (string, error) {
+	tmpl, err := template.ParseFiles(s.GetEmailTemplatePath(templateName, language))
+	if err != nil {
+		return "", err
+	}
+
+	values := map[string]string{"FrontendURL": os.Getenv("FRONTEND_URL")}
+	for key, value := range data {
+		values[key] = value
+	}
+
+	var body bytes.Buffer
+	if err := tmpl.Execute(&body, values); err != nil {
+		return "", err
+	}
+	return body.String(), nil
 }

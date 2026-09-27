@@ -20,9 +20,9 @@ func TestListenPortReadsPORT(t *testing.T) {
 }
 
 func TestCORSOriginsParsesAndTrims(t *testing.T) {
-	t.Setenv("CORS_ORIGINS", " https://monexa.world, https://www.monexa.world ,")
+	t.Setenv("CORS_ORIGINS", " https://example.com, https://www.example.com ,")
 	got := CORSOrigins()
-	want := []string{"https://monexa.world", "https://www.monexa.world"}
+	want := []string{"https://example.com", "https://www.example.com"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("CORSOrigins() = %v, want %v", got, want)
 	}
