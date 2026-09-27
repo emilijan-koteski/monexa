@@ -4,40 +4,42 @@ Personal finance and expense tracking app with multi-currency support. Go backen
 
 ## What you need
 
-- [Go](https://go.dev/) 1.23+
-- [Node.js](https://nodejs.org/) 18+
-- [Docker](https://www.docker.com/) and Docker Compose
+- [Go](https://go.dev/) 1.25 (see `go.mod`)
+- [Node.js](https://nodejs.org/) 22
+- [Docker](https://www.docker.com/) with Compose
+
+`mise install` picks up both tool versions from `mise.toml`.
 
 ## Development setup
 
-This is for when you want to work on the code. The database runs in Docker, but backend and frontend run on your machine so you get hot reload and all that.
+The database runs in Docker; backend and frontend run on your machine for hot reload.
 
-**1. Start the database:**
-
-```bash
-docker compose up -d
-```
-
-This starts PostgreSQL on port `5433`.
-
-**2. Environment variables:**
-
-Copy the examples; the values work as-is for local development:
+**1. Environment variables**
 
 ```bash
 cp .env.example .env
 cp frontend/.env.example frontend/.env
 ```
 
-**3. Run the backend:**
+The example values work as-is locally. `.env` files are git-ignored; never commit real secrets.
+
+**2. Start the database**
 
 ```bash
-go run ./cmd/api/main.go
+docker compose up -d
 ```
 
-API will be on `http://localhost:9000`.
+PostgreSQL listens on `localhost:5433` (`postgres` / `postgres`, database `monexa`).
 
-**4. Run the frontend:**
+**3. Run the backend**
+
+```bash
+go run ./cmd/api
+```
+
+The API listens on `http://localhost:9000` (`PORT` in `.env`). Migrations run on startup.
+
+**4. Run the frontend**
 
 ```bash
 cd frontend
@@ -45,19 +47,25 @@ npm ci
 npm run dev
 ```
 
-Frontend will be on `http://localhost:5173`.
+Open `http://localhost:5173`.
 
-## Fully dockerized setup
+## Everything in Docker
 
-If you just want to run everything without installing Go or Node on your machine, use the test compose file. Everything runs in Docker. The same `.env` files from the repo work here too.
+Builds the same images that production uses and runs them next to Postgres (needs `.env` from step 1):
 
 ```bash
-docker compose -f docker-compose.test.yml up --build
+docker compose --profile app up --build
 ```
 
-This starts:
-- PostgreSQL on port `5433`
-- Backend API on port `9000`
-- Frontend with Nginx on port `80`
+UI on `http://localhost:3000`, API on `http://localhost:9000`.
 
-Open `http://localhost` and you are good to go.
+## Tests
+
+```bash
+go test ./...
+cd frontend && npm run lint
+```
+
+## Deployment
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).

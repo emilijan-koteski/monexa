@@ -1,15 +1,55 @@
+# Local development only. Production runs on Dokploy from images built in CI (docs/DEPLOYMENT.md).
+#
+#   docker compose up -d                        # Postgres only; run backend/frontend on the host
+#   docker compose --profile app up --build     # everything in Docker: http://localhost:3000
+#
+# The app profile reads secrets from .env (cp .env.example .env).
+
 services:
-  psql_monexa:
-    container_name: psql_monexa
-    image: postgres:16
+  db:
+    image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: monexa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "${DB_PORT}:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - psql_volume_monexa:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d monexa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    profiles: ["app"]
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/monexa?sslmode=disable
+      PORT: "8080"
+      FRONTEND_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "127.0.0.1:9000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    profiles: ["app"]
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:9000/api/v1
+        VITE_LEGAL_COMPLIANCE_ENABLED: "false"
+    ports:
+      - "127.0.0.1:3000:8080"
+    depends_on:
+      - backend
 
 volumes:
   psql_volume_monexa:
