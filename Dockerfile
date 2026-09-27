@@ -1,73 +1,40 @@
-# ============================================
-# MONEXA BACKEND DOCKERFILE
-# Multi-stage build for minimal production image
-# ============================================
+# syntax=docker/dockerfile:1
 
-# --------------------------------------------
-# Stage 1: Build
-# --------------------------------------------
-FROM golang:1.25.7-alpine AS builder
+# ---- build -------------------------------------------------------------
+FROM golang:1.25-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache git ca-certificates tzdata
+WORKDIR /src
 
-# Set working directory
-WORKDIR /build
-
-# Copy dependency files first (better layer caching)
 COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
-# Download dependencies
-RUN go mod download && go mod verify
-
-# Copy source code
 COPY cmd/ cmd/
 COPY internal/ internal/
-COPY templates/ templates/
 
-# Build the binary
-# CGO_ENABLED=0 produces a statically linked binary
-# -ldflags="-s -w" strips debug info for smaller binary
-# -trimpath removes file system paths from binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -ldflags="-s -w -extldflags '-static'" \
-    -trimpath \
-    -o /build/monexa-api \
-    ./cmd/api
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags="-s -w" -o /out/monexa-api ./cmd/api
 
-# --------------------------------------------
-# Stage 2: Production
-# --------------------------------------------
-FROM alpine:3.19
+# ---- runtime -----------------------------------------------------------
+FROM alpine:3.22
 
-# Install runtime dependencies
-# ca-certificates: for HTTPS calls (exchange rate API)
-# tzdata: for proper timezone handling
-RUN apk add --no-cache ca-certificates tzdata
+# ca-certificates: outbound HTTPS (exchange rates, Resend); tzdata: time zones
+RUN apk add --no-cache ca-certificates tzdata \
+    && adduser -D -u 1000 monexa
 
-# Create non-root user for security
-RUN addgroup -g 1000 -S monexa && \
-    adduser -u 1000 -S monexa -G monexa
-
-# Set working directory
 WORKDIR /app
+COPY --from=builder /out/monexa-api ./monexa-api
+COPY templates/ ./templates/
 
-# Copy binary from builder
-COPY --from=builder /build/monexa-api /app/monexa-api
-COPY --from=builder /build/templates /app/templates
-
-# Change ownership to non-root user
-RUN chown -R monexa:monexa /app
-
-# Switch to non-root user
 USER monexa
 
-# Expose API port
-EXPOSE 9000
+ENV PORT=8080
+EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:9000/api/v1/health || exit 1
+# Dokploy/Swarm can run the same probe: wget -qO- http://127.0.0.1:8080/healthz
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD wget -qO- "http://127.0.0.1:${PORT}/healthz" >/dev/null || exit 1
 
-# Run the binary
 ENTRYPOINT ["/app/monexa-api"]
