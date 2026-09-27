@@ -1,14 +1,12 @@
 package services
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"html/template"
 	"log"
 	"os"
 	"time"
@@ -609,26 +607,19 @@ func (s *UserService) sendAccountDeletionEmail(email, name, period string, langu
 
 	reactivateURL := fmt.Sprintf("%s/login?lang=%s", os.Getenv("FRONTEND_URL"), string(language))
 
-	templatePath := s.mailService.GetEmailTemplatePath(AccountDeletionTemplate, language)
-	tmpl, err := template.ParseFiles(templatePath)
-	if err != nil {
-		log.Printf("failed to parse account deletion email template: %v", err)
-		return
-	}
-
-	var body bytes.Buffer
-	if err := tmpl.Execute(&body, map[string]string{
+	body, err := s.mailService.RenderTemplate(AccountDeletionTemplate, language, map[string]string{
 		"UserName":      name,
 		"DeletePeriod":  deletePeriod,
 		"ReactivateURL": reactivateURL,
-	}); err != nil {
+	})
+	if err != nil {
 		log.Printf("failed to render account deletion email template: %v", err)
 		return
 	}
 
 	subject := s.mailService.GetEmailSubject(AccountDeletionTemplate, language)
 
-	if err := s.mailService.SendHTML(email, subject, body.String()); err != nil {
+	if err := s.mailService.SendHTML(email, subject, body); err != nil {
 		log.Printf("failed to send account deletion email to %s: %v", email, err)
 	}
 }
@@ -636,25 +627,18 @@ func (s *UserService) sendAccountDeletionEmail(email, name, period string, langu
 func (s *UserService) sendPasswordResetEmail(email, name, token string, language types.LanguageType) {
 	resetURL := fmt.Sprintf("%s/reset-password?token=%s&lang=%s", os.Getenv("FRONTEND_URL"), token, string(language))
 
-	templatePath := s.mailService.GetEmailTemplatePath(PasswordResetTemplate, language)
-	tmpl, err := template.ParseFiles(templatePath)
-	if err != nil {
-		log.Printf("failed to parse email template: %v", err)
-		return
-	}
-
-	var body bytes.Buffer
-	if err := tmpl.Execute(&body, map[string]string{
+	body, err := s.mailService.RenderTemplate(PasswordResetTemplate, language, map[string]string{
 		"UserName": name,
 		"ResetURL": resetURL,
-	}); err != nil {
-		log.Printf("failed to render email template: %v", err)
+	})
+	if err != nil {
+		log.Printf("failed to render password reset email template: %v", err)
 		return
 	}
 
 	subject := s.mailService.GetEmailSubject(PasswordResetTemplate, language)
 
-	if err := s.mailService.SendHTML(email, subject, body.String()); err != nil {
+	if err := s.mailService.SendHTML(email, subject, body); err != nil {
 		log.Printf("failed to send reset email to %s: %v", email, err)
 	}
 }
