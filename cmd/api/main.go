@@ -20,15 +20,9 @@ import (
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		if os.Getenv("APP_ENV") == "" {
-			log.Fatal("⛔ Exit!!! Error loading .env file")
-		}
-		if os.Getenv("PPID_SECRET") == "" {
-			log.Fatal("⛔ Exit!!! Error loading PPID_SECRET environment variable")
-		}
-	}
+	// Load .env when present (local development). Production injects env vars directly.
+	_ = godotenv.Load()
+	server.RequireEnv("DATABASE_URL", "JWT_SECRET", "PPID_SECRET")
 	log.Println("👍 [1] Environment variables loaded successfully")
 
 	// Connect database
@@ -82,12 +76,8 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	corsOrigins := []string{"https://*", "http://*"}
-	if origins := os.Getenv("CORS_ORIGINS"); origins != "" {
-		corsOrigins = strings.Split(origins, ",")
-	}
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     corsOrigins,
+		AllowOrigins:     server.CORSOrigins(),
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
