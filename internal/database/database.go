@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -11,20 +10,10 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// ConnectDB initializes and returns a Gorm database instance
+// ConnectDB initializes and returns a Gorm database instance.
+// DATABASE_URL is a libpq/pgx URL, e.g. postgres://user:pass@host:5432/db?sslmode=disable
 func ConnectDB() *gorm.DB {
-	dbHost := os.Getenv("DB_HOST")
-	dbUser := os.Getenv("DB_USERNAME")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbPort := os.Getenv("DB_PORT")
-	dbSSLMode := os.Getenv("DB_SSLMODE")
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s ",
-		dbHost, dbUser, dbPassword, dbName, dbPort, dbSSLMode,
-	)
-
-	var err error
+	dsn := os.Getenv("DATABASE_URL")
 
 	logLevel := logger.Info
 	if os.Getenv("APP_ENV") == "production" {

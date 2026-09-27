@@ -3,16 +3,23 @@ package handlers
 import (
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
-	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/labstack/echo/v4"
 )
 
-type healthHandler struct {
-	healthService *services.HealthService
+// HealthChecker reports whether the service's dependencies (the database) are reachable.
+type HealthChecker interface {
+	CheckHealth() bool
 }
 
-func RegisterHealthHandler(e *echo.Echo, healthService *services.HealthService) {
+type healthHandler struct {
+	healthService HealthChecker
+}
+
+func RegisterHealthHandler(e *echo.Echo, healthService HealthChecker) {
 	handler := &healthHandler{healthService: healthService}
+
+	// Probe for Dokploy, Swarm and uptime monitors. Unauthenticated, pings the DB.
+	e.GET("/healthz", handler.CheckHealth)
 
 	// Unauthenticated group
 	v1 := e.Group("/api/v1/health")

@@ -23,8 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment files (Add '#' at the beginning of a line to temporarily exclude it from .gitignore)
+# Environment files (only the committed example is tracked)
 .env
-.env.local
-.env.production
-.env.*.local
+.env.*
+!.env.example
