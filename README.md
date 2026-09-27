@@ -29,7 +29,7 @@ The example values work as-is locally. `.env` files are git-ignored; never commi
 docker compose up -d
 ```
 
-PostgreSQL listens on `localhost:5433` (`postgres` / `postgres`, database `monexa`).
+PostgreSQL listens on `localhost:5433` (`postgres` / `postgres`, database `monexa`). If you used the previous compose file, run `docker compose down --remove-orphans` once to retire the old `psql_monexa` container.
 
 **3. Run the backend**
 
