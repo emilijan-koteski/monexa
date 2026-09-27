@@ -34,7 +34,15 @@ Dokploy is always pointed at the `sha-…` tag. Redeploying a floating tag such 
 | `DOKPLOY_BACKEND_APP_ID`  | `applicationId` of the backend application (from its URL in Dokploy, or `GET /api/project.all`). |
 | `DOKPLOY_FRONTEND_APP_ID` | `applicationId` of the frontend application. |
 
-`GITHUB_TOKEN` (automatic, `packages: write`) pushes to GHCR. Nothing else in CI is secret; the frontend build args below are plain values in the workflow.
+`GITHUB_TOKEN` (automatic, `packages: write`) pushes to GHCR.
+
+## GitHub variables (not secret)
+
+Settings → Secrets and variables → Actions → *Variables*:
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `VITE_API_BASE_URL` | `https://api.monexa.world/api/v1` | Baked into the frontend image at build time. A missing value fails the build. |
 
 ## Backend service — Dokploy Environment tab
 
@@ -63,7 +71,7 @@ No runtime environment variables. Values are baked in at build time by `deploy.y
 
 | Build arg | Value |
 |---|---|
-| `VITE_API_BASE_URL` | `https://api.monexa.world/api/v1` |
+| `VITE_API_BASE_URL` | repository variable `VITE_API_BASE_URL` (see above) |
 | `VITE_LEGAL_COMPLIANCE_ENABLED` | `false` |
 
 nginx (`nginxinc/nginx-unprivileged`) listens on **8080** as a non-root user and serves the SPA with `index.html` fallback, gzip, `immutable` caching for `/assets/*` and `no-cache` for everything else. TLS is terminated by Traefik.
@@ -98,6 +106,16 @@ The deploy job returns as soon as Dokploy accepts the request ("Deploy requested
 ## Alternative: deploy webhook
 
 Each Dokploy application also has a deploy webhook URL (Deployments tab); `curl -fsS -X POST "$URL"` re-pulls the configured image and redeploys. Because of the floating-tag issue above it is only useful once the application already points at a fixed tag, so the workflow does not use it.
+
+## Changing the domain
+
+The production hostname is not in source; email links and the logo use `FRONTEND_URL`. To move to a new domain:
+
+1. Dokploy → backend Environment: `FRONTEND_URL`, `CORS_ORIGINS`, `RESEND_FROM_ADDRESS` (verify the new domain in Resend first).
+2. GitHub → Actions variables: `VITE_API_BASE_URL`.
+3. Dokploy → Domains on both applications, and the DNS records in Cloudflare.
+4. Actions → Deploy → *Run workflow* so the frontend is rebuilt with the new API URL and the backend restarts with the new variables.
+5. `mcp-server/src/config.ts` holds the public default API URL for the npm package; change it and publish a new version.
 
 ## Local development
 
