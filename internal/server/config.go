@@ -8,6 +8,19 @@ import (
 
 const defaultPort = "8080"
 
+// RequiredEnv lists the variables the process cannot run without. They are checked once at
+// startup so a misconfigured container fails immediately, before connecting to the database,
+// instead of dying later in a client constructor after migrations already ran.
+var RequiredEnv = []string{
+	"DATABASE_URL",
+	"JWT_SECRET",
+	"PPID_SECRET",
+	"RESEND_API_KEY",
+	"RESEND_FROM_NAME",
+	"RESEND_FROM_ADDRESS",
+	"FRONTEND_URL",
+}
+
 // ListenPort returns the TCP port the HTTP server binds to: PORT, or 8080 when unset.
 func ListenPort() string {
 	if port := os.Getenv("PORT"); port != "" {

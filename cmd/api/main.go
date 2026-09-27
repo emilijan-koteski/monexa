@@ -22,7 +22,7 @@ import (
 func main() {
 	// Load .env when present (local development). Production injects env vars directly.
 	_ = godotenv.Load()
-	server.RequireEnv("DATABASE_URL", "JWT_SECRET", "PPID_SECRET")
+	server.RequireEnv(server.RequiredEnv...)
 	log.Println("👍 [1] Environment variables loaded successfully")
 
 	// Connect database

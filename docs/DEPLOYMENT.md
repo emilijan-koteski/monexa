@@ -40,15 +40,15 @@ Dokploy is always pointed at the `sha-…` tag. Redeploying a floating tag such 
 
 | Variable | Required | Secret | Description |
 |---|---|---|---|
-| `DATABASE_URL` | yes | yes | `postgres://monexa_user:<password>@infrastructure-postgres-qopj51:5432/monexa_db?sslmode=disable`. `sslmode=disable` is intentional (same-host overlay). |
+| `DATABASE_URL` | yes | yes | `postgres://monexa_user:<password>@infrastructure-postgres-qopj51:5432/monexa_db?sslmode=disable`. `sslmode=disable` is intentional (same-host overlay). Percent-encode the password if it contains `@ / ? # %` or `:`. |
 | `JWT_SECRET` | yes | yes | HMAC key for access/refresh tokens. A new value logs every session out. |
 | `PPID_SECRET` | yes | yes | HMAC key that derives a user's pseudonymous ID at registration. Reuse the old server's value so new PPIDs stay consistent; existing PPIDs are stored, so a different value does not break logins. |
 | `RESEND_API_KEY` | yes | yes | Resend API key for transactional email. |
 | `RESEND_FROM_NAME` | yes | no | Sender display name, e.g. `Monexa`. |
 | `RESEND_FROM_ADDRESS` | yes | no | Sender address on the verified Resend domain, e.g. `no-reply@monexa.world`. |
 | `FRONTEND_URL` | yes | no | `https://monexa.world`. Used for links in emails. |
-| `CORS_ORIGINS` | yes | no | `https://monexa.world,https://www.monexa.world`. Unset allows any origin (local dev only). |
-| `EXCHANGE_RATE_API_KEY` | yes | yes | exchangerate-api.com key for the daily rates job. Missing → the job logs an error and fallback rates are used. |
+| `CORS_ORIGINS` | no | no | `https://monexa.world,https://www.monexa.world`. Unset allows any origin, which is only acceptable locally: always set it in production. |
+| `EXCHANGE_RATE_API_KEY` | no | yes | exchangerate-api.com key for the daily rates job. Missing → the job logs an error and fallback rates are used. |
 | `APP_ENV` | no | no | `production` lowers GORM logging to warnings. |
 | `PORT` | no | no | Listen port, default `8080`. Must match the container port in the Domains tab. |
 | `ACCESS_TOKEN_DURATION` | no | no | Go duration, default `168h`. |
@@ -80,6 +80,8 @@ Both images declare a Docker `HEALTHCHECK` with busybox `wget`; the same command
 
 The backend handles SIGTERM by draining in-flight requests for up to 10 s, which is what Swarm sends on every redeploy.
 
+Client IPs (session records, legal acceptances, request logs) are taken from `X-Forwarded-For`, trusting private ranges (Traefik on the overlay) and Cloudflare's published edge ranges. This is only correct while Traefik's `forwardedHeaders.trustedIPs` is the Cloudflare list; with `forwardedHeaders.insecure: true` any client could spoof the header.
+
 ## Rolling back
 
 1. Dokploy → application → Provider → Docker: set the image to an earlier `ghcr.io/emilijan-koteski/monexa-<service>:sha-<short>` and click Deploy. Every run's tag is in the Actions log ("Deploy requested for …") and in the GHCR package's tag list.
@@ -89,7 +91,9 @@ Migrations are forward-only; rolling back an image does not undo a migration.
 
 ## Manual deploy
 
-Actions → Deploy → *Run workflow* builds and deploys both services from `master` regardless of what changed. Merging a PR into `master` does the same for the changed halves.
+Actions → Deploy → *Run workflow* on `master` builds and deploys both services regardless of what changed; a manual run on any other branch stops after the tests. Merging a PR into `master` deploys the changed halves.
+
+The deploy job returns as soon as Dokploy accepts the request ("Deploy requested for …"); the rollout itself is visible in the application's Deployments tab and in Dozzle.
 
 ## Alternative: deploy webhook
 
