@@ -1,7 +1,5 @@
 import { getValidAccessToken, forceRefresh } from "./auth.js";
-
-const BASE_URL =
-  process.env.MONEXA_API_BASE_URL ?? "https://api.monexa.world/api/v1";
+import { API_BASE_URL as BASE_URL } from "./config.js";
 
 export class ApiError extends Error {
   constructor(
