@@ -55,7 +55,7 @@ Dokploy is always pointed at the `sha-…` tag. Redeploying a floating tag such 
 | `REFRESH_TOKEN_DURATION` | no | no | Go duration, default `720h`. |
 | `LEGAL_COMPLIANCE_ENABLED` | no | no | Set `false` (the previous production value). Any other value, including unset, enables the legal-acceptance flow. |
 
-The backend runs pending migrations at startup (gormigrate, `migrations` table). The restored production database already holds all 15 migration IDs, the last being `20260404165500_add_token_family_to_sessions`, so the first start changes nothing.
+The backend runs pending migrations at startup (gormigrate, `migrations` table). The restored production database already holds all 16 migration IDs, the last being `20260404165500_add_token_family_to_sessions`, so the first start changes nothing.
 
 ## Frontend service
 
