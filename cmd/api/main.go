@@ -70,6 +70,7 @@ func main() {
 
 	// Init new echo client
 	e := echo.New()
+	e.IPExtractor = server.ClientIPExtractor()
 	log.Println("👍 [7] New Echo HTTP client initiated successfully")
 
 	// Init middlewares
