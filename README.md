@@ -22,7 +22,12 @@ This starts PostgreSQL on port `5433`.
 
 **2. Environment variables:**
 
-There are already working `.env` files in the root and `frontend/` folders with dummy values. No need to create them, just use them as they are.
+Copy the examples; the values work as-is for local development:
+
+```bash
+cp .env.example .env
+cp frontend/.env.example frontend/.env
+```
 
 **3. Run the backend:**
 
