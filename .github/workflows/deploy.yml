@@ -20,6 +20,8 @@ jobs:
   changes:
     name: Detect changes
     runs-on: ubuntu-latest
+    # Only master reaches production: a manual run on another branch stops after the tests.
+    if: github.ref == 'refs/heads/master'
     outputs:
       backend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.backend == 'true' }}
       frontend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.frontend == 'true' }}
