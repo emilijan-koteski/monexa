@@ -7,7 +7,7 @@ Monexa runs on the "Winterfell" VPS under [Dokploy](https://dokploy.monexa.world
 ```
 git push master
    └─► GitHub Actions (.github/workflows/deploy.yml)
-          ├─ test: go vet + go test, eslint + vite build   (.github/workflows/ci.yml)
+          ├─ test: go vet + go test, eslint + tsc          (.github/workflows/ci.yml; PRs also run vite build)
           ├─ build backend image  ──► ghcr.io/emilijan-koteski/monexa-backend:{sha-<short>,latest}   (only if backend files changed)
           ├─ build frontend image ──► ghcr.io/emilijan-koteski/monexa-frontend:{sha-<short>,latest}  (only if frontend files changed)
           └─ deploy: Dokploy API  application.update {dockerImage: …:sha-<short>} → application.deploy
