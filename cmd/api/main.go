@@ -52,6 +52,7 @@ func main() {
 	currencyService := services.NewCurrencyService(db, exchangeRateClient)
 	categoryService := services.NewCategoryService(db, settingService, currencyService)
 	recordService := services.NewRecordService(db, settingService, categoryService, currencyService)
+	recurringExpenseService := services.NewRecurringExpenseService(db)
 	paymentMethodService := services.NewPaymentMethodService(db)
 	exportService := services.NewExportService(db, settingService, legalComplianceEnabled)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
@@ -66,6 +67,8 @@ func main() {
 	resetTokenCleanupJob.Start()
 	accountDeletionJob := jobs.NewAccountDeletionJob(userService, 24*time.Hour)
 	accountDeletionJob.Start()
+	recurringExpenseGenerationJob := jobs.NewRecurringExpenseGenerationJob(recurringExpenseService, 24*time.Hour)
+	recurringExpenseGenerationJob.Start()
 	log.Println("👍 [6] Background jobs started successfully")
 
 	// Init new echo client
@@ -96,6 +99,7 @@ func main() {
 	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService, legalDocumentService)
 	handlers.RegisterUserHandler(e, userService, exportService, restrictedMiddlewares...)
 	handlers.RegisterRecordHandler(e, recordService, restrictedMiddlewares...)
+	handlers.RegisterRecurringExpenseHandler(e, recurringExpenseService, restrictedMiddlewares...)
 	handlers.RegisterPaymentMethodHandler(e, paymentMethodService, restrictedMiddlewares...)
 	handlers.RegisterCategoryHandler(e, categoryService, restrictedMiddlewares...)
 	handlers.RegisterSettingHandler(e, settingService, restrictedMiddlewares...)

@@ -561,6 +561,42 @@ func Migrate(db *gorm.DB) {
 				return nil
 			},
 		},
+		{
+			ID: "20261006230858_create_recurring_expenses_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := tx.AutoMigrate(&models.RecurringExpense{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.recurring_expenses add constraint fk_recurring_expenses_user foreign key (user_id) references public.users(id);
+					alter table public.recurring_expenses add constraint fk_recurring_expenses_category foreign key (category_id) references public.categories(id);
+					alter table public.recurring_expenses add constraint fk_recurring_expenses_payment_method foreign key (payment_method_id) references public.payment_methods(id);
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("recurring_expenses")
+			},
+		},
+		{
+			ID: "20261006230859_add_recurring_expense_id_to_records",
+			Migrate: func(tx *gorm.DB) error {
+				if !tx.Migrator().HasColumn(&models.Record{}, "RecurringExpenseID") {
+					if err := tx.Migrator().AddColumn(&models.Record{}, "RecurringExpenseID"); err != nil {
+						return err
+					}
+				}
+				return tx.Exec(`
+					alter table public.records add constraint fk_records_recurring_expense foreign key (recurring_expense_id) references public.recurring_expenses(id);
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				_ = tx.Exec("alter table public.records drop constraint if exists fk_records_recurring_expense").Error
+				if tx.Migrator().HasColumn(&models.Record{}, "RecurringExpenseID") {
+					return tx.Migrator().DropColumn(&models.Record{}, "RecurringExpenseID")
+				}
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
