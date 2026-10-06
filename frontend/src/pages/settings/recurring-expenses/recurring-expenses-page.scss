@@ -1,0 +1,82 @@
+@use '../../../styles/colors' as *;
+@use '../../../styles/variables' as *;
+
+#recurring-expenses-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include sm-down {
+    padding: 0;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+
+    .back-button {
+      background-color: transparent;
+
+      &:hover {
+        transform: translateX(-2px);
+      }
+
+      svg {
+        font-size: 1.25rem;
+      }
+    }
+
+    .page-title {
+      flex: 1;
+
+      @include sm-down {
+        font-size: 1.25rem;
+      }
+    }
+
+    .add-button {
+      @include sm-down {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+
+      svg {
+        font-size: 1rem;
+
+        @include sm-down {
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  .recurring-list {
+    @include sm-down {
+      padding: 0 0.5rem;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: $color-background-lighter;
+    border-radius: $border-radius-lg;
+    border: 2px dashed $color-border;
+
+    @include sm-down {
+      margin: 0 0.5rem;
+    }
+  }
+}

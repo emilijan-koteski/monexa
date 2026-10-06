@@ -1,0 +1,108 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#recurring-expense-dialog {
+  .MuiDialog-paper {
+    @include sm-down {
+      border-radius: 0;
+      border: none;
+    }
+  }
+
+  .MuiDialogTitle-root {
+    @include sm-down {
+      font-size: 1.25rem;
+      padding: 16px 20px 12px;
+    }
+  }
+
+  .MuiDialogContent-root {
+    @include sm-down {
+      padding: 12px 20px;
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+
+    #recurring-expense-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-top: 0.5rem;
+
+      .quick-create-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: -6px;
+        padding: 0 14px;
+        color: $color-text-secondary;
+        cursor: pointer;
+        transition: color $transition-fast;
+
+        .quick-create-icon {
+          font-size: 10px;
+        }
+
+        &:hover {
+          color: $color-text-primary;
+        }
+      }
+
+      .amount-currency-row {
+        display: flex;
+        gap: 1rem;
+
+        .amount-field {
+          flex: 2;
+        }
+
+        .currency-field {
+          flex: 1;
+          min-width: 100px;
+        }
+      }
+
+      .dates-row {
+        display: flex;
+        gap: 1rem;
+
+        @include sm-down {
+          flex-direction: column;
+        }
+
+        .form-field {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    @include sm-down {
+      padding: 12px 20px 16px;
+    }
+
+    .cancel-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+
+    .submit-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+  }
+}

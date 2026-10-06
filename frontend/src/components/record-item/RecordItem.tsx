@@ -1,7 +1,8 @@
 import './record-item.scss';
 import { Card, CardContent, Typography, IconButton, Box, Chip, Stack } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faRepeat, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
 import type { FinancialRecord } from '../../types/models';
 import { CategoryType } from '../../enums/CategoryType';
 import { formatRecordAmount } from '../../utils/currency';
@@ -25,6 +26,7 @@ function RecordItem({
   onEdit,
   onDelete,
 }: RecordItemProps) {
+  const { t } = useTranslation();
   const displayName = record.description || categoryName || `Category #${record.categoryId}`;
   const isExpense = categoryType === CategoryType.EXPENSE;
 
@@ -46,6 +48,15 @@ function RecordItem({
                 size="small"
                 variant="outlined"
                 className="payment-method-chip"
+              />
+            )}
+            {record.recurringExpenseId && (
+              <Chip
+                icon={<FontAwesomeIcon icon={faRepeat} />}
+                label={t('RECURRING_EXPENSE')}
+                size="small"
+                variant="outlined"
+                className="recurring-chip"
               />
             )}
           </Stack>

@@ -2,6 +2,7 @@ import { CategoryType } from '../enums/CategoryType.ts';
 import { Language } from '../enums/Language.ts';
 import { Currency } from '../enums/Currency.ts';
 import { DocumentType } from '../enums/DocumentType.ts';
+import { RecurrenceFrequency } from '../enums/RecurrenceFrequency.ts';
 
 export interface User {
   id: number;
@@ -23,6 +24,25 @@ export interface FinancialRecord {
   currency: string;
   description?: string;
   date: string;
+  recurringExpenseId?: number | null;
+}
+
+export interface RecurringExpense {
+  id: number;
+  createdAt: string;
+  updatedAt?: string;
+  userId: number;
+  categoryId: number;
+  paymentMethodId: number;
+  amount: number;
+  currency: string;
+  description?: string;
+  frequency: RecurrenceFrequency;
+  startDate: string;
+  endDate?: string | null;
+  isActive: boolean;
+  nextRunDate: string;
+  lastGeneratedAt?: string | null;
 }
 
 export interface Category {

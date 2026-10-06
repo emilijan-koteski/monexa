@@ -56,6 +56,20 @@ export interface RecordFilter {
   sortOrder?: 'asc' | 'desc';
 }
 
+// Recurring Expense Requests
+export interface RecurringExpenseRequest {
+  categoryId: number;
+  paymentMethodId: number;
+  amount: number;
+  currency: string;
+  description?: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string | null;
+  clearEndDate?: boolean;
+  isActive?: boolean;
+}
+
 // Category Requests
 export interface CategoryRequest {
   name: string;

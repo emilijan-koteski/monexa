@@ -20,6 +20,7 @@ const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
 const AccountPage = lazy(() => import('../pages/settings/account/AccountPage.tsx'));
 const SettingsCategoriesPage = lazy(() => import('../pages/settings/categories/CategoriesPage.tsx'));
 const PaymentTypePage = lazy(() => import('../pages/settings/payment-type/PaymentTypePage.tsx'));
+const RecurringExpensesPage = lazy(() => import('../pages/settings/recurring-expenses/RecurringExpensesPage.tsx'));
 const DisplayCurrencyPage = lazy(() => import('../pages/settings/display-currency/DisplayCurrencyPage.tsx'));
 const LanguagePage = lazy(() => import('../pages/settings/language/LanguagePage.tsx'));
 
@@ -70,6 +71,7 @@ function AppRoutes() {
               <Route path="/settings/account" element={<AccountPage/>}/>
               <Route path="/settings/categories" element={<SettingsCategoriesPage/>}/>
               <Route path="/settings/payment-type" element={<PaymentTypePage/>}/>
+              <Route path="/settings/recurring-expenses" element={<RecurringExpensesPage/>}/>
               <Route path="/settings/display-currency" element={<DisplayCurrencyPage/>}/>
               <Route path="/settings/language" element={<LanguagePage/>}/>
             </Route>

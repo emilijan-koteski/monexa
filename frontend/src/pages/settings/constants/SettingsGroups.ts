@@ -1,5 +1,5 @@
 import type { SettingGroup } from '../types/SettingGroup.ts';
-import { faCreditCard, faDollarSign, faFileContract, faLanguage, faList, faShieldHalved, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faDollarSign, faFileContract, faLanguage, faList, faRepeat, faShieldHalved, faUser } from '@fortawesome/free-solid-svg-icons';
 
 export const settingsGroups: SettingGroup[] = [
   {
@@ -14,6 +14,11 @@ export const settingsGroups: SettingGroup[] = [
         icon: faCreditCard,
         titleKey: 'PAYMENT_TYPE',
         path: '/settings/payment-type',
+      },
+      {
+        icon: faRepeat,
+        titleKey: 'RECURRING_EXPENSES',
+        path: '/settings/recurring-expenses',
       },
     ],
   },
