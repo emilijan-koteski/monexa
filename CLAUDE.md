@@ -70,6 +70,15 @@ Strict one-directional layering: **handler → service → GORM model**. Do not 
 
 Standalone package that re-implements an API client against the same backend (`@modelcontextprotocol/sdk`, stdio transport). Tools are grouped per domain in `mcp-server/src/tools/*` and registered through `registerAllTools` ([mcp-server/src/tools/index.ts](mcp-server/src/tools/index.ts)). Auth (`src/auth.ts`) keeps token state in memory and mirrors the frontend's refresh logic; optional `MONEXA_EMAIL`/`MONEXA_PASSWORD` auto-login at startup, otherwise the `login`/`register` tools authenticate. The published default API URL lives in [mcp-server/src/config.ts](mcp-server/src/config.ts) (override with `MONEXA_API_BASE_URL`).
 
+## Comments
+
+A PreToolUse hook (`.claude/hooks/comment_policy.py`) rejects new comments that break this rule, and a Stop hook re-checks uncommitted changes:
+
+- Allowed: a doc comment of one or two short sentences, at most three lines, directly above a function, method or top-level type. Tool directives (`//go:`, `//nolint`, `eslint-disable`, `@ts-expect-error`) are fine.
+- Not allowed: comments inside function bodies, between struct, interface, object or JSX members, at the end of a line, above test blocks, section banners, and ticket references.
+- Express intent through names, small functions and named constants instead.
+- Audit any path with `python3 .claude/hooks/comment_policy.py audit --lines <path>`. Use `/clean-comments <path>` to clean an area.
+
 ## CI & deployment
 
 - CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) on PRs to `master`: `go vet` + `go test -race`, and frontend `eslint` + `vite build`. The MCP server is not in CI.
