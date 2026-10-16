@@ -22,8 +22,8 @@ type OAuthAuthorization struct {
 	CodeHash      *string                        `gorm:"uniqueIndex" json:"-"`
 	CodeExpiresAt *time.Time                     `json:"codeExpiresAt"`
 	ConsumedAt    *time.Time                     `json:"consumedAt"`
-	GrantID       *uint                          `json:"grantId"`
-	IssuedFamily  *string                        `json:"issuedFamily"`
+	GrantID       *uint                          `gorm:"index" json:"grantId"`
+	IssuedFamily  *string                        `gorm:"index" json:"issuedFamily"`
 	Client        *OAuthClient                   `gorm:"foreignKey:ClientID" json:"client,omitempty"`
 }
 

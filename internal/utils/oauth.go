@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"net"
 	"net/netip"
 	"net/url"
 	"strings"
@@ -33,11 +32,15 @@ const (
 
 var canonicalScopeOrder = []types.OAuthScope{types.ScopeRead, types.ScopeWrite, types.ScopeOfflineAccess}
 
-var (
-	carrierGradeNATPrefix = netip.MustParsePrefix("100.64.0.0/10")
-	thisNetworkPrefix     = netip.MustParsePrefix("0.0.0.0/8")
-	limitedBroadcastAddr  = netip.MustParseAddr("255.255.255.255")
-)
+var disallowedPrefixes = []netip.Prefix{
+	netip.MustParsePrefix("0.0.0.0/8"),
+	netip.MustParsePrefix("100.64.0.0/10"),
+	netip.MustParsePrefix("240.0.0.0/4"),
+	netip.MustParsePrefix("::/96"),
+	netip.MustParsePrefix("64:ff9b::/96"),
+	netip.MustParsePrefix("2002::/16"),
+	netip.MustParsePrefix("fec0::/10"),
+}
 
 func GenerateOpaqueToken(prefix string) (plaintext string, hash string, err error) {
 	random, err := GenerateRandomID(opaqueTokenRandomBytes)
@@ -145,13 +148,19 @@ func MatchRedirectURI(registered []string, requested string) bool {
 	if strings.Contains(requested, "#") {
 		return false
 	}
-	requestedURL, ok := parseAbsoluteURL(requested)
-	if !ok {
-		return false
-	}
+	requestedURL, requestedParses := parseAbsoluteURL(requested)
 	for _, candidate := range registered {
 		registeredURL, ok := parseAbsoluteURL(candidate)
-		if ok && redirectURIsMatch(registeredURL, requestedURL) {
+		if !ok {
+			continue
+		}
+		if !IsLoopbackHost(registeredURL.Hostname()) {
+			if candidate == requested {
+				return true
+			}
+			continue
+		}
+		if requestedParses && loopbackRedirectURIsMatch(registeredURL, requestedURL) {
 			return true
 		}
 	}
@@ -189,18 +198,14 @@ func NormalizeResource(raw string) (string, error) {
 	return normalized.String(), nil
 }
 
-// IsDisallowedIP reports whether the server must never connect to ip.
-// Pass IPv4 as 4 bytes, because any 16-byte IPv4-mapped address is blocked.
-func IsDisallowedIP(ip net.IP) bool {
-	addr, ok := netip.AddrFromSlice(ip)
-	if !ok {
-		return true
-	}
+// IsDisallowedIP reports whether the server must never connect to addr.
+// IPv4-mapped IPv6 addresses are always blocked; plain IPv4 is classified as IPv4.
+func IsDisallowedIP(addr netip.Addr) bool {
 	return isDisallowedAddr(addr)
 }
 
 // IsDisallowedIPString applies IsDisallowedIP to a textual address such as a dialer's host.
-// It tells 8.8.8.8 apart from ::ffff:8.8.8.8, which a 16-byte net.IP cannot.
+// Zones are ignored and unparseable input is disallowed.
 func IsDisallowedIPString(ip string) bool {
 	addr, err := netip.ParseAddr(ip)
 	if err != nil {
@@ -281,18 +286,12 @@ func parseAbsoluteURL(raw string) (*url.URL, bool) {
 	return parsed, true
 }
 
-func redirectURIsMatch(registered, requested *url.URL) bool {
-	if registered.Scheme != requested.Scheme ||
-		registered.Hostname() != requested.Hostname() ||
-		registered.EscapedPath() != requested.EscapedPath() ||
-		registered.RawQuery != requested.RawQuery ||
-		registered.ForceQuery != requested.ForceQuery {
-		return false
-	}
-	if IsLoopbackHost(registered.Hostname()) {
-		return true
-	}
-	return registered.Port() == requested.Port()
+func loopbackRedirectURIsMatch(registered, requested *url.URL) bool {
+	return registered.Scheme == requested.Scheme &&
+		registered.Hostname() == requested.Hostname() &&
+		registered.EscapedPath() == requested.EscapedPath() &&
+		registered.RawQuery == requested.RawQuery &&
+		registered.ForceQuery == requested.ForceQuery
 }
 
 func effectivePort(parsed *url.URL) string {
@@ -322,5 +321,10 @@ func isDisallowedAddr(addr netip.Addr) bool {
 		addr.IsLinkLocalUnicast() || addr.IsLinkLocalMulticast() || addr.IsInterfaceLocalMulticast() {
 		return true
 	}
-	return carrierGradeNATPrefix.Contains(addr) || thisNetworkPrefix.Contains(addr) || addr == limitedBroadcastAddr
+	for _, prefix := range disallowedPrefixes {
+		if prefix.Contains(addr) {
+			return true
+		}
+	}
+	return false
 }
