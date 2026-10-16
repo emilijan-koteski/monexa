@@ -43,6 +43,12 @@ func dropUniqueEmailIndex(tx *gorm.DB) error {
 	return tx.Exec(query).Error
 }
 
+func autoMigrateWithoutForeignKeys(tx *gorm.DB, dst ...any) error {
+	session := tx.Session(&gorm.Session{})
+	session.Config.DisableForeignKeyConstraintWhenMigrating = true
+	return session.AutoMigrate(dst...)
+}
+
 func lockTestUser(tx *gorm.DB) error {
 	secret := make([]byte, lockedPasswordEntropyBytes)
 	if _, err := rand.Read(secret); err != nil {
@@ -633,6 +639,60 @@ func Migrate(db *gorm.DB) {
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return nil
+			},
+		},
+		{
+			ID: "20261016130000_create_oauth_clients_table",
+			Migrate: func(tx *gorm.DB) error {
+				return autoMigrateWithoutForeignKeys(tx, &models.OAuthClient{})
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_clients")
+			},
+		},
+		{
+			ID: "20261016130100_create_oauth_grants_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := autoMigrateWithoutForeignKeys(tx, &models.OAuthGrant{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.oauth_grants add constraint fk_oauth_grants_user foreign key (user_id) references public.users(id);
+					alter table public.oauth_grants add constraint fk_oauth_grants_client foreign key (client_id) references public.oauth_clients(id);
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_grants")
+			},
+		},
+		{
+			ID: "20261016130200_create_oauth_authorizations_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := autoMigrateWithoutForeignKeys(tx, &models.OAuthAuthorization{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.oauth_authorizations add constraint fk_oauth_authorizations_client foreign key (client_id) references public.oauth_clients(id) on delete cascade;
+					alter table public.oauth_authorizations add constraint fk_oauth_authorizations_user foreign key (user_id) references public.users(id);
+					alter table public.oauth_authorizations add constraint fk_oauth_authorizations_grant foreign key (grant_id) references public.oauth_grants(id) on delete cascade;
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_authorizations")
+			},
+		},
+		{
+			ID: "20261016130300_create_oauth_tokens_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := autoMigrateWithoutForeignKeys(tx, &models.OAuthToken{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.oauth_tokens add constraint fk_oauth_tokens_grant foreign key (grant_id) references public.oauth_grants(id) on delete cascade;
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_tokens")
 			},
 		},
 	})
