@@ -1,6 +1,7 @@
 package database
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
@@ -13,6 +14,11 @@ import (
 	"github.com/go-gormigrate/gormigrate/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+)
+
+const (
+	seededTestUserEmail        = "test@monexa.com"
+	lockedPasswordEntropyBytes = 32
 )
 
 func computeContentHash(docType string, version int, title, titleMk, content, contentMk string) string {
@@ -35,6 +41,21 @@ func dropUniqueEmailIndex(tx *gorm.DB) error {
 		DROP INDEX IF EXISTS unique_email_active_users;
 	`
 	return tx.Exec(query).Error
+}
+
+func lockTestUser(tx *gorm.DB) error {
+	secret := make([]byte, lockedPasswordEntropyBytes)
+	if _, err := rand.Read(secret); err != nil {
+		return err
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(hex.EncodeToString(secret)), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	if err := tx.Exec("UPDATE users SET password = ? WHERE email = ?", string(hash), seededTestUserEmail).Error; err != nil {
+		return err
+	}
+	return tx.Exec("DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE email = ?)", seededTestUserEmail).Error
 }
 
 func Migrate(db *gorm.DB) {
@@ -594,6 +615,18 @@ func Migrate(db *gorm.DB) {
 				if tx.Migrator().HasColumn(&models.Record{}, "RecurringExpenseID") {
 					return tx.Migrator().DropColumn(&models.Record{}, "RecurringExpenseID")
 				}
+				return nil
+			},
+		},
+		{
+			ID: "20261016120000_lock_test_user_in_production",
+			Migrate: func(tx *gorm.DB) error {
+				if os.Getenv("APP_ENV") != "production" {
+					return nil
+				}
+				return lockTestUser(tx)
+			},
+			Rollback: func(tx *gorm.DB) error {
 				return nil
 			},
 		},
