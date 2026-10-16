@@ -43,6 +43,7 @@ Settings → Secrets and variables → Actions → *Variables*:
 | Variable | Value | Purpose |
 |---|---|---|
 | `VITE_API_BASE_URL` | `https://api.monexa.world/api/v1` | Baked into the frontend image at build time. A missing value fails the build. |
+| `VITE_LEGAL_COMPLIANCE_ENABLED` | `true` | Baked into the frontend image at build time. When the variable is unset the workflow passes `false`. Set it to `true` together with `LEGAL_COMPLIANCE_ENABLED` in Dokploy; the frontend treats anything but `false` as enabled. |
 
 ## Backend service — Dokploy Environment tab
 
@@ -61,7 +62,7 @@ Settings → Secrets and variables → Actions → *Variables*:
 | `PORT` | no | no | Listen port, default `8080`. Must match the container port in the Domains tab. |
 | `ACCESS_TOKEN_DURATION` | no | no | Go duration, default `168h`. |
 | `REFRESH_TOKEN_DURATION` | no | no | Go duration, default `720h`. |
-| `LEGAL_COMPLIANCE_ENABLED` | no | no | Set `false` (the previous production value). Any other value, including unset, enables the legal-acceptance flow. |
+| `LEGAL_COMPLIANCE_ENABLED` | no | no | Set `true` in production (legal flow live since 16 October 2026) and keep it in sync with the `VITE_LEGAL_COMPLIANCE_ENABLED` repository variable. Any value other than `false`, including unset, enables the legal-acceptance flow. |
 
 The backend runs pending migrations at startup (gormigrate, `migrations` table). The restored production database already holds all 16 migration IDs, the last being `20260404165500_add_token_family_to_sessions`, so the first start changes nothing.
 
@@ -72,7 +73,7 @@ No runtime environment variables. Values are baked in at build time by `deploy.y
 | Build arg | Value |
 |---|---|
 | `VITE_API_BASE_URL` | repository variable `VITE_API_BASE_URL` (see above) |
-| `VITE_LEGAL_COMPLIANCE_ENABLED` | `false` |
+| `VITE_LEGAL_COMPLIANCE_ENABLED` | repository variable `VITE_LEGAL_COMPLIANCE_ENABLED` (see above), `false` when unset |
 
 nginx (`nginxinc/nginx-unprivileged`) listens on **8080** as a non-root user and serves the SPA with `index.html` fallback, gzip, `immutable` caching for `/assets/*` and `no-cache` for everything else. TLS is terminated by Traefik.
 

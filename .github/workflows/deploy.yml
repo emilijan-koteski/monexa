@@ -134,11 +134,13 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # VITE_API_BASE_URL is a repository variable (Settings → Secrets and variables → Actions →
-          # Variables) so the domain is not in source; the Dockerfile fails the build if it is empty.
+          # Both values are repository variables (Settings → Secrets and variables → Actions →
+          # Variables) so no environment-specific value is in source. The Dockerfile fails the
+          # build if VITE_API_BASE_URL is empty. VITE_LEGAL_COMPLIANCE_ENABLED defaults to false
+          # when the variable is unset; the frontend treats anything but "false" as enabled.
           build-args: |
             VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
-            VITE_LEGAL_COMPLIANCE_ENABLED=false
+            VITE_LEGAL_COMPLIANCE_ENABLED=${{ vars.VITE_LEGAL_COMPLIANCE_ENABLED || 'false' }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
