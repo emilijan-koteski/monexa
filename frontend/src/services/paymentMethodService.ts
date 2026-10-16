@@ -74,7 +74,7 @@ export const usePaymentMethods = () => {
   return useQuery({
     queryKey: paymentMethodQueryKeys.lists(),
     queryFn: paymentMethodApi.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 

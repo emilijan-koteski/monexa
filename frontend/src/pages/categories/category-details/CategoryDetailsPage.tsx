@@ -175,7 +175,6 @@ const CategoryDetailsPage = () => {
   return (
     <>
       <Container maxWidth="md" id="category-details-page">
-        {/* Header */}
         <Box className="page-header">
           <IconButton color="primary" onClick={handleBack} className="back-button">
             <FontAwesomeIcon icon={faArrowLeft} />
@@ -185,7 +184,6 @@ const CategoryDetailsPage = () => {
           </Typography>
         </Box>
 
-        {/* Sort Controls */}
         <Box className="sort-controls">
           <ToggleButtonGroup
             value={sortBy}
@@ -213,7 +211,6 @@ const CategoryDetailsPage = () => {
           </IconButton>
         </Box>
 
-        {/* Records Content */}
         <Box className="records-content">
           {isLoading ? (
             <Box className="loading-container">

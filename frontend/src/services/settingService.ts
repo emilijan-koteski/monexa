@@ -48,7 +48,7 @@ export const useSettings = () => {
   return useQuery({
     queryKey: settingQueryKeys.detail(),
     queryFn: settingApi.get,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
   });
 };
 

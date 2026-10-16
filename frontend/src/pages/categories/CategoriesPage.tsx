@@ -145,7 +145,6 @@ const CategoriesPage = () => {
         </Typography>
       </Box>
 
-      {/* Filters Section */}
       <Box className="filters-section">
         <Box className="filter-group">
           <Typography variant="overline" color="text.secondary" className="filter-header">
@@ -200,14 +199,12 @@ const CategoriesPage = () => {
         </Box>
       </Box>
 
-      {/* Category Pie Chart */}
       <CategoryPieChart
         categories={statistics?.categories ?? []}
         currency={statistics?.currency ?? Currency.MKD}
         isLoading={isLoading}
       />
 
-      {/* Balance Summary */}
       <Box className="categories-content">
         <Typography variant="overline" color="text.secondary" className="section-title">
           {t('TOTAL_SUMMARY')}
@@ -221,7 +218,6 @@ const CategoriesPage = () => {
         />
       </Box>
 
-      {/* Category List */}
       <Box className="categories-content">
         <Typography variant="overline" color="text.secondary" className="section-title">
           {t('CATEGORY_DETAILS')}

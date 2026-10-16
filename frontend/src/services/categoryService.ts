@@ -93,7 +93,7 @@ export const useCategories = () => {
   return useQuery({
     queryKey: categoryQueryKeys.lists(),
     queryFn: categoryApi.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -102,7 +102,7 @@ export const useCategory = (id: number) => {
     queryKey: categoryQueryKeys.detail(id),
     queryFn: () => categoryApi.getById(id),
     enabled: !!id && id > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 

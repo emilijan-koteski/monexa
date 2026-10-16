@@ -227,7 +227,6 @@ function TrendReportDialog({ open, onClose, onSubmit, report, isLoading = false,
             )}
           />
 
-          {/* Hidden controller to keep react-hook-form in sync */}
           <Controller
             name="categoryIds"
             control={control}

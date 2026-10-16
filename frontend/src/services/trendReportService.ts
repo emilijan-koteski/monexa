@@ -139,7 +139,7 @@ export const useTrendReports = () => {
   return useQuery({
     queryKey: trendReportQueryKeys.lists(),
     queryFn: trendReportApi.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -148,7 +148,7 @@ export const useTrendReport = (id: number) => {
     queryKey: trendReportQueryKeys.detail(id),
     queryFn: () => trendReportApi.getById(id),
     enabled: !!id && id > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -157,7 +157,7 @@ export const useTrendReportMonthlyData = (id: number, year: number, type?: Categ
     queryKey: trendReportQueryKeys.monthlyData(id, year, type),
     queryFn: () => trendReportApi.getMonthlyData(id, year, type),
     enabled: !!id && id > 0 && year > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -166,7 +166,7 @@ export const useTrendReportMonthlyDetails = (id: number, year: number, type?: Ca
     queryKey: trendReportQueryKeys.monthlyDetails(id, year, type),
     queryFn: () => trendReportApi.getMonthlyDetails(id, year, type),
     enabled: !!id && id > 0 && year > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 

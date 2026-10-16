@@ -33,10 +33,8 @@ function AppRoutes() {
     <BrowserRouter>
       <Suspense fallback={<Loader/>}>
         <Routes>
-          {/* Public routes without layout. Redirect root to home for now */}
           <Route path="/" element={<Navigate to="/home" replace/>}/>
 
-          {/* Public legal document pages */}
           {ENV.LEGAL_COMPLIANCE_ENABLED && (
             <>
               <Route path="/privacy-policy" element={<PrivacyPolicyPage/>}/>
@@ -44,7 +42,6 @@ function AppRoutes() {
             </>
           )}
 
-          {/* Auth routes - redirect to /home if already logged in */}
           <Route element={<AuthRoute/>}>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
@@ -52,14 +49,11 @@ function AppRoutes() {
             <Route path="/reset-password" element={<ResetPasswordPage/>}/>
           </Route>
 
-          {/* Protected routes */}
           <Route element={<ProtectedRoute/>}>
-            {/* Legal acceptance page without layout. Blocks app until acceptance */}
             {ENV.LEGAL_COMPLIANCE_ENABLED && (
               <Route path="/legal-acceptance" element={<LegalAcceptancePage/>}/>
             )}
 
-            {/* Main app routes with layout */}
             <Route element={<AppLayout/>}>
               <Route path="/home" element={<HomePage/>}/>
               <Route path="/categories" element={<CategoriesPage/>}/>

@@ -47,7 +47,7 @@ export const useCategoryStatistics = (filter: CategoryStatisticsFilter) => {
   return useQuery({
     queryKey: categoryStatisticsQueryKeys.statistics(filter),
     queryFn: () => categoryStatisticsApi.getStatistics(filter),
-    staleTime: 0, // Consider data stale immediately
-    gcTime: 0, // Don't cache unused data
+    staleTime: 0,
+    gcTime: 0,
   });
 };

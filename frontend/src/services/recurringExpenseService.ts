@@ -94,7 +94,7 @@ export const useRecurringExpenses = () => {
   return useQuery({
     queryKey: recurringExpenseQueryKeys.lists(),
     queryFn: recurringExpenseApi.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -103,7 +103,7 @@ export const useRecurringExpense = (id: number) => {
     queryKey: recurringExpenseQueryKeys.detail(id),
     queryFn: () => recurringExpenseApi.getById(id),
     enabled: !!id && id > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 

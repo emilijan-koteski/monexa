@@ -166,8 +166,8 @@ export const useRecords = (startDate?: string, endDate?: string) => {
   return useQuery({
     queryKey: recordQueryKeys.list(startDate, endDate),
     queryFn: () => recordApi.getAll(startDate, endDate),
-    staleTime: 0, // Consider data stale immediately
-    gcTime: 0, // Don't cache unused data
+    staleTime: 0,
+    gcTime: 0,
   });
 };
 
@@ -183,8 +183,8 @@ export const useRecordSummary = (startDate?: string, endDate?: string) => {
   return useQuery({
     queryKey: recordQueryKeys.summary(startDate, endDate),
     queryFn: () => recordApi.getSummary(startDate, endDate),
-    staleTime: 0, // Consider data stale immediately
-    gcTime: 0, // Don't cache unused data
+    staleTime: 0,
+    gcTime: 0,
   });
 };
 
@@ -192,8 +192,8 @@ export const useFilteredRecords = (filter: RecordFilter) => {
   return useQuery({
     queryKey: recordQueryKeys.filtered(filter),
     queryFn: () => recordApi.getAllFiltered(filter),
-    staleTime: 0, // Consider data stale immediately
-    gcTime: 0, // Don't cache unused data
+    staleTime: 0,
+    gcTime: 0,
     enabled: !!filter.categoryId,
   });
 };
@@ -203,7 +203,7 @@ export const useDescriptionSuggestions = (categoryId: number) => {
     queryKey: recordQueryKeys.suggestions(categoryId),
     queryFn: () => recordApi.getDescriptionSuggestions(categoryId),
     enabled: categoryId > 0,
-    staleTime: 30_000, // 30 seconds
+    staleTime: 30_000,
   });
 };
 

@@ -27,13 +27,7 @@ export function getCurrencySymbol(currency: string): string {
   return CURRENCY_CONFIGS[currency]?.symbol || currency;
 }
 
-/**
- * Format an amount with the appropriate currency symbol in the correct position
- * @param amount - The numeric amount to format
- * @param currency - ISO currency code (e.g., 'USD', 'EUR', 'MKD')
- * @param decimals - Number of decimal places (default: 2)
- * @returns Formatted string with currency symbol in the correct position and thousand separators
- */
+/** Format an amount with its currency symbol in the correct position and thousand separators. */
 export function formatCurrencyAmount(
   amount: number | string,
   currency: string,
@@ -56,14 +50,7 @@ export function formatCurrencyAmount(
   }
 }
 
-/**
- * Format an amount with currency and optional +/- prefix for income/expense
- * @param amount - The numeric amount to format
- * @param currency - ISO currency code (e.g., 'USD', 'EUR', 'MKD')
- * @param isExpense - Whether this is an expense (shows -) or income (shows +)
- * @param decimals - Number of decimal places (default: 2)
- * @returns Formatted string with sign and currency symbol
- */
+/** Format an amount with its currency symbol, prefixed with - for expenses and + for income. */
 export function formatRecordAmount(
   amount: number | string,
   currency: string,
