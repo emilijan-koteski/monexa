@@ -19,6 +19,9 @@ type UserClaims struct {
 	UserID          uint       `json:"userId"`
 	TokenType       TokenType  `json:"tokenType"`
 	LegalAcceptedAt *time.Time `json:"legalAcceptedAt,omitempty"`
+	Scope           string     `json:"scope,omitempty"`
+	ClientID        string     `json:"clientId,omitempty"`
+	GrantID         string     `json:"grantId,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -26,6 +29,10 @@ type RefreshClaims struct {
 	UserID    uint      `json:"userId"`
 	TokenType TokenType `json:"tokenType"`
 	jwt.RegisteredClaims
+}
+
+func (c *UserClaims) IsDelegated() bool {
+	return c.GrantID != ""
 }
 
 func NewUserClaims(userID uint, ppid string, duration time.Duration, tokenType TokenType, legalAcceptedAt *time.Time) (*UserClaims, error) {

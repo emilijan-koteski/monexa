@@ -19,7 +19,11 @@ func AuthMiddleware() echo.MiddlewareFunc {
 		},
 	}
 
-	return echojwt.WithConfig(config)
+	jwtMiddleware := echojwt.WithConfig(config)
+
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return jwtMiddleware(delegatedAccessGuard(next))
+	}
 }
 
 func GetUserClaims(c echo.Context) (*token.UserClaims, error) {
