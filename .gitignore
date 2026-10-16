@@ -37,6 +37,7 @@ main
 
 # Claude/AI files
 .claude/settings.local.json
+docs/superpowers/
 
 # MCP Server
 mcp-server/node_modules/
