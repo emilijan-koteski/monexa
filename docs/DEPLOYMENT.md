@@ -58,7 +58,7 @@ Settings → Secrets and variables → Actions → *Variables*:
 | `FRONTEND_URL` | yes | no | `https://monexa.world`. Used for links in emails. |
 | `CORS_ORIGINS` | no | no | `https://monexa.world,https://www.monexa.world`. Unset allows any origin, which is only acceptable locally: always set it in production. |
 | `EXCHANGE_RATE_API_KEY` | no | yes | exchangerate-api.com key for the daily rates job. Missing → the job logs an error and fallback rates are used. |
-| `APP_ENV` | no | no | `production` lowers GORM logging to warnings. |
+| `APP_ENV` | no | no | Must be `production` in production. Besides lowering GORM logging to warnings, it gates the one-time migration `20261016120000_lock_test_user_in_production`, which replaces the password of the seeded `test@monexa.com` account and ends its sessions. If it is unset when that migration first runs, the migration is recorded as applied without locking and the account stays usable. |
 | `PORT` | no | no | Listen port, default `8080`. Must match the container port in the Domains tab. |
 | `ACCESS_TOKEN_DURATION` | no | no | Go duration, default `168h`. |
 | `REFRESH_TOKEN_DURATION` | no | no | Go duration, default `720h`. |

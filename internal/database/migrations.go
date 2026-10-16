@@ -622,9 +622,14 @@ func Migrate(db *gorm.DB) {
 			ID: "20261016120000_lock_test_user_in_production",
 			Migrate: func(tx *gorm.DB) error {
 				if os.Getenv("APP_ENV") != "production" {
+					log.Println("ℹ️ Skipped locking the seeded test account: APP_ENV is not production")
 					return nil
 				}
-				return lockTestUser(tx)
+				if err := lockTestUser(tx); err != nil {
+					return err
+				}
+				log.Println("🔒 Locked the seeded test account (APP_ENV=production)")
+				return nil
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return nil
