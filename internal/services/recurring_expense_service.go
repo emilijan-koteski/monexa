@@ -76,6 +76,13 @@ func (s *RecurringExpenseService) Create(ctx context.Context, req requests.Recur
 		return nil, errors.New("start date cannot be in the past")
 	}
 
+	if err := ensureCategoryOwned(ctx, s.db, *req.UserID, *req.CategoryID); err != nil {
+		return nil, err
+	}
+	if err := ensurePaymentMethodOwned(ctx, s.db, *req.UserID, *req.PaymentMethodID); err != nil {
+		return nil, err
+	}
+
 	recurringExpense := models.RecurringExpense{
 		UserID:          *req.UserID,
 		CategoryID:      *req.CategoryID,
@@ -134,10 +141,16 @@ func (s *RecurringExpenseService) Update(ctx context.Context, req requests.Recur
 
 	wasActive := recurringExpense.IsActive
 
-	if req.CategoryID != nil && *req.CategoryID != 0 {
+	if req.CategoryID != nil && *req.CategoryID != 0 && *req.CategoryID != recurringExpense.CategoryID {
+		if err = ensureCategoryOwned(ctx, s.db, *req.UserID, *req.CategoryID); err != nil {
+			return nil, err
+		}
 		recurringExpense.CategoryID = *req.CategoryID
 	}
-	if req.PaymentMethodID != nil && *req.PaymentMethodID != 0 {
+	if req.PaymentMethodID != nil && *req.PaymentMethodID != 0 && *req.PaymentMethodID != recurringExpense.PaymentMethodID {
+		if err = ensurePaymentMethodOwned(ctx, s.db, *req.UserID, *req.PaymentMethodID); err != nil {
+			return nil, err
+		}
 		recurringExpense.PaymentMethodID = *req.PaymentMethodID
 	}
 	if req.Amount != nil {

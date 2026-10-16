@@ -106,6 +106,9 @@ func (h *recordHandler) Create(c echo.Context) error {
 
 	record, err := h.recordService.Create(c.Request().Context(), req)
 	if err != nil {
+		if errors.Is(err, services.ErrReferenceNotFound) {
+			return responses.BadRequestWithError(c, err)
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error creating record: %w", err))
 	}
 
@@ -143,6 +146,9 @@ func (h *recordHandler) Update(c echo.Context) error {
 
 	record, err := h.recordService.Update(c.Request().Context(), req)
 	if err != nil {
+		if errors.Is(err, services.ErrReferenceNotFound) {
+			return responses.BadRequestWithError(c, err)
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error updating record: %w", err))
 	}
 
