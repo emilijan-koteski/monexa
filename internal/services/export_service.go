@@ -373,11 +373,12 @@ func getHeaders(headerMap map[types.LanguageType][]string, lang types.LanguageTy
 	return headers
 }
 
+var excelCompatibleUTF8BOM = []byte{0xEF, 0xBB, 0xBF}
+
 func buildCSV(headers []string, rows [][]string) ([]byte, error) {
 	var buf bytes.Buffer
 
-	// UTF-8 BOM for Excel compatibility
-	buf.Write([]byte{0xEF, 0xBB, 0xBF})
+	buf.Write(excelCompatibleUTF8BOM)
 
 	writer := csv.NewWriter(&buf)
 

@@ -37,7 +37,6 @@ func RegisterAuthHandler(
 		legalDocumentService: legalDocumentService,
 	}
 
-	// Unauthenticated group
 	v1 := e.Group("/api/v1/auth")
 
 	v1.POST("/login", handler.Login)
@@ -48,7 +47,6 @@ func RegisterAuthHandler(
 	v1.POST("/forgot-password", handler.ForgotPassword)
 	v1.POST("/reset-password", handler.ResetPassword)
 
-	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
 

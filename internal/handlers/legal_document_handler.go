@@ -17,14 +17,12 @@ type legalDocumentHandler struct {
 func RegisterLegalDocumentHandler(e *echo.Echo, legalDocumentService *services.LegalDocumentService) {
 	handler := &legalDocumentHandler{legalDocumentService: legalDocumentService}
 
-	// Unauthenticated group
 	v1 := e.Group("/api/v1/legal-documents")
 
 	v1.GET("", handler.GetActiveDocuments)
 	v1.POST("/hash/compute", handler.ComputeHash)
 	v1.POST("/hash/verify", handler.VerifyHash)
 
-	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
 

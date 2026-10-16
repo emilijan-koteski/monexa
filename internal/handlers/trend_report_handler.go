@@ -22,10 +22,8 @@ type trendReportHandler struct {
 func RegisterTrendReportHandler(e *echo.Echo, trendReportService *services.TrendReportService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &trendReportHandler{trendReportService: trendReportService}
 
-	// Unauthenticated group
 	v1 := e.Group("/api/v1/trend-reports")
 
-	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
 	for _, m := range restrictedMiddlewares {

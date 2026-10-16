@@ -8,8 +8,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const randomFreePort = "0"
+
 func TestStartServerReturnsAfterSIGTERM(t *testing.T) {
-	t.Setenv("PORT", "0") // random free port
+	t.Setenv("PORT", randomFreePort)
 	e := echo.New()
 	e.HideBanner, e.HidePort = true, true
 

@@ -8,9 +8,6 @@ import (
 
 const defaultPort = "8080"
 
-// RequiredEnv lists the variables the process cannot run without. They are checked once at
-// startup so a misconfigured container fails immediately, before connecting to the database,
-// instead of dying later in a client constructor after migrations already ran.
 var RequiredEnv = []string{
 	"DATABASE_URL",
 	"JWT_SECRET",
@@ -46,6 +43,7 @@ func CORSOrigins() []string {
 }
 
 // RequireEnv exits the process when any of the named variables is unset or empty.
+// It runs first at startup so a misconfigured container fails before connecting to the database.
 func RequireEnv(names ...string) {
 	if missing := missingEnv(names...); len(missing) > 0 {
 		log.Fatalf("⛔ Exit!!! Missing required environment variables: %s", strings.Join(missing, ", "))

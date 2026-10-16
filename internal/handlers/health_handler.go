@@ -15,18 +15,17 @@ type healthHandler struct {
 	healthService HealthChecker
 }
 
+// RegisterHealthHandler registers the health routes, including the unauthenticated /healthz probe
+// that Dokploy, Swarm and uptime monitors use to ping the database.
 func RegisterHealthHandler(e *echo.Echo, healthService HealthChecker) {
 	handler := &healthHandler{healthService: healthService}
 
-	// Probe for Dokploy, Swarm and uptime monitors. Unauthenticated, pings the DB.
 	e.GET("/healthz", handler.CheckHealth)
 
-	// Unauthenticated group
 	v1 := e.Group("/api/v1/health")
 
 	v1.GET("", handler.CheckHealth)
 
-	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
 

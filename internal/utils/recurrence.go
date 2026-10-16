@@ -7,9 +7,7 @@ import (
 )
 
 // NextOccurrence returns the next occurrence after current for the given frequency.
-// For monthly and yearly frequencies the day is anchored to anchorDay and clamped
-// to the last valid day of the target month, preventing drift (e.g. the 31st of
-// each month) and overflow (e.g. Feb 29 on non-leap years).
+// Monthly and yearly dates anchor to anchorDay, clamped to the target month's last day to avoid drift and overflow.
 func NextOccurrence(current time.Time, frequency types.FrequencyType, anchorDay int) time.Time {
 	switch frequency {
 	case types.Daily:

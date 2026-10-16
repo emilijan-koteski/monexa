@@ -21,10 +21,8 @@ type recurringExpenseHandler struct {
 func RegisterRecurringExpenseHandler(e *echo.Echo, recurringExpenseService *services.RecurringExpenseService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &recurringExpenseHandler{recurringExpenseService: recurringExpenseService}
 
-	// Unauthenticated group
 	v1 := e.Group("/api/v1/recurring-expenses")
 
-	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
 	for _, m := range restrictedMiddlewares {

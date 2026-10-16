@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	DefaultAccessTokenDuration  = 7 * 24 * time.Hour  // 7 days
-	DefaultRefreshTokenDuration = 30 * 24 * time.Hour // 30 days
+	DefaultAccessTokenDuration  = 7 * 24 * time.Hour
+	DefaultRefreshTokenDuration = 30 * 24 * time.Hour
 )
 
 type JWTMaker struct {

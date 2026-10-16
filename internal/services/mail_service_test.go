@@ -7,8 +7,10 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 )
 
+const repoRootFromPackage = "../.."
+
 func TestRenderTemplateUsesFrontendURLForLinksAndLogo(t *testing.T) {
-	t.Chdir("../..") // templates are resolved relative to the repo root, as in production
+	t.Chdir(repoRootFromPackage)
 	t.Setenv("FRONTEND_URL", "https://example.test")
 	mail := NewMailService(nil)
 	data := map[string]string{

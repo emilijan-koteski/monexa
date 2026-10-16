@@ -29,8 +29,6 @@ func createErrorBody(status int, error string) map[string]interface{} {
 	return body
 }
 
-// StatusOK: 200
-
 func Success(c echo.Context) error {
 	return SuccessWithMessage(c, "success")
 }
@@ -42,8 +40,6 @@ func SuccessWithMessage(c echo.Context, message string) error {
 func SuccessWithData(c echo.Context, data interface{}) error {
 	return c.JSON(http.StatusOK, createDataBody(http.StatusOK, data))
 }
-
-// StatusCreated: 201
 
 func Created(c echo.Context) error {
 	return CreatedWithMessage(c, "success")
@@ -57,8 +53,6 @@ func CreatedWithData(c echo.Context, data interface{}) error {
 	return c.JSON(http.StatusCreated, createDataBody(http.StatusCreated, data))
 }
 
-// StatusBadRequest: 400
-
 func BadRequest(c echo.Context) error {
 	return BadRequestWithMessage(c, "bad request")
 }
@@ -71,8 +65,6 @@ func BadRequestWithError(c echo.Context, error error) error {
 	return c.JSON(http.StatusBadRequest, createErrorBody(http.StatusBadRequest, error.Error()))
 }
 
-// StatusUnauthorized: 401
-
 func Unauthorized(c echo.Context) error {
 	return UnauthorizedWithMessage(c, "unauthorized")
 }
@@ -81,8 +73,6 @@ func UnauthorizedWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusUnauthorized, createMessageBody(http.StatusUnauthorized, message))
 }
 
-// StatusForbidden: 403
-
 func Forbidden(c echo.Context) error {
 	return ForbiddenWithMessage(c, "forbidden")
 }
@@ -90,8 +80,6 @@ func Forbidden(c echo.Context) error {
 func ForbiddenWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusForbidden, createMessageBody(http.StatusForbidden, message))
 }
-
-// StatusNotFound: 404
 
 func NotFound(c echo.Context) error {
 	return NotFoundWithMessage(c, "not found")
@@ -105,8 +93,6 @@ func NotFoundWithError(c echo.Context, error error) error {
 	return c.JSON(http.StatusNotFound, createErrorBody(http.StatusNotFound, error.Error()))
 }
 
-// StatusConflict: 409
-
 func Conflict(c echo.Context) error {
 	return ConflictWithMessage(c, "conflict")
 }
@@ -115,8 +101,6 @@ func ConflictWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusConflict, createMessageBody(http.StatusConflict, message))
 }
 
-// StatusUnavailableForLegalReasons: 451
-
 func LegalAcceptanceRequired(c echo.Context) error {
 	return LegalAcceptanceRequiredWithMessage(c, "legal acceptance required")
 }
@@ -124,8 +108,6 @@ func LegalAcceptanceRequired(c echo.Context) error {
 func LegalAcceptanceRequiredWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusUnavailableForLegalReasons, createMessageBody(http.StatusUnavailableForLegalReasons, message))
 }
-
-// StatusInternalServerError: 500
 
 func Failure(c echo.Context) error {
 	return FailureWithMessage(c, "failure")
@@ -139,8 +121,6 @@ func FailureWithError(c echo.Context, error error) error {
 	return c.JSON(http.StatusInternalServerError, createErrorBody(http.StatusInternalServerError, error.Error()))
 }
 
-// StatusNotImplemented: 501
-
 func NotImplemented(c echo.Context) error {
 	return NotImplementedWithMessage(c, "not implemented")
 }
@@ -148,8 +128,6 @@ func NotImplemented(c echo.Context) error {
 func NotImplementedWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusNotImplemented, createMessageBody(http.StatusNotImplemented, message))
 }
-
-// StatusServiceUnavailable: 503
 
 func ServiceUnavailable(c echo.Context) error {
 	return ServiceUnavailableWithMessage(c, "service unavailable")

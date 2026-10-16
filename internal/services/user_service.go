@@ -471,6 +471,8 @@ func (s *UserService) SendDeletionReminderEmail(ctx context.Context, user models
 	s.sendAccountDeletionEmail(user.Email, user.Name, "reminder", language)
 }
 
+// FinalizeUserDeletion anonymizes a soft-deleted user and their data, and hard-deletes their sessions and reset tokens.
+// The user is re-checked inside the transaction to guard against a concurrent reactivation.
 func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) error {
 	tx := s.db.WithContext(ctx).Begin()
 
@@ -480,7 +482,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		}
 	}()
 
-	// Re-check user is still soft-deleted (race condition guard)
 	var user models.User
 	if err := tx.Unscoped().Where("id = ? AND deleted_at IS NOT NULL", userID).First(&user).Error; err != nil {
 		tx.Rollback()
@@ -489,7 +490,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 
 	now := time.Now()
 
-	// Anonymize and soft-delete categories
 	if err := tx.Unscoped().Model(&models.Category{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"name":        gorm.Expr("CONCAT('[Deleted Category #', id, ']')"),
 		"description": gorm.Expr("CONCAT('[Deleted Category #', id, ']')"),
@@ -500,7 +500,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize categories: %w", err)
 	}
 
-	// Anonymize and soft-delete records
 	if err := tx.Unscoped().Model(&models.Record{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"description": gorm.Expr("CONCAT('[Deleted Record #', id, ']')"),
 		"amount":      0,
@@ -510,7 +509,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize records: %w", err)
 	}
 
-	// Anonymize and soft-delete payment methods
 	if err := tx.Unscoped().Model(&models.PaymentMethod{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"name":       gorm.Expr("CONCAT('[Deleted Payment Method #', id, ']')"),
 		"deleted_at": now,
@@ -519,7 +517,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize payment methods: %w", err)
 	}
 
-	// Anonymize and soft-delete trend reports
 	if err := tx.Unscoped().Model(&models.TrendReport{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"title":       gorm.Expr("CONCAT('[Deleted Trend Report #', id, ']')"),
 		"description": gorm.Expr("CONCAT('[Deleted Trend Report #', id, ']')"),
@@ -530,7 +527,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize trend reports: %w", err)
 	}
 
-	// Anonymize and soft-delete settings
 	if err := tx.Unscoped().Model(&models.Setting{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"language":   gorm.Expr("CONCAT('[Deleted Setting #', id, ']')"),
 		"currency":   gorm.Expr("CONCAT('[Deleted Setting #', id, ']')"),
@@ -540,7 +536,6 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize settings: %w", err)
 	}
 
-	// Anonymize and soft-delete legal acceptances
 	if err := tx.Model(&models.UserLegalAcceptance{}).Where("user_id = ?", userID).Updates(map[string]any{
 		"ip_address": gorm.Expr("CONCAT('[Deleted UserLegalAcceptance #', id, ']')"),
 		"user_agent": gorm.Expr("CONCAT('[Deleted UserLegalAcceptance #', id, ']')"),
@@ -550,19 +545,16 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize legal acceptances: %w", err)
 	}
 
-	// Hard-delete all sessions for this user
 	if err := tx.Where("user_id = ?", userID).Delete(&models.Session{}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to delete sessions: %w", err)
 	}
 
-	// Hard-delete all password reset tokens for this user
 	if err := tx.Where("user_id = ?", userID).Delete(&models.PasswordResetToken{}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to delete password reset tokens: %w", err)
 	}
 
-	// Anonymize user and randomize password
 	randomBytes := make([]byte, 32)
 	if _, err := rand.Read(randomBytes); err != nil {
 		tx.Rollback()

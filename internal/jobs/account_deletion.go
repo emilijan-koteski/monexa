@@ -50,7 +50,12 @@ func (j *AccountDeletionJob) cleanup() {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	// Phase 1: Send reminder emails (1 day before final deletion)
+	j.sendDeletionReminders(ctx)
+	j.finalizeExpiredDeletions(ctx)
+}
+
+// sendDeletionReminders emails users whose account is one day away from final deletion.
+func (j *AccountDeletionJob) sendDeletionReminders(ctx context.Context) {
 	reminderUsers, err := j.userService.GetUsersForDeletionReminder(ctx)
 	if err != nil {
 		log.Printf("Error fetching users for deletion reminder: %v", err)
@@ -62,8 +67,10 @@ func (j *AccountDeletionJob) cleanup() {
 			log.Printf("Sent %d account deletion reminder email(s)", len(reminderUsers))
 		}
 	}
+}
 
-	// Phase 2: Finalize deletions (grace period expired)
+// finalizeExpiredDeletions permanently anonymizes users whose deletion grace period has expired.
+func (j *AccountDeletionJob) finalizeExpiredDeletions(ctx context.Context) {
 	deletionUsers, err := j.userService.GetUsersForFinalDeletion(ctx)
 	if err != nil {
 		log.Printf("Error fetching users for final deletion: %v", err)

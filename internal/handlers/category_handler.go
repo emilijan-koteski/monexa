@@ -20,10 +20,8 @@ type categoryHandler struct {
 func RegisterCategoryHandler(e *echo.Echo, categoryService *services.CategoryService, restrictedMiddlewares ...echo.MiddlewareFunc) {
 	handler := &categoryHandler{categoryService: categoryService}
 
-	// Unauthenticated group
 	v1 := e.Group("/api/v1/categories")
 
-	// Restricted group
 	r1 := v1.Group("")
 	r1.Use(middlewares.AuthMiddleware())
 	for _, m := range restrictedMiddlewares {
