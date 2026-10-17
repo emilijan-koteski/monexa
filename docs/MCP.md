@@ -82,6 +82,8 @@ Open Settings, then Connected apps in the Monexa web app. Under AI apps, select 
 
 Access ends within about 4 minutes. Signing out of Monexa does not disconnect apps, and removing the connector inside an assistant does not revoke it in Monexa, so disconnect it here as well.
 
+Changing or resetting your password, or deleting your account, disconnects all AI apps and revokes all access tokens.
+
 ## Access tokens for your own agents
 
 Personal access tokens let scripts, automations and agents you run yourself connect without a browser sign-in.
@@ -277,7 +279,7 @@ You can run your own Monexa backend and MCP server. The MCP server is a separate
 
 | Backend variable | Description |
 | --- | --- |
-| `OAUTH_ISSUER_URL` | Public origin of the backend, for example `https://api.example.com`, with no trailing slash. |
+| `OAUTH_ISSUER_URL` | Public origin of the backend, for example `https://api.example.com`, with no trailing slash, a lowercase host and no default port. |
 | `MCP_RESOURCE_URL` | The public MCP endpoint, for example `https://mcp.example.com/mcp`, in normalized form. |
 | `MCP_CLIENT_ID` | An identifier for the MCP server's client. |
 | `MCP_CLIENT_SECRET` | At least 32 characters; `openssl rand -hex 32` works. |
