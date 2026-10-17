@@ -8,6 +8,7 @@ import type { Config } from "./config.js";
 import type { AppContext, TokenCache } from "./context.js";
 import { log } from "./log.js";
 import { buildServer, PNG_ICON_PATH, SVG_ICON_PATH } from "./server.js";
+import { sendTemporarilyUnavailable } from "./unavailable.js";
 import { VERSION } from "./version.js";
 
 const MCP_PATH = "/mcp";
@@ -15,8 +16,7 @@ const HEALTH_PATH = "/healthz";
 const OPENAI_APPS_CHALLENGE_PATH = "/.well-known/openai-apps-challenge";
 const RESOURCE_NAME = "Monexa";
 const ICON_MAX_AGE = "7d";
-const RETRY_AFTER_SECONDS = "5";
-const MAX_LOGGED_TOOL_NAME_LENGTH = 64;
+const MAX_LOGGED_NAME_LENGTH = 64;
 const SVG_ICON_FILE = fileURLToPath(new URL("../assets/icon.svg", import.meta.url));
 const PNG_ICON_FILE = fileURLToPath(new URL("../assets/icon-512.png", import.meta.url));
 
@@ -89,10 +89,7 @@ function serveMetadataOnceLoaded(currentRouter: () => Router | undefined): Reque
   return (req, res, next) => {
     const router = currentRouter();
     if (!router) {
-      res.status(503).set("Retry-After", RETRY_AFTER_SECONDS).json({
-        error: "temporarily_unavailable",
-        error_description: "The Monexa MCP server is starting.",
-      });
+      sendTemporarilyUnavailable(res, "The Monexa MCP server is starting.");
       return;
     }
     router(req, res, next);
@@ -132,7 +129,7 @@ function rpcMethod(body: unknown): string | undefined {
     return "batch";
   }
   const method = (body as { method?: unknown } | undefined)?.method;
-  return typeof method === "string" ? method : undefined;
+  return typeof method === "string" ? method.slice(0, MAX_LOGGED_NAME_LENGTH) : undefined;
 }
 
 function toolName(body: unknown): string | undefined {
@@ -140,5 +137,5 @@ function toolName(body: unknown): string | undefined {
     return undefined;
   }
   const name = (body as { params?: { name?: unknown } }).params?.name;
-  return typeof name === "string" ? name.slice(0, MAX_LOGGED_TOOL_NAME_LENGTH) : undefined;
+  return typeof name === "string" ? name.slice(0, MAX_LOGGED_NAME_LENGTH) : undefined;
 }

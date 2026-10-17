@@ -6,7 +6,7 @@ const NO_RESPONSE_STATUS = 0;
 const MESSAGES = {
   legalAcceptanceRequired:
     "Monexa needs you to accept updated terms. Open https://monexa.world, sign in and accept them, then try again.",
-  unauthorized: "Your Monexa connection expired; reconnect the app.",
+  sessionExpired: "Your Monexa session for this app expired. Try again; if it keeps failing, reconnect the app.",
   forbidden: "This connection doesn't have permission for that (it may be read-only).",
   notFound: "Not found.",
   timeout: "Monexa did not respond in time; try again.",
@@ -84,7 +84,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       });
       text = await response.text();
     } catch (error) {
-      throw transportError(error, timeout);
+      throw transportError(timeout, request.signal);
     }
     if (!response.ok) {
       throw httpError(response.status, parseJson(text), options.onUnauthorized);
@@ -130,8 +130,11 @@ function httpError(status: number, body: unknown, onUnauthorized: (() => void) |
     case 451:
       return new ApiError(status, MESSAGES.legalAcceptanceRequired);
     case 401:
+      if (isEnvelope(body)) {
+        return new ApiError(status, MESSAGES.notFound);
+      }
       onUnauthorized?.();
-      return new ApiError(status, MESSAGES.unauthorized);
+      return new ApiError(status, MESSAGES.sessionExpired);
     case 403:
       return new ApiError(status, MESSAGES.forbidden);
     case 404:
@@ -139,6 +142,14 @@ function httpError(status: number, body: unknown, onUnauthorized: (() => void) |
     default:
       return new ApiError(status, errorText(body) ?? `Monexa API request failed with status ${status}.`);
   }
+}
+
+/**
+ * Handlers answer ownership failures with the enveloped `{status, message}` 401, while the JWT middleware's
+ * rejections carry no status field; only the latter means the delegated JWT itself was refused.
+ */
+function isEnvelope(body: unknown): boolean {
+  return typeof (body as { status?: unknown } | null | undefined)?.status === "number";
 }
 
 function errorText(body: unknown): string | undefined {
@@ -150,12 +161,12 @@ function errorText(body: unknown): string | undefined {
   return text as string | undefined;
 }
 
-function transportError(error: unknown, timeout: AbortSignal): ApiError {
+function transportError(timeout: AbortSignal, callerSignal: AbortSignal | undefined): ApiError {
+  if (callerSignal?.aborted) {
+    return new ApiError(NO_RESPONSE_STATUS, MESSAGES.cancelled);
+  }
   if (timeout.aborted) {
     return new ApiError(NO_RESPONSE_STATUS, MESSAGES.timeout);
-  }
-  if (error instanceof Error && error.name === "AbortError") {
-    return new ApiError(NO_RESPONSE_STATUS, MESSAGES.cancelled);
   }
   return new ApiError(NO_RESPONSE_STATUS, MESSAGES.unreachable);
 }

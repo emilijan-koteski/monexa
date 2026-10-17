@@ -6,11 +6,10 @@ import {
 } from "@modelcontextprotocol/server";
 import type { RequestHandler } from "express";
 import { errorMessage, log } from "../log.js";
+import { sendTemporarilyUnavailable } from "../unavailable.js";
 import { UpstreamUnavailableError } from "./verifier.js";
 
 export const SUPPORTED_SCOPES = ["monexa.read", "monexa.write"];
-
-const RETRY_AFTER_SECONDS = "5";
 
 export interface BearerAuthOptions {
   verifier: OAuthTokenVerifier;
@@ -32,10 +31,7 @@ export function requireMonexaBearer(options: BearerAuthOptions): RequestHandler 
       req.auth = await verifyBearerToken(req.headers.authorization, verifyOptions);
     } catch (error) {
       if (error instanceof UpstreamUnavailableError) {
-        res.status(503).set("Retry-After", RETRY_AFTER_SECONDS).json({
-          error: "temporarily_unavailable",
-          error_description: "Monexa is temporarily unavailable. Try again shortly.",
-        });
+        sendTemporarilyUnavailable(res, "Monexa is temporarily unavailable. Try again shortly.");
         return;
       }
       const challenge = bearerAuthChallengeResponse(error, challengeOptions);

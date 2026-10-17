@@ -7,7 +7,7 @@ import { errorMessage, log } from "./log.js";
 import { VERSION } from "./version.js";
 
 const LISTEN_HOST = "0.0.0.0";
-const SHUTDOWN_TIMEOUT_MS = 10_000;
+const SHUTDOWN_TIMEOUT_MS = 8_000;
 
 async function main(): Promise<void> {
   const config = loadConfig(process.env);
