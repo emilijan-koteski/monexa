@@ -239,6 +239,9 @@ func (s *OAuthAuthorizationService) resolveClient(ctx context.Context, clientID 
 }
 
 func (s *OAuthAuthorizationService) validateAuthorizeParams(p requests.OAuthAuthorizeParams) (string, string, *authorizeFailure) {
+	if p.RepeatedParameter != "" {
+		return "", "", &authorizeFailure{oauthErrorInvalidRequest, p.RepeatedParameter + " must not be repeated"}
+	}
 	if failure := validateResponseType(p.ResponseType); failure != nil {
 		return "", "", failure
 	}

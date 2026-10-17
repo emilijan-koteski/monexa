@@ -11,6 +11,7 @@ require (
 	github.com/labstack/echo/v4 v4.15.2
 	github.com/resend/resend-go/v3 v3.6.0
 	golang.org/x/crypto v0.51.0
+	golang.org/x/time v0.15.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
@@ -31,5 +32,4 @@ require (
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
-	golang.org/x/time v0.15.0 // indirect
 )
