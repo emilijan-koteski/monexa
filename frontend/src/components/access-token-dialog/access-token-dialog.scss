@@ -1,0 +1,118 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#access-token-dialog {
+  .MuiDialog-paper {
+    @include sm-down {
+      border-radius: 0;
+      border: none;
+    }
+  }
+
+  .MuiDialogTitle-root {
+    @include sm-down {
+      font-size: 1.25rem;
+      padding: 16px 20px 12px;
+    }
+  }
+
+  .MuiDialogContent-root {
+    @include sm-down {
+      padding: 12px 20px;
+    }
+
+    #access-token-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding-top: 0.5rem;
+
+      .permission-option {
+        align-items: flex-start;
+        margin-top: 0.25rem;
+
+        .MuiRadio-root {
+          padding-top: 0.5rem;
+        }
+      }
+    }
+
+    .token-reveal {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding-top: 0.5rem;
+
+      .token-field {
+        input {
+          font-family: monospace;
+          font-size: 0.9rem;
+        }
+      }
+
+      .copy-button {
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .snippets {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 0;
+
+        .snippet-code {
+          margin: 0;
+          padding: 1rem;
+          overflow-x: auto;
+          font-family: monospace;
+          font-size: 0.85rem;
+          line-height: 1.5;
+          color: $color-text-primary;
+          background-color: $color-input-background;
+          border: 1px solid $color-border;
+          border-radius: $border-radius-sm;
+          white-space: pre;
+          scrollbar-width: thin;
+          scrollbar-color: $color-secondary-alpha-50 transparent;
+        }
+
+        .snippet-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+
+          .mcp-url-note {
+            min-width: 0;
+            overflow-wrap: anywhere;
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    @include sm-down {
+      padding: 12px 20px 16px;
+    }
+
+    .cancel-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+
+    .submit-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+  }
+}

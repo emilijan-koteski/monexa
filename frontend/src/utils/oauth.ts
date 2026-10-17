@@ -9,6 +9,11 @@ const HIDDEN_CHARACTERS = /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu;
 const LETTER_OR_DIGIT = /[\p{L}\p{N}]/u;
 const SAFE_REDIRECT_PROTOCOLS = ['https:', 'http:'];
 
+const PERMISSION_LABEL_KEYS = {
+  read: 'OAUTH_PERMISSION_READ',
+  readWrite: 'OAUTH_PERMISSION_READ_WRITE',
+} as const;
+
 const SCOPE_LABEL_KEYS: Record<string, string> = {
   [OAuthScope.READ]: 'OAUTH_SCOPE_READ',
   [OAuthScope.WRITE]: 'OAUTH_SCOPE_WRITE',
@@ -79,3 +84,6 @@ export const isSafeRedirectUrl = (redirectUrl: string): boolean => {
 
 export const getScopeLabelKey = (scope: string): string | null =>
   Object.hasOwn(SCOPE_LABEL_KEYS, scope) ? SCOPE_LABEL_KEYS[scope] : null;
+
+export const getPermissionLabelKey = (scopes: string[]): string =>
+  scopes.includes(OAuthScope.WRITE) ? PERMISSION_LABEL_KEYS.readWrite : PERMISSION_LABEL_KEYS.read;

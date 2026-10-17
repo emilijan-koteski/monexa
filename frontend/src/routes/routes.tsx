@@ -18,6 +18,7 @@ const TrendsPage = lazy(() => import('../pages/trends/TrendsPage.tsx'));
 const TrendDetailsPage = lazy(() => import('../pages/trends/trend-details/TrendDetailsPage.tsx'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
 const AccountPage = lazy(() => import('../pages/settings/account/AccountPage.tsx'));
+const ConnectedAppsPage = lazy(() => import('../pages/settings/connected-apps/ConnectedAppsPage.tsx'));
 const SettingsCategoriesPage = lazy(() => import('../pages/settings/categories/CategoriesPage.tsx'));
 const PaymentTypePage = lazy(() => import('../pages/settings/payment-type/PaymentTypePage.tsx'));
 const RecurringExpensesPage = lazy(() => import('../pages/settings/recurring-expenses/RecurringExpensesPage.tsx'));
@@ -70,6 +71,7 @@ function AppRoutes() {
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/settings" element={<SettingsPage/>}/>
               <Route path="/settings/account" element={<AccountPage/>}/>
+              <Route path="/settings/connected-apps" element={<ConnectedAppsPage/>}/>
               <Route path="/settings/categories" element={<SettingsCategoriesPage/>}/>
               <Route path="/settings/payment-type" element={<PaymentTypePage/>}/>
               <Route path="/settings/recurring-expenses" element={<RecurringExpensesPage/>}/>

@@ -130,3 +130,17 @@ export interface OAuthGrant {
   createdAt: string;
   lastUsedAt: string | null;
 }
+
+export interface AccessToken {
+  id: number;
+  name: string;
+  tokenPrefix: string;
+  scopes: string[];
+  createdAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string;
+}
+
+export interface CreatedAccessToken extends AccessToken {
+  token: string;
+}

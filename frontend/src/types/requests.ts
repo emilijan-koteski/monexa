@@ -1,3 +1,5 @@
+import { AccessTokenPermission } from '../enums/AccessTokenPermission.ts';
+
 // Authentication Requests
 export interface LoginRequest {
   email: string;
@@ -84,4 +86,10 @@ export interface TrendReportRequest {
   description?: string;
   color?: string;
   categoryIds: number[];
+}
+
+export interface AccessTokenRequest {
+  name: string;
+  permission: AccessTokenPermission;
+  expiresInDays: number;
 }
