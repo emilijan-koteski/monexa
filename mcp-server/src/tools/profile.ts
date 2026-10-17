@@ -14,7 +14,7 @@ export const getProfile = defineTool({
   outputSchema: z.object({
     user: z.object({ id: z.number().int(), name: z.string(), email: z.string() }),
     settings: settingsSchema,
-    today: z.string(),
+    today: z.string().describe("Today's date in UTC (YYYY-MM-DD); it can be a day off from the user's local date."),
   }),
   annotations: READ,
   covers: ["GET /api/v1/users/me", "GET /api/v1/settings"],

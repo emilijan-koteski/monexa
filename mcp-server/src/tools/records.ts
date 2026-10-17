@@ -62,7 +62,9 @@ export const listRecords = defineTool({
   description:
     "Lists income and expense records, newest first by default, each with its category name and type and its payment method name. " +
     `Amounts are in each record's own currency. Returns at most limit records (default ${DEFAULT_LIST_LIMIT}) ` +
-    "together with the total number that matched; filter by date range, category, payment methods or text to narrow the result.",
+    "together with the total number that matched; filter by date range, category, payment methods or text to narrow the result. " +
+    'Date filters are calendar days in UTC, and "today" from get_profile is the UTC date: for ranges such as today or this month, ' +
+    "pass the user's local dates (YYYY-MM-DD) when you know them.",
   inputSchema: z.object({
     startDate: rangeStartInput("Only include records on or after this date (00:00:00 UTC for a date-only value).").optional(),
     endDate: rangeEndInput("Only include records on or before this date (23:59:59 UTC for a date-only value).").optional(),
@@ -132,13 +134,15 @@ export const createRecord = defineTool({
   title: "Create record",
   description:
     "Records an income or an expense; the category's type decides which. " +
-    "Currency defaults to the user's display currency, date to today (UTC) and payment method to the one used by the most recent record " +
-    "(or the first payment method when there are no records yet). The result lists the defaults that were applied.",
+    "Currency defaults to the user's display currency and payment method to the one used by the most recent record " +
+    "(or the first payment method when there are no records yet). The date defaults to today in UTC, which can be a day off " +
+    "from the user's local date: pass the user's local date (YYYY-MM-DD) as date when you know it. " +
+    "The result lists the defaults that were applied.",
   inputSchema: z.object({
     categoryId: idSchema("Category ID from list_categories."),
     amount: amountSchema(`Amount in the record's currency, at least ${MIN_AMOUNT}.`),
     currency: currencySchema.optional().describe("Currency of the amount; defaults to the user's display currency."),
-    date: dayInput("Day of the transaction; defaults to today (UTC).").optional(),
+    date: dayInput("Day of the transaction; defaults to today in UTC, so pass the user's local date when you know it.").optional(),
     paymentMethodId: idSchema(
       "Payment method ID from list_payment_methods; defaults to the payment method of the most recent record.",
     ).optional(),

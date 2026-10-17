@@ -12,18 +12,24 @@ const SERVER_JSON_FILE = new URL("../server.json", import.meta.url);
 interface ApiRoute {
   method: string;
   path: string;
+  delegated: boolean;
 }
 
-/** Reads the backend route inventory written by `go run ./cmd/routes -write`, as `METHOD /path` keys. */
-function loadApiRoutes(): string[] {
-  const routes = JSON.parse(readFileSync(API_ROUTES_FILE, "utf8")) as ApiRoute[];
-  return routes.map(({ method, path }) => `${method} ${path}`);
+/** Reads the backend route inventory written by `go run ./cmd/routes -write`. */
+function loadApiRoutes(): ApiRoute[] {
+  return JSON.parse(readFileSync(API_ROUTES_FILE, "utf8")) as ApiRoute[];
 }
 
-const routes = loadApiRoutes();
+function routeKey({ method, path }: ApiRoute): string {
+  return `${method} ${path}`;
+}
+
+const apiRoutes = loadApiRoutes();
+const routes = apiRoutes.map(routeKey);
 const problems = [
   ...findDriftProblems({
     routes,
+    delegatedRoutes: apiRoutes.filter(({ delegated }) => delegated === true).map(routeKey),
     tools: toolDefinitions,
     excluded: excludedRoutes,
     toolsDoc: existsSync(TOOLS_DOC_FILE) ? readFileSync(TOOLS_DOC_FILE, "utf8") : undefined,

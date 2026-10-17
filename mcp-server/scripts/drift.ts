@@ -6,9 +6,11 @@ const MAX_TOOL_NAME_LENGTH = 64;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const HINTS: readonly (keyof ToolHints)[] = ["readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"];
 const ROUTES_FILE = "docs/api-routes.json";
+const DELEGATED_ALLOWLIST_FILE = "internal/middlewares/delegated_access.go";
 
 export interface DriftCheckInput {
   routes: readonly string[];
+  delegatedRoutes: readonly string[];
   tools: readonly ToolDefinition[];
   excluded: readonly ExcludedRoute[];
   toolsDoc: string | undefined;
@@ -63,8 +65,9 @@ function duplicateNameProblems(tools: readonly ToolDefinition[]): string[] {
   return duplicates(tools.map((tool) => tool.name)).map((name) => `Tool name "${name}" is used by more than one tool.`);
 }
 
-function routeProblems({ routes, tools, excluded }: DriftCheckInput): string[] {
+function routeProblems({ routes, delegatedRoutes, tools, excluded }: DriftCheckInput): string[] {
   const knownRoutes = new Set(routes);
+  const allowedRoutes = new Set(delegatedRoutes);
   const coveringTools = new Map<string, string[]>();
   for (const tool of tools) {
     for (const route of new Set(tool.covers)) {
@@ -76,6 +79,12 @@ function routeProblems({ routes, tools, excluded }: DriftCheckInput): string[] {
   for (const tool of tools) {
     for (const route of tool.covers.filter((route) => !knownRoutes.has(route))) {
       problems.push(`Tool "${tool.name}" covers "${route}", which is not in ${ROUTES_FILE}.`);
+    }
+    for (const route of tool.covers.filter((route) => knownRoutes.has(route) && !allowedRoutes.has(route))) {
+      problems.push(
+        `Tool "${tool.name}" covers "${route}", but the backend allowlist in ${DELEGATED_ALLOWLIST_FILE} denies it to connected apps; ` +
+          "allow the route there or stop covering it.",
+      );
     }
   }
   for (const { route, reason } of excluded) {

@@ -7,7 +7,7 @@ This README is for developers and self-hosters. To connect an assistant, see the
 ## How it works
 
 1. An AI app connects with a Monexa OAuth access token (`mnx_at_…`, obtained through the OAuth flow the backend serves) or a personal access token (`mnx_pat_…`) in `Authorization: Bearer`.
-2. The server exchanges the bearer at the backend (RFC 8693, `POST /oauth/token`, authenticated as the MCP client) for a short-lived delegated JWT. Successful exchanges are cached in memory, keyed by a hash of the token, for at most 4 minutes.
+2. The server exchanges the bearer at the backend (RFC 8693, `POST /oauth/token`, authenticated as the MCP client) for a short-lived delegated JWT. Successful exchanges are cached in memory, keyed by a hash of the token, for at most 4 minutes, and tokens the backend rejects are answered from memory for 30 seconds.
 3. Each tool call runs with that JWT against the Monexa REST API (`MONEXA_API_URL`). The backend only lets delegated tokens reach an allowlist of routes (`internal/middlewares/delegated_access.go`) and checks the `monexa.read` / `monexa.write` scope.
 4. The server advertises the backend as its authorization server through protected resource metadata, so OAuth clients discover where to sign in. It mirrors the backend's metadata document, fetched at startup.
 5. The server is stateless and keeps no user data. Every request builds its own MCP server instance.
@@ -81,12 +81,13 @@ Point the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) (`n
 `npm run check` exits 1 with readable messages unless all of these hold:
 
 - Every route in [`../docs/api-routes.json`](../docs/api-routes.json) (the backend's route inventory, written by `go run ./cmd/routes -write`) is covered by exactly one tool's `covers` list or listed in `src/tools/excluded.ts` with a reason, and every `covers` or excluded entry exists in the inventory.
+- Every route a tool covers is marked `"delegated": true` in the inventory, which means the backend allowlist in `internal/middlewares/delegated_access.go` lets connected apps call it.
 - Tool names are unique snake_case of at most 64 characters, and each tool has a title and the four annotation hints, with `openWorldHint: false`.
 - Tools with `readOnlyHint: true` cover only `GET` routes.
 - `TOOLS.md` equals what `npm run docs` generates.
 - `server.json` has the same `version` as `package.json` and a description of at most 100 characters.
 
-When the backend gains a route, `go run ./cmd/routes -check` fails first. Run it with `-write`, then add a tool that covers the route or an entry in `excluded.ts`, run `npm run docs`, and commit the results together.
+When the backend gains a route or its delegated allowlist changes, `go run ./cmd/routes -check` fails first. Run it with `-write`, then add a tool that covers the route or an entry in `excluded.ts`, run `npm run docs`, and commit the results together.
 
 ## Tools
 

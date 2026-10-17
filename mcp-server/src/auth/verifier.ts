@@ -15,6 +15,7 @@ const DEFAULT_TIMEOUT_MS = 5_000;
 const DEFAULT_MAX_CACHE_ENTRIES = 1_000;
 const CACHE_EXPIRY_MARGIN_SECONDS = 60;
 const MAX_CACHE_TTL_SECONDS = 240;
+const REJECTION_CACHE_TTL_MS = 30_000;
 const MILLISECONDS_PER_SECOND = 1_000;
 
 export interface TokenExchangeVerifierOptions {
@@ -45,10 +46,11 @@ export class UpstreamUnavailableError extends Error {
 
 /**
  * Verifies Monexa OAuth access tokens and PATs by exchanging them (RFC 8693) for a short-lived delegated API JWT.
- * Results are cached per token digest so a conversation does not exchange on every request.
+ * Exchanges are cached per token digest, and rejected tokens for 30 seconds, so retries do not reach the backend.
  */
 export class TokenExchangeVerifier implements OAuthTokenVerifier {
   private readonly cache: LRUCache<string, CachedExchange>;
+  private readonly rejected: LRUCache<string, number>;
   private readonly inFlight = new Map<string, Promise<AuthInfo>>();
   private readonly tokenUrl: string;
   private readonly clientAuthorization: string;
@@ -58,6 +60,7 @@ export class TokenExchangeVerifier implements OAuthTokenVerifier {
 
   constructor(options: TokenExchangeVerifierOptions) {
     this.cache = new LRUCache({ max: options.maxCacheEntries ?? DEFAULT_MAX_CACHE_ENTRIES });
+    this.rejected = new LRUCache({ max: options.maxCacheEntries ?? DEFAULT_MAX_CACHE_ENTRIES });
     this.tokenUrl = options.apiUrl + TOKEN_PATH;
     this.clientAuthorization = basicAuthorization(options.clientId, options.clientSecret);
     this.resourceUrl = options.resourceUrl;
@@ -70,12 +73,26 @@ export class TokenExchangeVerifier implements OAuthTokenVerifier {
       throw new OAuthError(OAuthErrorCode.InvalidToken, INVALID_TOKEN_MESSAGE);
     }
     const key = cacheKey(token);
+    if (this.isRecentlyRejected(key)) {
+      throw new OAuthError(OAuthErrorCode.InvalidToken, INVALID_TOKEN_MESSAGE);
+    }
     return this.freshCachedAuthInfo(key) ?? this.inFlight.get(key) ?? this.startExchange(key, token);
   }
 
-  /** Forgets a token's cached exchange, e.g. after the API rejected its delegated JWT. */
+  /** Forgets everything cached about a token, e.g. after the API rejected its delegated JWT. */
   evict(token: string): void {
-    this.cache.delete(cacheKey(token));
+    const key = cacheKey(token);
+    this.cache.delete(key);
+    this.rejected.delete(key);
+  }
+
+  private isRecentlyRejected(key: string): boolean {
+    const rejectedUntil = this.rejected.get(key);
+    if (rejectedUntil !== undefined && rejectedUntil <= Date.now()) {
+      this.rejected.delete(key);
+      return false;
+    }
+    return rejectedUntil !== undefined;
   }
 
   private freshCachedAuthInfo(key: string): AuthInfo | undefined {
@@ -96,6 +113,12 @@ export class TokenExchangeVerifier implements OAuthTokenVerifier {
           this.cache.set(key, { authInfo, freshUntil: Date.now() + ttlSeconds * MILLISECONDS_PER_SECOND });
         }
         return authInfo;
+      })
+      .catch((error: unknown) => {
+        if (isRejectedToken(error)) {
+          this.rejected.set(key, Date.now() + REJECTION_CACHE_TTL_MS);
+        }
+        throw error;
       })
       .finally(() => this.inFlight.delete(key));
     this.inFlight.set(key, pending);
@@ -166,6 +189,11 @@ function interpretExchangeResponse(status: number, body: unknown): DelegatedToke
     log("error", "token_exchange_failed", { status, error: errorCode });
   }
   throw new UpstreamUnavailableError(`The Monexa backend answered the token exchange with status ${status}`);
+}
+
+/** Only the backend's invalid_grant answer becomes an invalid_token OAuthError; upstream failures are never cached. */
+function isRejectedToken(error: unknown): boolean {
+  return error instanceof OAuthError && error.code === OAuthErrorCode.InvalidToken;
 }
 
 function parseDelegatedToken(body: unknown): DelegatedToken | undefined {

@@ -28,7 +28,8 @@ export const getSpendingSummary = defineTool({
   description:
     "Totals income, expenses and the net balance (income minus expenses) for a period, with each category's record count and total. " +
     "All amounts are converted to the user's display currency at the exchange rate of each record's date. " +
-    "Without startDate and endDate it covers the current calendar month in UTC.",
+    "Without startDate and endDate it covers the current calendar month in UTC, which can differ from the user's local month " +
+    "around its first and last day: pass the user's local dates (YYYY-MM-DD) when you know them.",
   inputSchema: z.object({
     startDate: rangeStartInput("Start of the period, inclusive (00:00:00 UTC for a date-only value).").optional(),
     endDate: rangeEndInput("End of the period, inclusive (23:59:59 UTC for a date-only value).").optional(),
