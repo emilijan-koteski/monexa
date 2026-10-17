@@ -121,7 +121,7 @@ func (s *OAuthTokenService) Refresh(ctx context.Context, clientID, refreshToken,
 	var issued *responses.OAuthTokenResponse
 	var rejection error
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		presented, err := findToken(tx.Clauses(clause.Locking{Strength: "UPDATE"}), refreshToken)
+		presented, err := lockFamilyToken(tx, refreshToken)
 		if err != nil {
 			return err
 		}
@@ -129,6 +129,10 @@ func (s *OAuthTokenService) Refresh(ctx context.Context, clientID, refreshToken,
 		grant, err := verifyRefreshToken(tx, presented, clientID, now)
 		if err != nil {
 			return err
+		}
+		if presented.RevokedAt != nil {
+			rejection = invalidGrant("a revoked refresh token was presented")
+			return revokeFamily(tx, presented.Family, now)
 		}
 		if resource != "" && !resourceMatches(resource, grant.Resource) {
 			return fmt.Errorf("%w: resource does not match the grant", ErrOAuthInvalidTarget)
@@ -212,7 +216,9 @@ func (s *OAuthTokenService) RevokeToken(ctx context.Context, clientID, presented
 	now := time.Now()
 	switch revoked.Type {
 	case types.OAuthRefreshToken:
-		return revokeFamily(db, revoked.Family, now)
+		return db.Transaction(func(tx *gorm.DB) error {
+			return revokeFamily(tx, revoked.Family, now)
+		})
 	case types.OAuthAccessToken:
 		return revokeTokens(db.Where("id = ?", revoked.ID), now)
 	default:
@@ -233,7 +239,7 @@ func (s *OAuthTokenService) DeleteExpired(ctx context.Context) (int64, error) {
 	return result.RowsAffected, nil
 }
 
-// issueTokenPair stores a new access and refresh token for the grant's family and returns their plaintexts.
+// issueTokenPair stores a new access and refresh token for the grant's family, both children of parentID, and returns their plaintexts.
 func (s *OAuthTokenService) issueTokenPair(tx *gorm.DB, grantID uint, family string, parentID *uint, scope string) (*responses.OAuthTokenResponse, error) {
 	accessToken, accessHash, err := utils.GenerateOpaqueToken(utils.AccessTokenPrefix)
 	if err != nil {
@@ -252,6 +258,7 @@ func (s *OAuthTokenService) issueTokenPair(tx *gorm.DB, grantID uint, family str
 			TokenHash:   accessHash,
 			TokenPrefix: utils.TokenDisplayPrefix(accessToken),
 			Family:      family,
+			ParentID:    parentID,
 			Scope:       scope,
 			ExpiresAt:   now.Add(s.accessTokenTTL),
 		},
@@ -327,8 +334,6 @@ func verifyRefreshToken(tx *gorm.DB, presented *models.OAuthToken, clientID stri
 	switch {
 	case presented.Type != types.OAuthRefreshToken:
 		return nil, invalidGrant("token is not a refresh token")
-	case presented.RevokedAt != nil:
-		return nil, invalidGrant("refresh token is revoked")
 	case !presented.ExpiresAt.After(now):
 		return nil, invalidGrant("refresh token is expired")
 	}
@@ -343,7 +348,7 @@ func verifyRefreshToken(tx *gorm.DB, presented *models.OAuthToken, clientID stri
 }
 
 // rotateRefreshToken marks an unused token used. For a used token it reports reuse unless the token is the immediate
-// parent retried within refreshReuseGrace, in which case its unused child is revoked so a replacement can be issued.
+// parent retried within refreshReuseGrace, in which case its unused child pair is revoked so a replacement can be issued.
 func rotateRefreshToken(tx *gorm.DB, presented *models.OAuthToken, now time.Time) (bool, error) {
 	if presented.UsedAt == nil {
 		if err := tx.Model(presented).Update("used_at", now).Error; err != nil {
@@ -354,13 +359,16 @@ func rotateRefreshToken(tx *gorm.DB, presented *models.OAuthToken, now time.Time
 	if now.Sub(*presented.UsedAt) > refreshReuseGrace {
 		return true, nil
 	}
-	result := tx.Model(&models.OAuthToken{}).
-		Where("parent_id = ? AND type = ? AND used_at IS NULL AND revoked_at IS NULL", presented.ID, types.OAuthRefreshToken).
+	unusedChild := tx.Model(&models.OAuthToken{}).
+		Where("family = ? AND parent_id = ? AND type = ? AND used_at IS NULL AND revoked_at IS NULL", presented.Family, presented.ID, types.OAuthRefreshToken).
 		Update("revoked_at", now)
-	if result.Error != nil {
-		return false, fmt.Errorf("failed to revoke the unused child token: %w", result.Error)
+	if unusedChild.Error != nil {
+		return false, fmt.Errorf("failed to revoke the unused child token: %w", unusedChild.Error)
 	}
-	return result.RowsAffected == 0, nil
+	if unusedChild.RowsAffected == 0 {
+		return true, nil
+	}
+	return false, revokeTokens(tx.Where("family = ? AND parent_id = ? AND type = ?", presented.Family, presented.ID, types.OAuthAccessToken), now)
 }
 
 // narrowScope returns the scope for rotated tokens: the current scope, or a requested subset of it.
@@ -414,6 +422,27 @@ func findToken(db *gorm.DB, plaintext string) (*models.OAuthToken, error) {
 	return &row, nil
 }
 
+// lockFamilyToken takes the token's family lock before locking and re-reading the token row, so rotations and
+// revocations within one family never interleave.
+func lockFamilyToken(tx *gorm.DB, plaintext string) (*models.OAuthToken, error) {
+	unlocked, err := findToken(tx, plaintext)
+	if err != nil {
+		return nil, err
+	}
+	if err := lockFamily(tx, unlocked.Family); err != nil {
+		return nil, err
+	}
+	return findToken(tx.Clauses(clause.Locking{Strength: "UPDATE"}), plaintext)
+}
+
+// lockFamily holds a transaction-scoped advisory lock on a token family until the caller's transaction ends.
+func lockFamily(tx *gorm.DB, family string) error {
+	if err := tx.Exec("SELECT pg_advisory_xact_lock(hashtext(?))", family).Error; err != nil {
+		return fmt.Errorf("failed to lock token family: %w", err)
+	}
+	return nil
+}
+
 func revokeIssuedFamily(tx *gorm.DB, family *string) error {
 	if family == nil {
 		return nil
@@ -421,8 +450,13 @@ func revokeIssuedFamily(tx *gorm.DB, family *string) error {
 	return revokeFamily(tx, *family, time.Now())
 }
 
-func revokeFamily(db *gorm.DB, family string, now time.Time) error {
-	return revokeTokens(db.Where("family = ?", family), now)
+// revokeFamily revokes every token of a family under its family lock, so tokens a concurrent rotation is still
+// inserting are committed and covered before the revocation reads the family. Call it inside a transaction.
+func revokeFamily(tx *gorm.DB, family string, now time.Time) error {
+	if err := lockFamily(tx, family); err != nil {
+		return err
+	}
+	return revokeTokens(tx.Where("family = ?", family), now)
 }
 
 func revokeTokens(query *gorm.DB, now time.Time) error {
