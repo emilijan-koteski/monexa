@@ -11,7 +11,7 @@
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "check": "tsx scripts/check.ts",
     "docs": "tsx scripts/gen-docs.ts"
   },
