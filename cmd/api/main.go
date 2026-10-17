@@ -68,6 +68,7 @@ func main() {
 	oauthTokenService := services.NewOAuthTokenService(db, oauthGrantService, oauthClientService, oauthAuthorizationService,
 		legalDocumentService, tokenMaker, oauthServiceCfg.ResourceURL, oauthServiceCfg.MCPClientID, oauthServiceCfg.MCPClientSecret,
 		oauthServiceCfg.AccessTokenTTL, oauthServiceCfg.RefreshTokenTTL)
+	accessTokenService := services.NewAccessTokenService(db, oauthGrantService, oauthServiceCfg.ResourceURL)
 	settingService := services.NewSettingService(db)
 	currencyService := services.NewCurrencyService(db, exchangeRateClient)
 	categoryService := services.NewCategoryService(db, settingService, currencyService)
@@ -125,6 +126,7 @@ func main() {
 	if oauthEnabled {
 		handlers.RegisterOAuthHandler(e, oauthCfg, frontendURL, oauthClientService, oauthAuthorizationService, oauthTokenService)
 		handlers.RegisterOAuthConsentHandler(e, oauthAuthorizationService, oauthGrantService, restrictedMiddlewares...)
+		handlers.RegisterAccessTokenHandler(e, accessTokenService, restrictedMiddlewares...)
 	}
 	log.Println("👍 [10] All handlers and routes registered successfully")
 

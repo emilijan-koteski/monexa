@@ -33,14 +33,14 @@ func (s *OAuthGrantService) ListOAuthGrants(ctx context.Context, userID uint) ([
 	return grants, nil
 }
 
-// RevokeGrant revokes one of the user's grants and its tokens, returning gorm.ErrRecordNotFound for any other owner.
-func (s *OAuthGrantService) RevokeGrant(ctx context.Context, userID, grantID uint) error {
-	return s.revokeOwnedGrant(ctx, "id = ? AND user_id = ?", grantID, userID)
-}
-
 // RevokeOAuthGrant revokes one of the user's connected apps, treating a personal access token grant as not found.
 func (s *OAuthGrantService) RevokeOAuthGrant(ctx context.Context, userID, grantID uint) error {
 	return s.revokeOwnedGrant(ctx, "id = ? AND user_id = ? AND kind = ?", grantID, userID, types.OAuthGrantKindOAuth)
+}
+
+// RevokePersonalAccessTokenGrant revokes one of the user's personal access tokens, treating a connected app grant as not found.
+func (s *OAuthGrantService) RevokePersonalAccessTokenGrant(ctx context.Context, userID, grantID uint) error {
+	return s.revokeOwnedGrant(ctx, "id = ? AND user_id = ? AND kind = ?", grantID, userID, types.OAuthGrantKindPAT)
 }
 
 func (s *OAuthGrantService) RevokeAllForUser(ctx context.Context, userID uint) error {
