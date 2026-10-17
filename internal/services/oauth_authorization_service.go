@@ -23,6 +23,7 @@ const (
 	authorizationCodeTTL          = 2 * time.Minute
 	expiredAuthorizationRetention = 24 * time.Hour
 	consentPath                   = "/oauth/consent"
+	maxStateLength                = 1024
 
 	responseTypeCode        = "code"
 	codeChallengeMethodS256 = "S256"
@@ -78,6 +79,9 @@ func (s *OAuthAuthorizationService) Start(ctx context.Context, p requests.OAuthA
 	}
 	if !utils.MatchRedirectURI(client.RedirectURIs, p.RedirectURI) {
 		return nil, &OAuthNoRedirectError{Code: oauthErrorInvalidRequest, Description: "redirect_uri is not registered for this client"}
+	}
+	if p.State != nil && len(*p.State) > maxStateLength {
+		return nil, s.redirectError(p.RedirectURI, nil, &authorizeFailure{oauthErrorInvalidRequest, "state is too long"})
 	}
 
 	scope, resource, failure := s.validateAuthorizeParams(p)
@@ -176,13 +180,13 @@ func (s *OAuthAuthorizationService) Deny(ctx context.Context, id string, userID 
 	})
 }
 
-// ConsumeCode redeems an authorization code exactly once. A replayed code returns its authorization with ErrOAuthCodeReplayed so the caller can revoke the issued tokens.
-func (s *OAuthAuthorizationService) ConsumeCode(ctx context.Context, code string) (*models.OAuthAuthorization, error) {
-	db := s.db.WithContext(ctx)
+// ConsumeCode redeems an authorization code exactly once inside the caller's token-issuing transaction.
+// A replayed code returns its authorization with ErrOAuthCodeReplayed so the caller can revoke the issued tokens.
+func (s *OAuthAuthorizationService) ConsumeCode(tx *gorm.DB, code string) (*models.OAuthAuthorization, error) {
 	codeHash := utils.HashOpaqueToken(code)
 
 	var authorization models.OAuthAuthorization
-	result := db.Model(&authorization).
+	result := tx.Model(&authorization).
 		Clauses(clause.Returning{}).
 		Where("code_hash = ? AND consumed_at IS NULL AND code_expires_at > now() AND status = ?", codeHash, types.OAuthAuthorizationApproved).
 		Update("consumed_at", gorm.Expr("now()"))
@@ -192,16 +196,19 @@ func (s *OAuthAuthorizationService) ConsumeCode(ctx context.Context, code string
 	if result.RowsAffected == 1 {
 		return &authorization, nil
 	}
-	return findConsumedAuthorization(db, codeHash)
+	return findConsumedAuthorization(tx, codeHash)
 }
 
+// SetIssuedFamily records the token family issued for a redeemed code, once, so a later replay can revoke it.
 func (s *OAuthAuthorizationService) SetIssuedFamily(tx *gorm.DB, id, family string) error {
-	result := tx.Model(&models.OAuthAuthorization{}).Where("id = ?", id).Update("issued_family", family)
+	result := tx.Model(&models.OAuthAuthorization{}).
+		Where("id = ? AND consumed_at IS NOT NULL AND issued_family IS NULL", id).
+		Update("issued_family", family)
 	if result.Error != nil {
 		return fmt.Errorf("failed to record issued token family: %w", result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return ErrOAuthAuthorizationNotFound
+		return fmt.Errorf("%w: no redeemed authorization without a token family", ErrOAuthAuthorizationNotFound)
 	}
 	return nil
 }
