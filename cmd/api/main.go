@@ -25,18 +25,26 @@ func main() {
 	server.RequireEnv(server.RequiredEnv...)
 	log.Println("👍 [1] Environment variables loaded successfully")
 
+	oauthCfg, err := server.LoadOAuthConfig()
+	if err != nil {
+		log.Fatalf("invalid OAuth configuration: %v", err)
+	}
+	oauthEnabled := oauthCfg != nil
+	log.Printf("👍 [2] OAuth configuration loaded (enabled: %t)", oauthEnabled)
+
 	// Connect database
 	db := database.ConnectDB()
-	log.Println("👍 [2] Database connected successfully")
+	log.Println("👍 [3] Database connected successfully")
 
 	// Apply migrations
 	database.Migrate(db)
-	log.Println("👍 [3] Migrations applied successfully")
+	log.Println("👍 [4] Migrations applied successfully")
 
 	// Init clients
 	exchangeRateClient := clients.NewExchangeRateAPIClient()
 	mailClient := clients.NewMailClient()
-	log.Println("👍 [4] Clients initiated successfully")
+	cimdClient := clients.NewCIMDClient()
+	log.Println("👍 [5] Clients initiated successfully")
 
 	// Feature flags
 	legalComplianceEnabled := strings.ToLower(os.Getenv("LEGAL_COMPLIANCE_ENABLED")) != "false"
@@ -48,6 +56,18 @@ func main() {
 	userService := services.NewUserService(db, mailService, legalDocumentService)
 	tokenMaker := token.NewJWTMaker()
 	sessionService := services.NewSessionService(db)
+	oauthServiceCfg := server.OAuthConfig{}
+	if oauthEnabled {
+		oauthServiceCfg = *oauthCfg
+	}
+	frontendURL := os.Getenv("FRONTEND_URL")
+	oauthGrantService := services.NewOAuthGrantService(db)
+	oauthClientService := services.NewOAuthClientService(db, cimdClient)
+	oauthAuthorizationService := services.NewOAuthAuthorizationService(db, oauthClientService, oauthGrantService,
+		oauthServiceCfg.IssuerURL, oauthServiceCfg.ResourceURL, frontendURL)
+	oauthTokenService := services.NewOAuthTokenService(db, oauthGrantService, oauthClientService, oauthAuthorizationService,
+		legalDocumentService, tokenMaker, oauthServiceCfg.ResourceURL, oauthServiceCfg.MCPClientID, oauthServiceCfg.MCPClientSecret,
+		oauthServiceCfg.AccessTokenTTL, oauthServiceCfg.RefreshTokenTTL)
 	settingService := services.NewSettingService(db)
 	currencyService := services.NewCurrencyService(db, exchangeRateClient)
 	categoryService := services.NewCategoryService(db, settingService, currencyService)
@@ -56,7 +76,7 @@ func main() {
 	paymentMethodService := services.NewPaymentMethodService(db)
 	exportService := services.NewExportService(db, settingService, legalComplianceEnabled)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
-	log.Println("👍 [5] All services initiated successfully")
+	log.Println("👍 [6] All services initiated successfully")
 
 	// Start background jobs
 	sessionCleanupJob := jobs.NewSessionCleanupJob(sessionService, 24*time.Hour)
@@ -69,34 +89,29 @@ func main() {
 	accountDeletionJob.Start()
 	recurringExpenseGenerationJob := jobs.NewRecurringExpenseGenerationJob(recurringExpenseService, 24*time.Hour)
 	recurringExpenseGenerationJob.Start()
-	log.Println("👍 [6] Background jobs started successfully")
+	oauthCleanupJob := jobs.NewOAuthCleanupJob(oauthTokenService, oauthAuthorizationService, oauthClientService, 24*time.Hour)
+	oauthCleanupJob.Start()
+	log.Println("👍 [7] Background jobs started successfully")
 
 	// Init new echo client
 	e := echo.New()
 	e.IPExtractor = server.ClientIPExtractor()
-	log.Println("👍 [7] New Echo HTTP client initiated successfully")
+	log.Println("👍 [8] New Echo HTTP client initiated successfully")
 
 	// Init middlewares
-	e.Use(middleware.Logger())
+	e.Use(server.RequestLogger())
 	e.Use(middleware.Recover())
-
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     server.CORSOrigins(),
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}))
+	e.Use(server.CORSMiddlewares()...)
 
 	var restrictedMiddlewares []echo.MiddlewareFunc
 	if legalComplianceEnabled {
 		restrictedMiddlewares = append(restrictedMiddlewares, middlewares.LegalComplianceMiddleware(legalDocumentService))
 	}
-	log.Println("👍 [8] All middlewares initiated successfully")
+	log.Println("👍 [9] All middlewares initiated successfully")
 
 	// Register handlers and routes
 	handlers.RegisterHealthHandler(e, healthService)
-	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService, legalDocumentService)
+	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService, legalDocumentService, oauthGrantService)
 	handlers.RegisterUserHandler(e, userService, exportService, restrictedMiddlewares...)
 	handlers.RegisterRecordHandler(e, recordService, restrictedMiddlewares...)
 	handlers.RegisterRecurringExpenseHandler(e, recurringExpenseService, restrictedMiddlewares...)
@@ -107,9 +122,13 @@ func main() {
 	if legalComplianceEnabled {
 		handlers.RegisterLegalDocumentHandler(e, legalDocumentService)
 	}
-	log.Println("👍 [9] All handlers and routes registered successfully")
+	if oauthEnabled {
+		handlers.RegisterOAuthHandler(e, oauthCfg, frontendURL, oauthClientService, oauthAuthorizationService, oauthTokenService)
+		handlers.RegisterOAuthConsentHandler(e, oauthAuthorizationService, oauthGrantService, restrictedMiddlewares...)
+	}
+	log.Println("👍 [10] All handlers and routes registered successfully")
 
 	// Start HTTP server
-	log.Println("👍 [10] Starting HTTP server...")
+	log.Println("👍 [11] Starting HTTP server...")
 	server.StartServer(e)
 }

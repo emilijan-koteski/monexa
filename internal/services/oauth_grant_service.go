@@ -35,12 +35,12 @@ func (s *OAuthGrantService) ListOAuthGrants(ctx context.Context, userID uint) ([
 
 // RevokeGrant revokes one of the user's grants and its tokens, returning gorm.ErrRecordNotFound for any other owner.
 func (s *OAuthGrantService) RevokeGrant(ctx context.Context, userID, grantID uint) error {
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Select("id").Where("id = ? AND user_id = ?", grantID, userID).First(&models.OAuthGrant{}).Error; err != nil {
-			return err
-		}
-		return revokeMatchingGrants(tx, time.Now(), "id = ? AND user_id = ?", grantID, userID)
-	})
+	return s.revokeOwnedGrant(ctx, "id = ? AND user_id = ?", grantID, userID)
+}
+
+// RevokeOAuthGrant revokes one of the user's connected apps, treating a personal access token grant as not found.
+func (s *OAuthGrantService) RevokeOAuthGrant(ctx context.Context, userID, grantID uint) error {
+	return s.revokeOwnedGrant(ctx, "id = ? AND user_id = ? AND kind = ?", grantID, userID, types.OAuthGrantKindOAuth)
 }
 
 func (s *OAuthGrantService) RevokeAllForUser(ctx context.Context, userID uint) error {
@@ -92,6 +92,15 @@ func (s *OAuthGrantService) TouchLastUsed(ctx context.Context, grantID uint) err
 		return fmt.Errorf("failed to record grant use: %w", err)
 	}
 	return nil
+}
+
+func (s *OAuthGrantService) revokeOwnedGrant(ctx context.Context, grantQuery string, grantArgs ...any) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Select("id").Where(grantQuery, grantArgs...).First(&models.OAuthGrant{}).Error; err != nil {
+			return err
+		}
+		return revokeMatchingGrants(tx, time.Now(), grantQuery, grantArgs...)
+	})
 }
 
 func revokeMatchingGrants(tx *gorm.DB, now time.Time, grantQuery string, grantArgs ...any) error {

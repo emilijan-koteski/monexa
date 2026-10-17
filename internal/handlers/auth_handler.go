@@ -21,6 +21,7 @@ type authHandler struct {
 	tokenMaker           *token.JWTMaker
 	sessionService       *services.SessionService
 	legalDocumentService *services.LegalDocumentService
+	oauthGrantService    *services.OAuthGrantService
 }
 
 func RegisterAuthHandler(
@@ -29,12 +30,14 @@ func RegisterAuthHandler(
 	tokenMaker *token.JWTMaker,
 	sessionService *services.SessionService,
 	legalDocumentService *services.LegalDocumentService,
+	oauthGrantService *services.OAuthGrantService,
 ) {
 	handler := &authHandler{
 		userService:          userService,
 		tokenMaker:           tokenMaker,
 		sessionService:       sessionService,
 		legalDocumentService: legalDocumentService,
+		oauthGrantService:    oauthGrantService,
 	}
 
 	v1 := e.Group("/api/v1/auth")
@@ -281,6 +284,7 @@ func (h *authHandler) DeleteAccount(c echo.Context) error {
 	}
 
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), userID)
+	_ = h.oauthGrantService.RevokeAllForUser(c.Request().Context(), userID)
 
 	return responses.Success(c)
 }
@@ -301,6 +305,7 @@ func (h *authHandler) ChangePassword(c echo.Context) error {
 	}
 
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), claims.UserID)
+	_ = h.oauthGrantService.RevokeAllForUser(c.Request().Context(), claims.UserID)
 
 	return responses.SuccessWithMessage(c, "password changed successfully")
 }
@@ -334,6 +339,7 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 	}
 
 	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), user.ID)
+	_ = h.oauthGrantService.RevokeAllForUser(c.Request().Context(), user.ID)
 
 	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
 	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)

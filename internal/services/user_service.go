@@ -471,7 +471,7 @@ func (s *UserService) SendDeletionReminderEmail(ctx context.Context, user models
 	s.sendAccountDeletionEmail(user.Email, user.Name, "reminder", language)
 }
 
-// FinalizeUserDeletion anonymizes a soft-deleted user and their data, and hard-deletes their sessions and reset tokens.
+// FinalizeUserDeletion anonymizes a soft-deleted user and their data, and hard-deletes their sessions, reset tokens and OAuth grants.
 // The user is re-checked inside the transaction to guard against a concurrent reactivation.
 func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) error {
 	tx := s.db.WithContext(ctx).Begin()
@@ -553,6 +553,16 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 	if err := tx.Where("user_id = ?", userID).Delete(&models.PasswordResetToken{}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to delete password reset tokens: %w", err)
+	}
+
+	if err := tx.Where("user_id = ?", userID).Delete(&models.OAuthAuthorization{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete oauth authorizations: %w", err)
+	}
+
+	if err := tx.Where("user_id = ?", userID).Delete(&models.OAuthGrant{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete oauth grants: %w", err)
 	}
 
 	randomBytes := make([]byte, 32)
