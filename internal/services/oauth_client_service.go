@@ -29,6 +29,7 @@ const (
 	dcrAuthMethodNone      = "none"
 	maxRegisteredRedirects = 5
 	clientNameMaxRunes     = 100
+	unnamedClientName      = "Unnamed app"
 	storedURIMaxLength     = 2048
 
 	cimdClientIDPrefix          = "https://"
@@ -73,6 +74,7 @@ func NewOAuthClientService(db *gorm.DB, cimdClient cimdFetcher) *OAuthClientServ
 	}
 }
 
+// Register stores an RFC 7591 public client. client_name is optional there, so a missing or unusable name becomes "Unnamed app".
 func (s *OAuthClientService) Register(ctx context.Context, req requests.OAuthClientRegistrationRequest) (*models.OAuthClient, error) {
 	if err := validateRedirectURIs(req.RedirectURIs); err != nil {
 		return nil, fmt.Errorf("%w: %w: %v", ErrOAuthInvalidRequest, ErrOAuthInvalidRedirectURI, err)
@@ -82,7 +84,7 @@ func (s *OAuthClientService) Register(ctx context.Context, req requests.OAuthCli
 	}
 	name := sanitizeClientName(req.ClientName)
 	if name == "" {
-		return nil, fmt.Errorf("%w: client_name is required", ErrOAuthInvalidRequest)
+		name = unnamedClientName
 	}
 	id, err := newDCRClientID()
 	if err != nil {
@@ -185,7 +187,7 @@ func (s *OAuthClientService) loadCIMDClient(ctx context.Context, clientID string
 	}
 	doc, err := s.fetchCIMDDocument(ctx, clientID)
 	if err != nil {
-		return nil, err
+		return s.fallBackToStaleCIMDClient(ctx, clientID, err)
 	}
 	client, err = cimdClientFromDocument(clientID, doc, s.now().Add(cimdCacheTTL))
 	if err != nil {
@@ -207,13 +209,29 @@ func (s *OAuthClientService) fetchCIMDDocument(ctx context.Context, clientID str
 
 	doc, err := s.cimd.Fetch(ctx, clientID)
 	if err != nil {
-		if ctx.Err() == nil {
-			s.negative.block(clientID, s.now())
-		}
 		log.Printf("oauth: failed to fetch client metadata document for %q: %v", clientID, err)
 		return nil, fmt.Errorf("%w: client metadata document could not be fetched", ErrOAuthInvalidClient)
 	}
 	return doc, nil
+}
+
+// fallBackToStaleCIMDClient serves the expired stored copy of a client whose refetch failed, so a brief outage of the
+// client's host does not break sign-in. Only a client with no stored copy is negative-cached.
+func (s *OAuthClientService) fallBackToStaleCIMDClient(ctx context.Context, clientID string, fetchErr error) (*models.OAuthClient, error) {
+	if ctx.Err() != nil {
+		return nil, fetchErr
+	}
+	var stale models.OAuthClient
+	err := s.db.WithContext(ctx).Where("id = ? AND kind = ?", clientID, types.OAuthClientKindCIMD).First(&stale).Error
+	if err == nil {
+		log.Printf("oauth: serving the expired client metadata of %q because the refetch failed", clientID)
+		return &stale, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("failed to load client: %w", err)
+	}
+	s.negative.block(clientID, s.now())
+	return nil, fetchErr
 }
 
 func (s *OAuthClientService) acquireFetchSlot(ctx context.Context) error {

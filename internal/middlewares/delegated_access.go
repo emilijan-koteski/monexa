@@ -3,6 +3,7 @@ package middlewares
 import (
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
@@ -52,6 +53,18 @@ var delegatedAllowlist = map[string]bool{
 	"DELETE /api/v1/trend-reports/:id":              true,
 
 	"GET /api/v1/users/me": true,
+}
+
+// DelegatedRoutes returns the routes delegated tokens may call, as sorted "METHOD path" strings, for tooling that documents them.
+func DelegatedRoutes() []string {
+	routes := make([]string, 0, len(delegatedAllowlist))
+	for route, allowed := range delegatedAllowlist {
+		if allowed {
+			routes = append(routes, route)
+		}
+	}
+	sort.Strings(routes)
+	return routes
 }
 
 // delegatedAccessGuard restricts delegated (AI agent) tokens to an explicit allowlist of routes and scopes.

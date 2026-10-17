@@ -2,6 +2,9 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"runtime/debug"
 	"sync"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -51,10 +54,21 @@ func (g *clientFlightGroup) join(ctx context.Context, key string, load func(cont
 }
 
 func (g *clientFlightGroup) run(key string, flight *clientFlight, ctx context.Context, load func(context.Context) (*models.OAuthClient, error)) {
-	flight.client, flight.err = load(ctx)
+	flight.client, flight.err = loadRecovered(ctx, key, load)
 	g.forget(key, flight)
 	flight.cancel()
 	close(flight.done)
+}
+
+// loadRecovered turns a panic in load into an error, because it runs on a detached goroutine where a panic would crash the API.
+func loadRecovered(ctx context.Context, key string, load func(context.Context) (*models.OAuthClient, error)) (client *models.OAuthClient, err error) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			log.Printf("oauth: loading client %q panicked: %v\n%s", key, recovered, debug.Stack())
+			client, err = nil, fmt.Errorf("loading client %q panicked: %v", key, recovered)
+		}
+	}()
+	return load(ctx)
 }
 
 func (g *clientFlightGroup) leave(key string, flight *clientFlight) {

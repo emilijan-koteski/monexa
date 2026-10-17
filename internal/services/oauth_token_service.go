@@ -137,7 +137,11 @@ func (s *OAuthTokenService) Refresh(ctx context.Context, clientID, refreshToken,
 		if resource != "" && !resourceMatches(resource, grant.Resource) {
 			return fmt.Errorf("%w: resource does not match the grant", ErrOAuthInvalidTarget)
 		}
-		rotatedScope, err := narrowScope(presented.Scope, scope)
+		currentScope, err := effectiveScope(presented.Scope, grant.Scope)
+		if err != nil {
+			return err
+		}
+		rotatedScope, err := narrowScope(currentScope, scope)
 		if err != nil {
 			return err
 		}
@@ -169,10 +173,14 @@ func (s *OAuthTokenService) ExchangeForDelegatedToken(ctx context.Context, subje
 	if err != nil {
 		return nil, err
 	}
+	scope, err := effectiveScope(subject.token.Scope, subject.grant.Scope)
+	if err != nil {
+		return nil, err
+	}
 
 	legalAcceptedAt := s.legalDocumentService.GetLegalAcceptedAt(ctx, subject.user.ID)
 	delegated, claims, err := s.tokenMaker.CreateDelegatedAccessToken(
-		subject.user.ID, subject.user.PPID, legalAcceptedAt, subject.token.Scope,
+		subject.user.ID, subject.user.PPID, legalAcceptedAt, scope,
 		delegatedClientID(subject.grant), strconv.FormatUint(uint64(subject.grant.ID), 10), subject.token.ExpiresAt,
 	)
 	if err != nil {
@@ -185,7 +193,7 @@ func (s *OAuthTokenService) ExchangeForDelegatedToken(ctx context.Context, subje
 		AccessToken:     delegated,
 		TokenType:       bearerTokenType,
 		ExpiresIn:       wholeSeconds(time.Until(claims.ExpiresAt.Time)),
-		Scope:           subject.token.Scope,
+		Scope:           scope,
 		IssuedTokenType: issuedAccessTokenType,
 	}, nil
 }
@@ -369,6 +377,24 @@ func rotateRefreshToken(tx *gorm.DB, presented *models.OAuthToken, now time.Time
 		return true, nil
 	}
 	return false, revokeTokens(tx.Where("family = ? AND parent_id = ? AND type = ?", presented.Family, presented.ID, types.OAuthAccessToken), now)
+}
+
+// effectiveScope limits a token's scope to what its grant allows now, so a narrower re-consent applies to older tokens too.
+func effectiveScope(tokenScope, grantScope string) (string, error) {
+	tokenScopes, err := utils.ParseScope(tokenScope)
+	if err != nil {
+		return "", invalidGrant("the token's scope is not supported")
+	}
+	allowed := make([]types.OAuthScope, 0, len(tokenScopes))
+	for _, scope := range tokenScopes {
+		if utils.HasScope(grantScope, scope) {
+			allowed = append(allowed, scope)
+		}
+	}
+	if len(allowed) == 0 {
+		return "", invalidGrant("the grant no longer allows any of the token's scopes")
+	}
+	return utils.FormatScope(allowed), nil
 }
 
 // narrowScope returns the scope for rotated tokens: the current scope, or a requested subset of it.

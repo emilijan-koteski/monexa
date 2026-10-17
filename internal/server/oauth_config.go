@@ -91,6 +91,9 @@ func validateOAuthIssuer(raw string) (string, error) {
 	if err != nil {
 		return "", errors.New("is not a valid URL")
 	}
+	if canonical, err := utils.NormalizeResource(raw); err == nil && parsed.Path == "" && canonical != raw {
+		return "", fmt.Errorf("must be canonical (lowercase host, no default or empty port), use %q", canonical)
+	}
 	if err := requireSecureOrigin(parsed); err != nil {
 		return "", err
 	}

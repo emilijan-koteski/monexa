@@ -1,262 +1,327 @@
 [
   {
     "method": "GET",
-    "path": "/.well-known/oauth-authorization-server"
+    "path": "/.well-known/oauth-authorization-server",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/access-tokens"
+    "path": "/api/v1/access-tokens",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/access-tokens"
+    "path": "/api/v1/access-tokens",
+    "delegated": false
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/access-tokens/:id"
+    "path": "/api/v1/access-tokens/:id",
+    "delegated": false
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/auth/accounts"
+    "path": "/api/v1/auth/accounts",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/change-password"
+    "path": "/api/v1/auth/change-password",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/forgot-password"
+    "path": "/api/v1/auth/forgot-password",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/login"
+    "path": "/api/v1/auth/login",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/logout"
+    "path": "/api/v1/auth/logout",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/register"
+    "path": "/api/v1/auth/register",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/reset-password"
+    "path": "/api/v1/auth/reset-password",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/sessions/revoke"
+    "path": "/api/v1/auth/sessions/revoke",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/auth/tokens/renew"
+    "path": "/api/v1/auth/tokens/renew",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/categories"
+    "path": "/api/v1/categories",
+    "delegated": true
   },
   {
     "method": "POST",
-    "path": "/api/v1/categories"
+    "path": "/api/v1/categories",
+    "delegated": true
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/categories/:id"
+    "path": "/api/v1/categories/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/categories/:id"
+    "path": "/api/v1/categories/:id",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/categories/:id"
+    "path": "/api/v1/categories/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/categories/statistics"
+    "path": "/api/v1/categories/statistics",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/health"
+    "path": "/api/v1/health",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/health/restricted"
+    "path": "/api/v1/health/restricted",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/legal-documents"
+    "path": "/api/v1/legal-documents",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/legal-documents/:id/accept"
+    "path": "/api/v1/legal-documents/:id/accept",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/legal-documents/hash/compute"
+    "path": "/api/v1/legal-documents/hash/compute",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/legal-documents/hash/verify"
+    "path": "/api/v1/legal-documents/hash/verify",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/legal-documents/pending"
+    "path": "/api/v1/legal-documents/pending",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/oauth/authorizations/:id"
+    "path": "/api/v1/oauth/authorizations/:id",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/oauth/authorizations/:id/approve"
+    "path": "/api/v1/oauth/authorizations/:id/approve",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/api/v1/oauth/authorizations/:id/deny"
+    "path": "/api/v1/oauth/authorizations/:id/deny",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/oauth/grants"
+    "path": "/api/v1/oauth/grants",
+    "delegated": false
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/oauth/grants/:id"
+    "path": "/api/v1/oauth/grants/:id",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/payment-methods"
+    "path": "/api/v1/payment-methods",
+    "delegated": true
   },
   {
     "method": "POST",
-    "path": "/api/v1/payment-methods"
+    "path": "/api/v1/payment-methods",
+    "delegated": true
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/payment-methods/:id"
+    "path": "/api/v1/payment-methods/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/payment-methods/:id"
+    "path": "/api/v1/payment-methods/:id",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/payment-methods/:id"
+    "path": "/api/v1/payment-methods/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/records"
+    "path": "/api/v1/records",
+    "delegated": true
   },
   {
     "method": "POST",
-    "path": "/api/v1/records"
+    "path": "/api/v1/records",
+    "delegated": true
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/records/:id"
+    "path": "/api/v1/records/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/records/:id"
+    "path": "/api/v1/records/:id",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/records/:id"
+    "path": "/api/v1/records/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/records/descriptions/suggestions"
+    "path": "/api/v1/records/descriptions/suggestions",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/records/summary"
+    "path": "/api/v1/records/summary",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/recurring-expenses"
+    "path": "/api/v1/recurring-expenses",
+    "delegated": true
   },
   {
     "method": "POST",
-    "path": "/api/v1/recurring-expenses"
+    "path": "/api/v1/recurring-expenses",
+    "delegated": true
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/recurring-expenses/:id"
+    "path": "/api/v1/recurring-expenses/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/recurring-expenses/:id"
+    "path": "/api/v1/recurring-expenses/:id",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/recurring-expenses/:id"
+    "path": "/api/v1/recurring-expenses/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/settings"
+    "path": "/api/v1/settings",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/settings"
+    "path": "/api/v1/settings",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/trend-reports"
+    "path": "/api/v1/trend-reports",
+    "delegated": true
   },
   {
     "method": "POST",
-    "path": "/api/v1/trend-reports"
+    "path": "/api/v1/trend-reports",
+    "delegated": true
   },
   {
     "method": "DELETE",
-    "path": "/api/v1/trend-reports/:id"
+    "path": "/api/v1/trend-reports/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/trend-reports/:id"
+    "path": "/api/v1/trend-reports/:id",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/trend-reports/:id"
+    "path": "/api/v1/trend-reports/:id",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/trend-reports/:id/monthly-data"
+    "path": "/api/v1/trend-reports/:id/monthly-data",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/api/v1/trend-reports/:id/monthly-details"
+    "path": "/api/v1/trend-reports/:id/monthly-details",
+    "delegated": true
   },
   {
     "method": "PATCH",
-    "path": "/api/v1/users"
+    "path": "/api/v1/users",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/users/data/export"
+    "path": "/api/v1/users/data/export",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/api/v1/users/me"
+    "path": "/api/v1/users/me",
+    "delegated": true
   },
   {
     "method": "GET",
-    "path": "/healthz"
+    "path": "/healthz",
+    "delegated": false
   },
   {
     "method": "GET",
-    "path": "/oauth/authorize"
+    "path": "/oauth/authorize",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/oauth/register"
+    "path": "/oauth/register",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/oauth/revoke"
+    "path": "/oauth/revoke",
+    "delegated": false
   },
   {
     "method": "POST",
-    "path": "/oauth/token"
+    "path": "/oauth/token",
+    "delegated": false
   }
 ]

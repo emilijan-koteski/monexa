@@ -11,6 +11,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/emilijan-koteski/monexa/internal/middlewares"
 	"github.com/emilijan-koteski/monexa/internal/routes"
 	"github.com/emilijan-koteski/monexa/internal/server"
 	"github.com/labstack/echo/v4"
@@ -23,8 +24,9 @@ const (
 )
 
 type route struct {
-	Method string `json:"method"`
-	Path   string `json:"path"`
+	Method    string `json:"method"`
+	Path      string `json:"path"`
+	Delegated bool   `json:"delegated"`
 }
 
 func main() {
@@ -62,18 +64,24 @@ func collectRoutes() []route {
 		FrontendURL:            "https://frontend.invalid",
 		LegalComplianceEnabled: true,
 	})
-	return normalize(e.Routes())
+	return normalize(e.Routes(), middlewares.DelegatedRoutes())
 }
 
-func normalize(registered []*echo.Route) []route {
-	seen := make(map[route]bool)
+// normalize lists each API route once, sorted, and marks the ones the delegated allowlist lets connected apps call.
+func normalize(registered []*echo.Route, delegatedRoutes []string) []route {
+	delegated := make(map[string]bool, len(delegatedRoutes))
+	for _, key := range delegatedRoutes {
+		delegated[key] = true
+	}
+	seen := make(map[string]bool)
 	inventory := []route{}
 	for _, r := range registered {
 		entry := route{Method: r.Method, Path: r.Path}
-		if !isAPIMethod(entry.Method) || seen[entry] {
+		if !isAPIMethod(entry.Method) || seen[entry.key()] {
 			continue
 		}
-		seen[entry] = true
+		seen[entry.key()] = true
+		entry.Delegated = delegated[entry.key()]
 		inventory = append(inventory, entry)
 	}
 	sort.Slice(inventory, func(i, j int) bool {
@@ -83,6 +91,10 @@ func normalize(registered []*echo.Route) []route {
 		return inventory[i].Method < inventory[j].Method
 	})
 	return inventory
+}
+
+func (r route) key() string {
+	return r.Method + " " + r.Path
 }
 
 func isAPIMethod(method string) bool {
@@ -137,25 +149,44 @@ func checkInventory(generated []byte) {
 
 func printDifference(previous, current []route) {
 	added, removed := difference(current, previous), difference(previous, current)
+	changed := delegationChanges(previous, current)
 	for _, r := range added {
 		fmt.Fprintf(os.Stderr, "  + %s %s (registered but missing from the file)\n", r.Method, r.Path)
 	}
 	for _, r := range removed {
 		fmt.Fprintf(os.Stderr, "  - %s %s (in the file but no longer registered)\n", r.Method, r.Path)
 	}
-	if len(added) == 0 && len(removed) == 0 {
+	for _, r := range changed {
+		fmt.Fprintf(os.Stderr, "  ~ %s %s (delegated is now %t in the backend allowlist)\n", r.Method, r.Path, r.Delegated)
+	}
+	if len(added) == 0 && len(removed) == 0 && len(changed) == 0 {
 		fmt.Fprintln(os.Stderr, "The routes match but the file formatting or order differs.")
 	}
 }
 
 func difference(from, other []route) []route {
-	known := make(map[route]bool, len(other))
+	known := make(map[string]bool, len(other))
 	for _, r := range other {
-		known[r] = true
+		known[r.key()] = true
 	}
 	var result []route
 	for _, r := range from {
-		if !known[r] {
+		if !known[r.key()] {
+			result = append(result, r)
+		}
+	}
+	return result
+}
+
+// delegationChanges returns the current routes whose delegated flag differs from the file.
+func delegationChanges(previous, current []route) []route {
+	recorded := make(map[string]bool, len(previous))
+	for _, r := range previous {
+		recorded[r.key()] = r.Delegated
+	}
+	var result []route
+	for _, r := range current {
+		if delegated, found := recorded[r.key()]; found && delegated != r.Delegated {
 			result = append(result, r)
 		}
 	}

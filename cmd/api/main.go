@@ -38,6 +38,9 @@ func main() {
 
 	// Apply migrations
 	database.Migrate(db)
+	if err := database.EnsureSeededTestUserLocked(db); err != nil {
+		log.Fatalf("⛔ Exit!!! %v", err)
+	}
 	log.Println("👍 [4] Migrations applied successfully")
 
 	// Init clients

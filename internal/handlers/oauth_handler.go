@@ -271,7 +271,7 @@ func (h *oauthHandler) exchangeAuthorizationCode(c echo.Context, form url.Values
 
 	issued, err := h.tokenService.ExchangeCode(c.Request().Context(), form.Get(paramClientID), form.Get(paramCode),
 		form.Get(paramRedirectURI), form.Get(paramCodeVerifier), form.Get(paramResource))
-	return respondTokenResult(c, issued, err)
+	return respondTokenResult(c, grantTypeAuthorizationCode, form.Get(paramClientID), issued, err)
 }
 
 func (h *oauthHandler) refreshAccessToken(c echo.Context, form url.Values) error {
@@ -284,7 +284,7 @@ func (h *oauthHandler) refreshAccessToken(c echo.Context, form url.Values) error
 
 	issued, err := h.tokenService.Refresh(c.Request().Context(), form.Get(paramClientID), form.Get(paramRefreshToken),
 		form.Get(paramScope), form.Get(paramResource))
-	return respondTokenResult(c, issued, err)
+	return respondTokenResult(c, grantTypeRefreshToken, form.Get(paramClientID), issued, err)
 }
 
 // exchangeForDelegatedToken serves the MCP server's RFC 8693 token exchange. HTTP Basic is the only accepted client
@@ -305,7 +305,7 @@ func (h *oauthHandler) exchangeForDelegatedToken(c echo.Context, form url.Values
 	}
 
 	issued, err := h.tokenService.ExchangeForDelegatedToken(c.Request().Context(), form.Get(paramSubjectToken), form.Get(paramResource))
-	return respondTokenResult(c, issued, err)
+	return respondTokenResult(c, grantTypeTokenExchange, client.clientID, issued, err)
 }
 
 // authenticateMCPClient checks the request's Basic credentials against the MCP client once per request and caches
@@ -497,8 +497,10 @@ func rejectPublicClientCredentials(c echo.Context) error {
 	return responses.OAuthInvalidClient(c, "this grant type does not accept client credentials", attemptedBasicAuth(c.Request()))
 }
 
-func respondTokenResult(c echo.Context, issued *dtoResponses.OAuthTokenResponse, err error) error {
+// respondTokenResult logs why a token request failed, never with a token value, and answers with the tokens or a fixed error.
+func respondTokenResult(c echo.Context, grantType, clientID string, issued *dtoResponses.OAuthTokenResponse, err error) error {
 	if err != nil {
+		log.Printf("oauth: %s request from client %q failed: %v", grantType, clientID, err)
 		return respondTokenError(c, err)
 	}
 	return responses.OAuthJSON(c, http.StatusOK, issued)
@@ -519,7 +521,7 @@ func respondTokenError(c echo.Context, err error) error {
 	case errors.Is(err, services.ErrOAuthInvalidClient):
 		return responses.OAuthInvalidClient(c, "client authentication failed", false)
 	default:
-		return respondServerError(c, "token request", err)
+		return respondUnexpectedError(c)
 	}
 }
 
@@ -546,6 +548,10 @@ func respondBodyTooLarge(c echo.Context) error {
 
 func respondServerError(c echo.Context, operation string, err error) error {
 	log.Printf("oauth: %s failed: %v", operation, err)
+	return respondUnexpectedError(c)
+}
+
+func respondUnexpectedError(c echo.Context) error {
 	return responses.OAuthError(c, http.StatusInternalServerError, oauthErrServerError, "the authorization server encountered an unexpected error")
 }
 
