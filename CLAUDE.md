@@ -90,6 +90,14 @@ A PreToolUse hook (`.claude/hooks/comment_policy.py`) rejects new comments that 
 - Express intent through names, small functions and named constants instead.
 - Audit any path with `python3 .claude/hooks/comment_policy.py audit --lines <path>`. Use `/clean-comments <path>` to clean an area.
 
+## Tests are temporary
+
+Write tests freely while developing to check your work. They may be committed locally while a feature spans several commits, but must be deleted before pushing. Test files the branch adds (`*_test.go`, `*.test.ts(x)`, `*.spec.ts(x)`, `__tests__/`, `testutil/`, `testdata/`) must not reach the remote; tests that already exist on `master` are fine, and tests committed then removed on the branch pass.
+
+- [.claude/hooks/test_files_policy.py](.claude/hooks/test_files_policy.py) runs only for `git push` (via the hook's `if` filter), blocks it when the branch adds test files compared to `origin/master`, and rejects `--no-verify`. Commits are never blocked.
+- The same script runs as a git `pre-push` hook from `.githooks/`. Enable it once per clone with `git config core.hooksPath .githooks`.
+- Check manually with `python3 .claude/hooks/test_files_policy.py check`.
+
 ## CI & deployment
 
 - CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) on PRs to `master`: `go vet` + `go run ./cmd/routes -check` + `go test -race`, MCP server `typecheck` + `check` + `build`, and frontend `eslint` + `vite build`.
