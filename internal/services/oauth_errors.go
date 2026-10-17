@@ -15,3 +15,22 @@ var (
 	ErrOAuthInvalidRedirectURI    = errors.New("invalid_redirect_uri")
 	ErrAccessTokenLimitReached    = errors.New("access token limit reached")
 )
+
+// OAuthNoRedirectError rejects an /authorize request whose client or redirect_uri is not trusted, so the user sees an error page instead.
+type OAuthNoRedirectError struct {
+	Code        string
+	Description string
+}
+
+func (e *OAuthNoRedirectError) Error() string {
+	return e.Code + ": " + e.Description
+}
+
+// OAuthRedirectError rejects an /authorize request by sending the user back to the client's validated redirect URI.
+type OAuthRedirectError struct {
+	RedirectURL string
+}
+
+func (e *OAuthRedirectError) Error() string {
+	return "authorization request rejected with a redirect to the client"
+}
