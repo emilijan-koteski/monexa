@@ -26,6 +26,7 @@ go vet ./...
 go test ./...                              # all tests
 go test -race ./...                        # what CI runs
 go test -run TestName ./internal/server/   # a single test
+go run ./cmd/routes -write                 # regenerate docs/api-routes.json after adding/removing routes (CI runs -check)
 
 # Frontend — http://localhost:5173
 cd frontend && npm ci && npm run dev

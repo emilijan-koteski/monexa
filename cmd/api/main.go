@@ -8,9 +8,9 @@ import (
 
 	"github.com/emilijan-koteski/monexa/internal/clients"
 	"github.com/emilijan-koteski/monexa/internal/database"
-	"github.com/emilijan-koteski/monexa/internal/handlers"
 	"github.com/emilijan-koteski/monexa/internal/jobs"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
+	"github.com/emilijan-koteski/monexa/internal/routes"
 	"github.com/emilijan-koteski/monexa/internal/server"
 	"github.com/emilijan-koteski/monexa/internal/services"
 	"github.com/emilijan-koteski/monexa/internal/token"
@@ -111,23 +111,29 @@ func main() {
 	log.Println("👍 [9] All middlewares initiated successfully")
 
 	// Register handlers and routes
-	handlers.RegisterHealthHandler(e, healthService)
-	handlers.RegisterAuthHandler(e, userService, tokenMaker, sessionService, legalDocumentService, oauthGrantService)
-	handlers.RegisterUserHandler(e, userService, exportService, restrictedMiddlewares...)
-	handlers.RegisterRecordHandler(e, recordService, restrictedMiddlewares...)
-	handlers.RegisterRecurringExpenseHandler(e, recurringExpenseService, restrictedMiddlewares...)
-	handlers.RegisterPaymentMethodHandler(e, paymentMethodService, restrictedMiddlewares...)
-	handlers.RegisterCategoryHandler(e, categoryService, restrictedMiddlewares...)
-	handlers.RegisterSettingHandler(e, settingService, restrictedMiddlewares...)
-	handlers.RegisterTrendReportHandler(e, trendReportService, restrictedMiddlewares...)
-	if legalComplianceEnabled {
-		handlers.RegisterLegalDocumentHandler(e, legalDocumentService)
-	}
-	if oauthEnabled {
-		handlers.RegisterOAuthHandler(e, oauthCfg, frontendURL, oauthClientService, oauthAuthorizationService, oauthTokenService)
-		handlers.RegisterOAuthConsentHandler(e, oauthAuthorizationService, oauthGrantService, restrictedMiddlewares...)
-		handlers.RegisterAccessTokenHandler(e, accessTokenService, restrictedMiddlewares...)
-	}
+	routes.Register(e, routes.Deps{
+		HealthService:             healthService,
+		UserService:               userService,
+		TokenMaker:                tokenMaker,
+		SessionService:            sessionService,
+		LegalDocumentService:      legalDocumentService,
+		ExportService:             exportService,
+		RecordService:             recordService,
+		RecurringExpenseService:   recurringExpenseService,
+		PaymentMethodService:      paymentMethodService,
+		CategoryService:           categoryService,
+		SettingService:            settingService,
+		TrendReportService:        trendReportService,
+		OAuthGrantService:         oauthGrantService,
+		OAuthClientService:        oauthClientService,
+		OAuthAuthorizationService: oauthAuthorizationService,
+		OAuthTokenService:         oauthTokenService,
+		AccessTokenService:        accessTokenService,
+		OAuthConfig:               oauthCfg,
+		FrontendURL:               frontendURL,
+		LegalComplianceEnabled:    legalComplianceEnabled,
+		RestrictedMiddlewares:     restrictedMiddlewares,
+	})
 	log.Println("👍 [10] All handlers and routes registered successfully")
 
 	// Start HTTP server

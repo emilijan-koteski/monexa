@@ -1,0 +1,262 @@
+[
+  {
+    "method": "GET",
+    "path": "/.well-known/oauth-authorization-server"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/access-tokens"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/access-tokens"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/access-tokens/:id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/auth/accounts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/change-password"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/forgot-password"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/logout"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/register"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/reset-password"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/sessions/revoke"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/tokens/renew"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/categories"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/categories"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/categories/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/categories/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/categories/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/categories/statistics"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/health"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/health/restricted"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/legal-documents"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/legal-documents/:id/accept"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/legal-documents/hash/compute"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/legal-documents/hash/verify"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/legal-documents/pending"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/oauth/authorizations/:id"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/oauth/authorizations/:id/approve"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/oauth/authorizations/:id/deny"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/oauth/grants"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/oauth/grants/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/payment-methods"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/payment-methods"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/payment-methods/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/payment-methods/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/payment-methods/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/records"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/records"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/records/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/records/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/records/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/records/descriptions/suggestions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/records/summary"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/recurring-expenses"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/recurring-expenses"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/recurring-expenses/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/recurring-expenses/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/recurring-expenses/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/settings"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/settings"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/trend-reports"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/trend-reports"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/trend-reports/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/trend-reports/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/trend-reports/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/trend-reports/:id/monthly-data"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/trend-reports/:id/monthly-details"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/data/export"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/me"
+  },
+  {
+    "method": "GET",
+    "path": "/healthz"
+  },
+  {
+    "method": "GET",
+    "path": "/oauth/authorize"
+  },
+  {
+    "method": "POST",
+    "path": "/oauth/register"
+  },
+  {
+    "method": "POST",
+    "path": "/oauth/revoke"
+  },
+  {
+    "method": "POST",
+    "path": "/oauth/token"
+  }
+]
