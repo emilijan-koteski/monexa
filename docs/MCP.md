@@ -6,7 +6,7 @@ Monexa runs a hosted [Model Context Protocol](https://modelcontextprotocol.io) (
 https://mcp.monexa.world/mcp
 ```
 
-It is also listed in the official MCP Registry as `io.github.emilijan-koteski/monexa`. This guide covers connecting an assistant, access tokens for your own agents, permissions, privacy, self-hosting and troubleshooting. Developers working on the server should read the [server README](../mcp-server/README.md).
+Each release is published to the official MCP Registry as `io.github.emilijan-koteski/monexa`. This guide covers connecting an assistant, access tokens for your own agents, permissions, privacy, self-hosting and troubleshooting. Developers working on the server should read the [server README](../mcp-server/README.md).
 
 ## What you can do
 
@@ -24,7 +24,7 @@ The assistant can work with your records, categories, payment methods, recurring
 
 ## Connect an assistant
 
-Connecting uses OAuth: the assistant opens a Monexa page where you sign in and approve access. No password or token is shared with the assistant.
+Connecting uses OAuth: the assistant opens a Monexa page where you sign in and approve access. Your password is never shared with the assistant; it receives a token that you can revoke at any time under Connected apps.
 
 ### Claude (web, desktop and mobile)
 
@@ -58,7 +58,7 @@ Any MCP client that supports Streamable HTTP and OAuth can connect with the same
 
 Before an app gets access, Monexa shows a screen with:
 
-- **The app's name and a badge.** An app that identifies itself from claude.ai or chatgpt.com shows a green Verified badge. Any other app shows an orange Unverified app badge; make sure you recognize it and started the connection yourself.
+- **The app's name and a badge.** An app whose client ID is an https URL on claude.ai or chatgpt.com shows a green Verified badge. Any other app shows an orange Unverified app badge; make sure you recognize it and started the connection yourself.
 - **Where you will be sent.** "After you approve, you'll be sent to" an address, which should belong to the app you are connecting.
 - **What the app will be able to do.** Viewing your data, optionally creating, editing and deleting it and changing your settings, and staying connected until you disconnect it.
 - **The account you are signed in as**, with a Not you? link to switch accounts.
@@ -70,7 +70,7 @@ Select Approve to connect or Deny to cancel. Nothing is shared until you approve
 | Permission | Scope | Allows |
 | --- | --- | --- |
 | Read | `monexa.read` | Viewing records, categories, payment methods, recurring expenses, trend reports and settings. |
-| Read & write | `monexa.read` and `monexa.write` | Everything in Read, plus creating, editing and deleting those items and changing your settings. |
+| Read & write | `monexa.read` and `monexa.write` | Everything in Read, plus creating, editing and deleting records, categories, payment methods and recurring expenses and changing your settings. Trend reports stay read-only through the MCP tools, although the permission allows more at the API level. |
 
 An app asks for the permissions it needs, and the consent screen lists them. If you want an agent to only look at your data, create a read-only [access token](#access-tokens-for-your-own-agents). A read-only connection that tries to change something gets the message "This connection doesn't have permission for that (it may be read-only)."
 
@@ -292,7 +292,7 @@ The four required variables go together: set all of them or none, otherwise the 
 | `MCP_CLIENT_ID` | `MCP_CLIENT_ID` |
 | `MCP_CLIENT_SECRET` | `MCP_CLIENT_SECRET` |
 
-The service also needs `MONEXA_API_URL` (where it reaches the backend, usually an internal address), `ALLOWED_HOSTS` (the hostnames it is served on) and optionally `OPENAI_APPS_CHALLENGE_TOKEN`. Both URLs must use https, except for `localhost` during development. AI providers call the backend's `/oauth/*` and `/.well-known/*` routes and the MCP server directly from their own servers, so those must be reachable from the internet. To make the access token snippets in the web app show your URL, build the frontend with `VITE_MCP_URL`. The full variable reference is in the [server README](../mcp-server/README.md) and the Dokploy setup is in [DEPLOYMENT.md](DEPLOYMENT.md).
+The service also needs `MONEXA_API_URL` (where it reaches the backend, usually an internal address), `ALLOWED_HOSTS` (the hostnames it is served on) and optionally `OPENAI_APPS_CHALLENGE_TOKEN`. Both URLs must use https, except for `localhost`, `127.0.0.1` and `[::1]` during development. AI providers call the backend's `/oauth/*` and `/.well-known/*` routes and the MCP server directly from their own servers, so those must be reachable from the internet. To make the access token snippets in the web app show your URL, build the frontend with `VITE_MCP_URL`. The full variable reference is in the [server README](../mcp-server/README.md) and the Dokploy setup is in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Troubleshooting
 

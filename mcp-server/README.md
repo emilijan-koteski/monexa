@@ -106,7 +106,7 @@ The version in `package.json` follows [SemVer](https://semver.org); `server.json
 - **Minor**: a new tool or a new optional parameter.
 - **Patch**: fixes with no schema change.
 
-Record every release in [CHANGELOG.md](CHANGELOG.md) ([Keep a Changelog](https://keepachangelog.com)), and set the tool's `since` to the version that introduces it.
+Record changes under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) ([Keep a Changelog](https://keepachangelog.com)) and move them under the new version heading when releasing. Set a new tool's `since` to the version that introduces it.
 
 To release, bump `package.json`, `server.json` and the changelog, merge to `master`, then push the tag `mcp-vX.Y.Z` (for example `git tag mcp-v2.0.0 && git push origin mcp-v2.0.0`). CI pushes the image `ghcr.io/emilijan-koteski/monexa-mcp:vX.Y.Z` and publishes `server.json` to the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.emilijan-koteski/monexa`. Merging to `master` deploys the `sha-<short>` image to production independently of tags.
 

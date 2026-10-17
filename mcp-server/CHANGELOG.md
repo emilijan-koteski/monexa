@@ -2,6 +2,8 @@
 
 All notable changes to the Monexa MCP server are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html): a major version removes or renames a tool or breaks a tool's schema, a minor version adds a tool or an optional parameter, and a patch version fixes bugs.
 
+## [Unreleased]
+
 ## [2.0.0] - 2026-10-17
 
 ### Changed
@@ -31,3 +33,7 @@ All notable changes to the Monexa MCP server are recorded here. The format follo
 ## [1.0.0] - 2026-02-17
 
 - Initial release: a local stdio MCP server published to npm as `monexa-mcp-server`, signing in with a Monexa email and password.
+
+[Unreleased]: https://github.com/emilijan-koteski/monexa/compare/mcp-v2.0.0...HEAD
+[2.0.0]: https://github.com/emilijan-koteski/monexa/releases/tag/mcp-v2.0.0
+[1.0.0]: https://github.com/emilijan-koteski/monexa/commit/25d2113
