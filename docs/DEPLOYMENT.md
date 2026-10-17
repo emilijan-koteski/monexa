@@ -110,18 +110,20 @@ The MCP service (`mcp-server/`) is a stateless Express app that serves the Strea
 | `ALLOWED_HOSTS` | yes | no | `mcp.monexa.world`. Comma-separated hostnames accepted in the `Host` header; must include the `MCP_PUBLIC_URL` host. The image sets `NODE_ENV=production`, which makes it mandatory. |
 | `OPENAI_APPS_CHALLENGE_TOKEN` | no | yes | The domain verification token from the ChatGPT app submission. Served at `/.well-known/openai-apps-challenge`; the route does not exist while it is unset. |
 
-At startup the service fetches `${MONEXA_API_URL}/.well-known/oauth-authorization-server` up to 30 times, 2 seconds apart (about a minute), and exits with code 1 if the backend never answers or the issuer differs; Swarm then restarts it. Deploy the backend with the OAuth variables first.
+At startup the service fetches `${MONEXA_API_URL}/.well-known/oauth-authorization-server` up to 30 times, 2 seconds apart (about a minute), and exits with code 1 if the backend never answers or the issuer differs; Swarm then restarts it. It becomes healthy once the backend has the OAuth variables (step 7 below).
 
 ### Setting up the MCP application
 
-One time, before the first deploy that includes `mcp-server/`:
+One time, before the first deploy that includes `mcp-server/`. Users must not be able to connect apps before the legal documents that describe connected apps (version 2) are live, so the backend's OAuth variables are added last.
 
-1. **Backend.** Generate the client secret, add the four OAuth variables to the backend (see above) and redeploy it. Check `curl https://api.monexa.world/.well-known/oauth-authorization-server`: it must return JSON whose `issuer` is `https://api.monexa.world`.
+1. **Client secret.** Generate it once with `openssl rand -hex 32` and keep it for steps 2 and 7.
 2. **Dokploy application.** In the same project as the other two, create an *Application* named `monexa-mcp` with provider **Docker**, image `ghcr.io/emilijan-koteski/monexa-mcp:latest` (CI replaces it with the `sha-…` tag on every deploy) and the same registry settings as the other applications. Fill in the Environment tab from the table above. In Domains add host `mcp.monexa.world`, path `/`, container port **8080**, HTTPS on, with the same certificate settings as the other domains. Optionally add the Swarm health check from [Health endpoints](#health-endpoints).
-3. **GHCR visibility.** A new GHCR package is private at first. After the first push, give `monexa-mcp` the same visibility as the other two packages (package settings on GitHub), or Dokploy cannot pull it without credentials.
-4. **GitHub secret.** Copy the application's `applicationId` (from its URL in Dokploy) into `DOKPLOY_MCP_APP_ID`.
-5. **DNS and Cloudflare.** Add a proxied (orange cloud) DNS record for `mcp` pointing where `api` points, then add the rules in the next section.
-6. **First deploy.** Merge, or run Actions → Deploy → *Run workflow* on `master`. Check `https://mcp.monexa.world/healthz` and add the connector in Claude (see [docs/MCP.md](MCP.md)).
+3. **GitHub secret.** Copy the application's `applicationId` (from its URL in Dokploy) into `DOKPLOY_MCP_APP_ID`.
+4. **DNS and Cloudflare.** Add a proxied (orange cloud) DNS record for `mcp` pointing where `api` points, then add the rules in the next section.
+5. **First deploy.** Merge, or run Actions → Deploy → *Run workflow* on `master`. The backend and frontend roll out as usual, with connected apps still off. The MCP container restarts in a loop until step 7, because the backend does not serve OAuth metadata yet; that is expected.
+6. **GHCR visibility.** A new GHCR package is private at first. After the first push, give `monexa-mcp` the same visibility as the other two packages (package settings on GitHub), or Dokploy cannot pull it without credentials.
+7. **Legal documents, then OAuth.** Publish the legal documents version 2 (the private `docs/legal/README.md` describes the script). Then add the four OAuth variables to the backend (see above) and redeploy it; the restart also clears the backend's one-hour cache of the latest legal effective date, so users are asked to accept version 2 right away. Check `curl https://api.monexa.world/.well-known/oauth-authorization-server`: it must return JSON whose `issuer` is `https://api.monexa.world`. Then redeploy `monexa-mcp` (or wait for its next restart) and check `https://mcp.monexa.world/healthz`.
+8. **Connect.** Add the connector in Claude (see [docs/MCP.md](MCP.md)).
 
 ### Cloudflare rules
 
