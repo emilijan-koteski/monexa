@@ -53,13 +53,21 @@ MCP_CLIENT_ID=monexa-mcp
 MCP_CLIENT_SECRET=<at least 32 characters>
 ```
 
-in its environment, then run the MCP server with the same client credentials:
+in its environment, then run the MCP server with the same client credentials. `npm run dev` loads `mcp-server/.env` when it exists (git-ignored), so put them there:
+
+```bash
+PORT=3001
+MCP_PUBLIC_URL=http://localhost:3001
+MONEXA_OAUTH_ISSUER=http://localhost:9000
+MONEXA_API_URL=http://localhost:9000
+MCP_CLIENT_ID=monexa-mcp
+MCP_CLIENT_SECRET=<same secret as the backend>
+```
 
 ```bash
 cd mcp-server
 npm install
-PORT=3001 MCP_PUBLIC_URL=http://localhost:3001 MONEXA_OAUTH_ISSUER=http://localhost:9000 \
-  MONEXA_API_URL=http://localhost:9000 MCP_CLIENT_ID=monexa-mcp MCP_CLIENT_SECRET=<same secret> npm run dev
+npm run dev
 ```
 
 Point the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) (`npx @modelcontextprotocol/inspector`) at `http://localhost:3001/mcp` and sign in through OAuth, or paste a personal access token created in the web app under Settings, Connected apps.
