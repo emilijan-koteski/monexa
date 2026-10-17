@@ -7,6 +7,7 @@ import { apiClient, createAuthHeaders } from '../api/apiClient';
 import { accessTokensQueryKey, oauthQueryKeys } from './oauthService';
 
 const CONFLICT_STATUS = 409;
+const NOT_FOUND_STATUS = 404;
 
 export class AccessTokenRequestError extends Error {
   readonly status: number;
@@ -20,6 +21,9 @@ export class AccessTokenRequestError extends Error {
 
 export const isAccessTokenLimitError = (error: unknown): boolean =>
   error instanceof AccessTokenRequestError && error.status === CONFLICT_STATUS;
+
+export const isAccessTokenNotFoundError = (error: unknown): boolean =>
+  error instanceof AccessTokenRequestError && error.status === NOT_FOUND_STATUS;
 
 const failFromResponse = async (response: Response, fallbackMessage: string): Promise<never> => {
   const body = await response.json().catch(() => null);

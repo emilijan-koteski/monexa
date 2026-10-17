@@ -309,6 +309,8 @@
   "OAUTH_BACK_TO_MONEXA": "Go to Monexa",
   "CONNECTED_APPS": "Connected apps",
   "CONNECTED_APPS_SIGN_OUT_NOTE": "Signing out of Monexa doesn't disconnect apps.",
+  "CONNECTED_APPS_ACCOUNT_CHANGES_NOTE": "Changing or resetting your password, or deleting your account, disconnects all AI apps and revokes all access tokens.",
+  "CONNECTED_APPS_UNAVAILABLE": "Connected apps aren't enabled on this Monexa server.",
   "CONNECTED_APPS_LOAD_ERROR": "We couldn't load this list. Please try again.",
   "CONNECTED_APPS_CONNECTED_ON": "Connected {{date}}",
   "CONNECTED_APPS_LAST_USED": "Last used: {{value}}",
@@ -356,6 +358,9 @@
   "ACCESS_TOKEN_SNIPPET_CURSOR": "Cursor",
   "ACCESS_TOKEN_SNIPPET_VS_CODE": "VS Code",
   "ACCESS_TOKEN_SNIPPET_HEADER": "HTTP header",
+  "ACCESS_TOKEN_SNIPPET_CURSOR_HINT": "Set the {{variable}} environment variable to the token shown above.",
+  "ACCESS_TOKEN_SNIPPET_VS_CODE_HINT": "VS Code asks for the token when it first connects; paste the token shown above.",
+  "ACCESS_TOKEN_SNIPPET_COMMIT_WARNING": "Never commit a file that contains your token.",
   "ACCESS_TOKEN_MCP_URL_NOTE": "MCP server URL: {{url}}",
   "ACCESS_TOKEN_DONE": "Done"
 }

@@ -309,6 +309,8 @@
   "OAUTH_BACK_TO_MONEXA": "Оди на Монекса",
   "CONNECTED_APPS": "Поврзани апликации",
   "CONNECTED_APPS_SIGN_OUT_NOTE": "Одјавата од Монекса не ги прекинува врските со апликациите.",
+  "CONNECTED_APPS_ACCOUNT_CHANGES_NOTE": "Промената или ресетирањето на лозинката, како и бришењето на сметката, ги прекинува врските со сите AI апликации и ги отповикува сите токени за пристап.",
+  "CONNECTED_APPS_UNAVAILABLE": "Поврзаните апликации не се овозможени на овој сервер на Монекса.",
   "CONNECTED_APPS_LOAD_ERROR": "Не можевме да ја вчитаме листата. Обидете се повторно.",
   "CONNECTED_APPS_CONNECTED_ON": "Поврзана на {{date}}",
   "CONNECTED_APPS_LAST_USED": "Последно користење: {{value}}",
@@ -356,6 +358,9 @@
   "ACCESS_TOKEN_SNIPPET_CURSOR": "Cursor",
   "ACCESS_TOKEN_SNIPPET_VS_CODE": "VS Code",
   "ACCESS_TOKEN_SNIPPET_HEADER": "HTTP заглавие",
+  "ACCESS_TOKEN_SNIPPET_CURSOR_HINT": "Поставете ја променливата на околината {{variable}} на токенот прикажан погоре.",
+  "ACCESS_TOKEN_SNIPPET_VS_CODE_HINT": "VS Code го бара токенот при првото поврзување; залепете го токенот прикажан погоре.",
+  "ACCESS_TOKEN_SNIPPET_COMMIT_WARNING": "Никогаш не комитирајте (commit) датотека што го содржи вашиот токен.",
   "ACCESS_TOKEN_MCP_URL_NOTE": "URL на MCP серверот: {{url}}",
   "ACCESS_TOKEN_DONE": "Готово"
 }

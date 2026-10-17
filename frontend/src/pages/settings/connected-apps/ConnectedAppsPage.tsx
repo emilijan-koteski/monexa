@@ -30,8 +30,12 @@ import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import AccessTokenDialog from '../../../components/access-token-dialog/AccessTokenDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
-import { useAccessTokens, useRevokeAccessToken } from '../../../services/accessTokenService';
-import { useOAuthGrants, useRevokeOAuthGrant } from '../../../services/oauthService';
+import {
+  isAccessTokenNotFoundError,
+  useAccessTokens,
+  useRevokeAccessToken,
+} from '../../../services/accessTokenService';
+import { isOAuthNotFoundError, useOAuthGrants, useRevokeOAuthGrant } from '../../../services/oauthService';
 import type { AccessToken, OAuthGrant } from '../../../types/models';
 import { MAX_ACTIVE_ACCESS_TOKENS } from '../../../utils/accessToken';
 import { getClientIdentity, getPermissionLabelKey } from '../../../utils/oauth';
@@ -233,6 +237,7 @@ const ConnectedAppsPage = () => {
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [accessTokenToRevoke, setAccessTokenToRevoke] = useState<AccessToken | null>(null);
 
+  const isUnavailable = isOAuthNotFoundError(grantsQuery.error) || isAccessTokenNotFoundError(accessTokensQuery.error);
   const isLimitReached = (accessTokensQuery.data?.length ?? 0) >= MAX_ACTIVE_ACCESS_TOKENS;
   const isAnyRevokeLoading = revokeGrantMutation.isPending || revokeAccessTokenMutation.isPending;
   const disconnectedAppName = grantToDisconnect
@@ -291,59 +296,73 @@ const ConnectedAppsPage = () => {
           </Typography>
         </Box>
 
-        <Box component="section" className="page-section">
-          <Typography variant="h6" component="h2" color="text.primary" fontWeight="600" className="section-title">
-            {t('AI_APPS')}
-          </Typography>
-          <ListContent
-            items={grantsQuery.data}
-            isLoading={grantsQuery.isLoading}
-            isError={grantsQuery.isError}
-            onRetry={() => grantsQuery.refetch()}
-            emptyTitleKey="OAUTH_NO_CONNECTED_APPS_TITLE"
-            emptyMessageKey="OAUTH_NO_CONNECTED_APPS_MESSAGE"
-            renderItem={(grant) => (
-              <ConnectedAppItem grant={grant} disabled={isAnyRevokeLoading} onDisconnect={handleDisconnectClick} />
-            )}
-          />
-          <Typography variant="caption" color="text.secondary" className="section-note">
-            {t('CONNECTED_APPS_SIGN_OUT_NOTE')}
-          </Typography>
-        </Box>
-
-        <Box component="section" className="page-section">
-          <Box className="section-header">
-            <Typography variant="h6" component="h2" color="text.primary" fontWeight="600" className="section-title">
-              {t('ACCESS_TOKENS')}
+        {isUnavailable ? (
+          <Box className="empty-state">
+            <Typography variant="body1" color="text.secondary">
+              {t('CONNECTED_APPS_UNAVAILABLE')}
             </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={isLimitReached}
-              onClick={() => setCreateDialogOpen(true)}
-              className="create-button"
-              startIcon={<FontAwesomeIcon icon={faPlus} />}
-            >
-              {t('ACCESS_TOKEN_CREATE')}
-            </Button>
           </Box>
-          {isLimitReached && (
-            <Typography variant="caption" color="text.secondary" className="section-note">
-              {t('ACCESS_TOKEN_LIMIT_REACHED')}
-            </Typography>
-          )}
-          <ListContent
-            items={accessTokensQuery.data}
-            isLoading={accessTokensQuery.isLoading}
-            isError={accessTokensQuery.isError}
-            onRetry={() => accessTokensQuery.refetch()}
-            emptyTitleKey="ACCESS_TOKEN_EMPTY_TITLE"
-            emptyMessageKey="ACCESS_TOKEN_EMPTY_MESSAGE"
-            renderItem={(accessToken) => (
-              <AccessTokenItem accessToken={accessToken} disabled={isAnyRevokeLoading} onRevoke={handleRevokeClick} />
-            )}
-          />
-        </Box>
+        ) : (
+          <>
+            <Box component="section" className="page-section">
+              <Typography variant="h6" component="h2" color="text.primary" fontWeight="600" className="section-title">
+                {t('AI_APPS')}
+              </Typography>
+              <ListContent
+                items={grantsQuery.data}
+                isLoading={grantsQuery.isLoading}
+                isError={grantsQuery.isError}
+                onRetry={() => grantsQuery.refetch()}
+                emptyTitleKey="OAUTH_NO_CONNECTED_APPS_TITLE"
+                emptyMessageKey="OAUTH_NO_CONNECTED_APPS_MESSAGE"
+                renderItem={(grant) => (
+                  <ConnectedAppItem grant={grant} disabled={isAnyRevokeLoading} onDisconnect={handleDisconnectClick} />
+                )}
+              />
+              <Typography variant="caption" color="text.secondary" className="section-note">
+                {t('CONNECTED_APPS_SIGN_OUT_NOTE')} {t('CONNECTED_APPS_ACCOUNT_CHANGES_NOTE')}
+              </Typography>
+            </Box>
+
+            <Box component="section" className="page-section">
+              <Box className="section-header">
+                <Typography variant="h6" component="h2" color="text.primary" fontWeight="600" className="section-title">
+                  {t('ACCESS_TOKENS')}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  disabled={isLimitReached}
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="create-button"
+                  startIcon={<FontAwesomeIcon icon={faPlus} />}
+                >
+                  {t('ACCESS_TOKEN_CREATE')}
+                </Button>
+              </Box>
+              {isLimitReached && (
+                <Typography variant="caption" color="text.secondary" className="section-note">
+                  {t('ACCESS_TOKEN_LIMIT_REACHED')}
+                </Typography>
+              )}
+              <ListContent
+                items={accessTokensQuery.data}
+                isLoading={accessTokensQuery.isLoading}
+                isError={accessTokensQuery.isError}
+                onRetry={() => accessTokensQuery.refetch()}
+                emptyTitleKey="ACCESS_TOKEN_EMPTY_TITLE"
+                emptyMessageKey="ACCESS_TOKEN_EMPTY_MESSAGE"
+                renderItem={(accessToken) => (
+                  <AccessTokenItem
+                    accessToken={accessToken}
+                    disabled={isAnyRevokeLoading}
+                    onRevoke={handleRevokeClick}
+                  />
+                )}
+              />
+            </Box>
+          </>
+        )}
       </Container>
 
       <AccessTokenDialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} />

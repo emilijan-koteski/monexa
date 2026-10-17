@@ -38,6 +38,7 @@ import {
   ACCESS_TOKEN_EXPIRY_DAYS,
   ACCESS_TOKEN_NAME_MAX_LENGTH,
   DEFAULT_ACCESS_TOKEN_EXPIRY_DAYS,
+  MCP_TOKEN_ENV_VARIABLE,
   buildClaudeCodeSnippet,
   buildCursorSnippet,
   buildHeaderSnippet,
@@ -52,6 +53,12 @@ interface AccessTokenDialogProps {
 
 interface TokenRevealProps {
   token: string;
+}
+
+interface Snippet {
+  labelKey: string;
+  value: string;
+  hintKey?: string;
 }
 
 const accessTokenSchema = z.object({
@@ -94,10 +101,18 @@ function TokenReveal({ token }: TokenRevealProps) {
   const { t } = useTranslation();
   const [snippetIndex, setSnippetIndex] = useState(0);
 
-  const snippets = [
+  const snippets: Snippet[] = [
     { labelKey: 'ACCESS_TOKEN_SNIPPET_CLAUDE_CODE', value: buildClaudeCodeSnippet(ENV.MCP_URL, token) },
-    { labelKey: 'ACCESS_TOKEN_SNIPPET_CURSOR', value: buildCursorSnippet(ENV.MCP_URL, token) },
-    { labelKey: 'ACCESS_TOKEN_SNIPPET_VS_CODE', value: buildVsCodeSnippet(ENV.MCP_URL, token) },
+    {
+      labelKey: 'ACCESS_TOKEN_SNIPPET_CURSOR',
+      value: buildCursorSnippet(ENV.MCP_URL),
+      hintKey: 'ACCESS_TOKEN_SNIPPET_CURSOR_HINT',
+    },
+    {
+      labelKey: 'ACCESS_TOKEN_SNIPPET_VS_CODE',
+      value: buildVsCodeSnippet(ENV.MCP_URL),
+      hintKey: 'ACCESS_TOKEN_SNIPPET_VS_CODE_HINT',
+    },
     { labelKey: 'ACCESS_TOKEN_SNIPPET_HEADER', value: buildHeaderSnippet(token) },
   ];
   const activeSnippet = snippets[snippetIndex];
@@ -149,6 +164,11 @@ function TokenReveal({ token }: TokenRevealProps) {
             <Tab key={snippet.labelKey} label={t(snippet.labelKey)} />
           ))}
         </Tabs>
+        {activeSnippet.hintKey && (
+          <Typography variant="body2" color="text.secondary" className="snippet-hint">
+            {t(activeSnippet.hintKey, { variable: MCP_TOKEN_ENV_VARIABLE })}
+          </Typography>
+        )}
         <pre className="snippet-code">{activeSnippet.value}</pre>
         <Box className="snippet-footer">
           <Typography variant="caption" color="text.secondary" className="mcp-url-note">
@@ -163,6 +183,9 @@ function TokenReveal({ token }: TokenRevealProps) {
             {t('ACCESS_TOKEN_COPY')}
           </Button>
         </Box>
+        <Alert severity="warning" className="snippet-warning">
+          {t('ACCESS_TOKEN_SNIPPET_COMMIT_WARNING')}
+        </Alert>
       </Box>
     </Box>
   );
