@@ -72,7 +72,7 @@ func (h *accessTokenHandler) Create(c echo.Context) error {
 		}
 	}
 
-	return responses.CreatedWithData(c, created)
+	return responses.CreatedWithSecretData(c, created)
 }
 
 func (h *accessTokenHandler) Revoke(c echo.Context) error {

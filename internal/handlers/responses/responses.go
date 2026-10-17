@@ -53,6 +53,12 @@ func CreatedWithData(c echo.Context, data interface{}) error {
 	return c.JSON(http.StatusCreated, createDataBody(http.StatusCreated, data))
 }
 
+// CreatedWithSecretData returns created data carrying a secret shown only once, so clients and proxies must not cache it.
+func CreatedWithSecretData(c echo.Context, data interface{}) error {
+	setNoStore(c)
+	return CreatedWithData(c, data)
+}
+
 func BadRequest(c echo.Context) error {
 	return BadRequestWithMessage(c, "bad request")
 }
