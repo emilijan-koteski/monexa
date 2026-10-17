@@ -353,7 +353,8 @@
   "ACCESS_TOKEN_COPY_FAILED": "Не можевме автоматски да копираме. Означете го текстот и копирајте го рачно.",
   "ACCESS_TOKEN_SETUP_TITLE": "Додајте го во вашата апликација",
   "ACCESS_TOKEN_SNIPPET_CLAUDE_CODE": "Claude Code",
-  "ACCESS_TOKEN_SNIPPET_MCP_JSON": "Cursor / VS Code",
+  "ACCESS_TOKEN_SNIPPET_CURSOR": "Cursor",
+  "ACCESS_TOKEN_SNIPPET_VS_CODE": "VS Code",
   "ACCESS_TOKEN_SNIPPET_HEADER": "HTTP заглавие",
   "ACCESS_TOKEN_MCP_URL_NOTE": "URL на MCP серверот: {{url}}",
   "ACCESS_TOKEN_DONE": "Готово"

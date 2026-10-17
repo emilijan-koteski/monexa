@@ -11,11 +11,16 @@ export const buildHeaderSnippet = (token: string): string => `Authorization: Bea
 export const buildClaudeCodeSnippet = (mcpUrl: string, token: string): string =>
   `claude mcp add --transport http ${MCP_SERVER_NAME} ${mcpUrl} --header "${buildHeaderSnippet(token)}"`;
 
-export const buildMcpJsonSnippet = (mcpUrl: string, token: string): string =>
-  JSON.stringify(
-    { mcpServers: { [MCP_SERVER_NAME]: { url: mcpUrl, headers: { Authorization: `Bearer ${token}` } } } },
-    null,
-    JSON_INDENT,
-  );
+const toIndentedJson = (value: unknown): string => JSON.stringify(value, null, JSON_INDENT);
+
+export const buildCursorSnippet = (mcpUrl: string, token: string): string =>
+  toIndentedJson({
+    mcpServers: { [MCP_SERVER_NAME]: { url: mcpUrl, headers: { Authorization: `Bearer ${token}` } } },
+  });
+
+export const buildVsCodeSnippet = (mcpUrl: string, token: string): string =>
+  toIndentedJson({
+    servers: { [MCP_SERVER_NAME]: { type: 'http', url: mcpUrl, headers: { Authorization: `Bearer ${token}` } } },
+  });
 
 export const countCharacters = (value: string): number => Array.from(value).length;

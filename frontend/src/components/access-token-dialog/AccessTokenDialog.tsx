@@ -39,8 +39,9 @@ import {
   ACCESS_TOKEN_NAME_MAX_LENGTH,
   DEFAULT_ACCESS_TOKEN_EXPIRY_DAYS,
   buildClaudeCodeSnippet,
+  buildCursorSnippet,
   buildHeaderSnippet,
-  buildMcpJsonSnippet,
+  buildVsCodeSnippet,
   countCharacters,
 } from '../../utils/accessToken';
 
@@ -95,7 +96,8 @@ function TokenReveal({ token }: TokenRevealProps) {
 
   const snippets = [
     { labelKey: 'ACCESS_TOKEN_SNIPPET_CLAUDE_CODE', value: buildClaudeCodeSnippet(ENV.MCP_URL, token) },
-    { labelKey: 'ACCESS_TOKEN_SNIPPET_MCP_JSON', value: buildMcpJsonSnippet(ENV.MCP_URL, token) },
+    { labelKey: 'ACCESS_TOKEN_SNIPPET_CURSOR', value: buildCursorSnippet(ENV.MCP_URL, token) },
+    { labelKey: 'ACCESS_TOKEN_SNIPPET_VS_CODE', value: buildVsCodeSnippet(ENV.MCP_URL, token) },
     { labelKey: 'ACCESS_TOKEN_SNIPPET_HEADER', value: buildHeaderSnippet(token) },
   ];
   const activeSnippet = snippets[snippetIndex];

@@ -353,7 +353,8 @@
   "ACCESS_TOKEN_COPY_FAILED": "Couldn't copy automatically. Select the text and copy it manually.",
   "ACCESS_TOKEN_SETUP_TITLE": "Add it to your app",
   "ACCESS_TOKEN_SNIPPET_CLAUDE_CODE": "Claude Code",
-  "ACCESS_TOKEN_SNIPPET_MCP_JSON": "Cursor / VS Code",
+  "ACCESS_TOKEN_SNIPPET_CURSOR": "Cursor",
+  "ACCESS_TOKEN_SNIPPET_VS_CODE": "VS Code",
   "ACCESS_TOKEN_SNIPPET_HEADER": "HTTP header",
   "ACCESS_TOKEN_MCP_URL_NOTE": "MCP server URL: {{url}}",
   "ACCESS_TOKEN_DONE": "Done"
