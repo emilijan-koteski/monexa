@@ -1,16 +1,16 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerAuthTools } from "./auth.js";
-import { registerRecordTools } from "./records.js";
-import { registerCategoryTools } from "./categories.js";
-import { registerPaymentMethodTools } from "./payment-methods.js";
-import { registerSettingsTools } from "./settings.js";
-import { registerUserTools } from "./user.js";
+import type { McpServer } from "@modelcontextprotocol/server";
+import type { AppContext } from "../context.js";
 
-export function registerAllTools(server: McpServer): void {
-  registerAuthTools(server);
-  registerRecordTools(server);
-  registerCategoryTools(server);
-  registerPaymentMethodTools(server);
-  registerSettingsTools(server);
-  registerUserTools(server);
+export interface ToolDefinition {
+  name: string;
+  register(server: McpServer, ctx: AppContext): void;
+}
+
+export const toolDefinitions: readonly ToolDefinition[] = [];
+
+/** Registers every tool in catalog order. */
+export function registerAllTools(server: McpServer, ctx: AppContext): void {
+  for (const tool of toolDefinitions) {
+    tool.register(server, ctx);
+  }
 }
