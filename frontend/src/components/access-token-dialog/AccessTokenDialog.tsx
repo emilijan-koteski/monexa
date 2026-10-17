@@ -31,6 +31,7 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { ENV } from '../../config/env';
+import ConnectedAppPrivacyNotice from '../connected-app-privacy-notice/ConnectedAppPrivacyNotice';
 import { AccessTokenPermission } from '../../enums/AccessTokenPermission';
 import { isAccessTokenLimitError, useCreateAccessToken } from '../../services/accessTokenService';
 import type { CreatedAccessToken } from '../../types/models';
@@ -303,6 +304,8 @@ function AccessTokenDialog({ open, onClose }: AccessTokenDialogProps) {
                 </FormControl>
               )}
             />
+
+            <ConnectedAppPrivacyNotice />
 
             <Controller
               name="expiresInDays"

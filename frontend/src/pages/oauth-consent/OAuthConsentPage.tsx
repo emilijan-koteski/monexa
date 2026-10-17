@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faCircleCheck, faPlug, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
+import ConnectedAppPrivacyNotice from '../../components/connected-app-privacy-notice/ConnectedAppPrivacyNotice.tsx';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
 import { useLogout } from '../../services/authService.ts';
 import {
@@ -208,6 +209,7 @@ const ConsentRequest = ({ authorization }: ConsentRequestProps) => {
             );
           })}
         </Stack>
+        <ConnectedAppPrivacyNotice/>
       </Box>
 
       {user && (
