@@ -53,6 +53,7 @@ const OAuthErrorPage = () => {
               </Typography>
               {description && (
                 <Typography variant="body2" color="text.secondary" className="error-description">
+                  <span className="error-description-label">{t('OAUTH_ERROR_DETAILS_LABEL')}</span>{' '}
                   {description}
                 </Typography>
               )}

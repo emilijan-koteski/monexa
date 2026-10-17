@@ -55,6 +55,10 @@
 
     .error-description {
       overflow-wrap: anywhere;
+
+      .error-description-label {
+        font-weight: 600;
+      }
     }
   }
 }

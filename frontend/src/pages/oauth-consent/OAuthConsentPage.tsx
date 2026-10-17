@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Alert, Avatar, Box, Button, Chip, CircularProgress, Container, Link, Paper, Stack, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,7 +17,7 @@ import { useUser } from '../../services/userService.ts';
 import type { OAuthAuthorization } from '../../types/models.ts';
 import {
   getClientIdentity,
-  getClientLogoUri,
+  getVerifiedClientLogoUri,
   getScopeLabelKey,
   isSafeRedirectUrl,
   stripHiddenCharacters,
@@ -105,10 +105,25 @@ const ConsentRequest = ({ authorization }: ConsentRequestProps) => {
   const [isRedirectRejected, setIsRedirectRejected] = useState(false);
 
   const identity = getClientIdentity(authorization);
-  const logoUri = getClientLogoUri(authorization.clientKind, authorization.logoUri);
+  const logoUri = getVerifiedClientLogoUri(identity, authorization.logoUri);
   const redirectDestination = stripHiddenCharacters(authorization.redirectHost || authorization.redirectUri);
   const decisionError = approveMutation.error ?? denyMutation.error;
   const isBusy = approveMutation.isPending || denyMutation.isPending || isRedirecting;
+  const { reset: resetApprove } = approveMutation;
+  const { reset: resetDeny } = denyMutation;
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        resetApprove();
+        resetDeny();
+        setIsRedirecting(false);
+        setIsRedirectRejected(false);
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, [resetApprove, resetDeny]);
 
   if (isOAuthNotFoundError(decisionError)) {
     return <RequestUnavailable/>;
@@ -116,6 +131,8 @@ const ConsentRequest = ({ authorization }: ConsentRequestProps) => {
 
   const handleDecision = (mutation: typeof approveMutation) => {
     setIsRedirectRejected(false);
+    resetApprove();
+    resetDeny();
     mutation.mutate(authorization.id, {
       onSuccess: ({ redirectUrl }) => {
         if (!isSafeRedirectUrl(redirectUrl)) {
@@ -151,7 +168,7 @@ const ConsentRequest = ({ authorization }: ConsentRequestProps) => {
             label={t('OAUTH_VERIFIED')}
           />
         )}
-        {identity.isUnverified && (
+        {!identity.isVerified && (
           <Chip
             size="small"
             color="warning"

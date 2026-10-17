@@ -6,6 +6,7 @@ export const VERIFIED_CLIENT_HOSTS = ['claude.ai', 'chatgpt.com'];
 const MAX_DISPLAY_NAME_LENGTH = 60;
 const ELLIPSIS = '…';
 const HIDDEN_CHARACTERS = /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu;
+const LETTER_OR_DIGIT = /[\p{L}\p{N}]/u;
 const SAFE_REDIRECT_PROTOCOLS = ['https:', 'http:'];
 
 const SCOPE_LABEL_KEYS: Record<string, string> = {
@@ -23,13 +24,16 @@ export interface OAuthClientDescriptor {
 export interface OAuthClientIdentity {
   name: string;
   isVerified: boolean;
-  isUnverified: boolean;
 }
 
 export const stripHiddenCharacters = (value: string): string => value.replace(HIDDEN_CHARACTERS, '');
 
 export const sanitizeDisplayName = (name: string): string => {
-  const characters = Array.from(stripHiddenCharacters(name).trim());
+  const cleaned = stripHiddenCharacters(name).trim();
+  if (!LETTER_OR_DIGIT.test(cleaned)) {
+    return '';
+  }
+  const characters = Array.from(cleaned);
   if (characters.length <= MAX_DISPLAY_NAME_LENGTH) {
     return characters.join('');
   }
@@ -53,16 +57,16 @@ export const getClientIdentity = ({ clientId, clientName, clientKind }: OAuthCli
   const host = clientKind === OAuthClientKind.CIMD ? getHttpsHost(clientId) : null;
 
   if (host === null) {
-    return { name: sanitizeDisplayName(clientName), isVerified: false, isUnverified: true };
+    return { name: sanitizeDisplayName(clientName), isVerified: false };
   }
   if (VERIFIED_CLIENT_HOSTS.includes(host)) {
-    return { name: sanitizeDisplayName(clientName) || host, isVerified: true, isUnverified: false };
+    return { name: sanitizeDisplayName(clientName) || host, isVerified: true };
   }
-  return { name: host, isVerified: false, isUnverified: false };
+  return { name: host, isVerified: false };
 };
 
-export const getClientLogoUri = (clientKind: OAuthClientKind, logoUri: string | null): string | null => {
-  if (clientKind !== OAuthClientKind.CIMD || logoUri === null) {
+export const getVerifiedClientLogoUri = (identity: OAuthClientIdentity, logoUri: string | null): string | null => {
+  if (!identity.isVerified || logoUri === null) {
     return null;
   }
   return parseUrl(logoUri)?.protocol === 'https:' ? logoUri : null;
