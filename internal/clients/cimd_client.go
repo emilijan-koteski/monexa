@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -35,12 +36,13 @@ const (
 var errCIMDDialBlocked = errors.New("cimd: dial blocked")
 
 type CIMDDocument struct {
-	ClientID                string   `json:"client_id"`
-	ClientName              string   `json:"client_name"`
-	RedirectURIs            []string `json:"redirect_uris"`
-	ClientURI               *string  `json:"client_uri,omitempty"`
-	LogoURI                 *string  `json:"logo_uri,omitempty"`
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
+	ClientID                          string   `json:"client_id"`
+	ClientName                        string   `json:"client_name"`
+	RedirectURIs                      []string `json:"redirect_uris"`
+	ClientURI                         *string  `json:"client_uri,omitempty"`
+	LogoURI                           *string  `json:"logo_uri,omitempty"`
+	TokenEndpointAuthMethod           string   `json:"token_endpoint_auth_method"`
+	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported,omitempty"`
 }
 
 type cimdPolicy struct {
@@ -218,12 +220,10 @@ func validateCIMDDocument(doc *CIMDDocument, clientIDURL string) error {
 	if doc.ClientID != clientIDURL {
 		return errors.New("cimd: client_id in the document does not match the URL it was fetched from")
 	}
-	if doc.TokenEndpointAuthMethod == "" {
-		doc.TokenEndpointAuthMethod = cimdAuthMethodNone
-	}
-	if doc.TokenEndpointAuthMethod != cimdAuthMethodNone {
+	if !supportsPublicClientAuth(doc) {
 		return fmt.Errorf("cimd: token_endpoint_auth_method %q is not supported", doc.TokenEndpointAuthMethod)
 	}
+	doc.TokenEndpointAuthMethod = cimdAuthMethodNone
 	doc.ClientName = strings.TrimSpace(doc.ClientName)
 	if doc.ClientName == "" {
 		return errors.New("cimd: client_name is required")
@@ -243,4 +243,13 @@ func validateCIMDDocument(doc *CIMDDocument, clientIDURL string) error {
 		}
 	}
 	return nil
+}
+
+// supportsPublicClientAuth reports whether the client can authenticate with "none", either as its preferred method
+// or among the methods it lists as supported (ChatGPT prefers private_key_jwt but also supports none).
+func supportsPublicClientAuth(doc *CIMDDocument) bool {
+	if doc.TokenEndpointAuthMethod == "" || doc.TokenEndpointAuthMethod == cimdAuthMethodNone {
+		return true
+	}
+	return slices.Contains(doc.TokenEndpointAuthMethodsSupported, cimdAuthMethodNone)
 }
