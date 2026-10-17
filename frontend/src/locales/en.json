@@ -362,7 +362,6 @@
   "ACCESS_TOKEN_SNIPPET_HEADER": "HTTP header",
   "ACCESS_TOKEN_SNIPPET_CURSOR_HINT": "Set the {{variable}} environment variable to the token shown above.",
   "ACCESS_TOKEN_SNIPPET_VS_CODE_HINT": "VS Code asks for the token when it first connects; paste the token shown above.",
-  "ACCESS_TOKEN_SNIPPET_COMMIT_WARNING": "Never commit a file that contains your token.",
   "ACCESS_TOKEN_MCP_URL_NOTE": "MCP server URL: {{url}}",
   "ACCESS_TOKEN_DONE": "Done"
 }

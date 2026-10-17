@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../styles/colors' as *;
 @use '../../styles/variables' as *;
 
@@ -50,9 +51,39 @@
         }
       }
 
-      .copy-button {
-        flex-shrink: 0;
-        white-space: nowrap;
+      .copyable {
+        position: relative;
+        min-width: 0;
+
+        .copy-icon-button {
+          position: absolute;
+          top: 50%;
+          right: 0.5rem;
+          transform: translateY(-50%);
+          font-size: 0.9rem;
+          color: $color-text-primary;
+          background-color: color.mix(#ffffff, $color-background-lighter, 8%);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.15s ease-in-out;
+
+          &:hover {
+            background-color: color.mix(#ffffff, $color-background-lighter, 16%);
+          }
+        }
+
+        &:hover .copy-icon-button,
+        &:focus-within .copy-icon-button {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        @media (hover: none) {
+          .copy-icon-button {
+            opacity: 1;
+            pointer-events: auto;
+          }
+        }
       }
 
       .snippets {
@@ -61,32 +92,35 @@
         gap: 0.75rem;
         min-width: 0;
 
-        .snippet-code {
-          margin: 0;
-          padding: 1rem;
-          overflow-x: auto;
-          font-family: monospace;
-          font-size: 0.85rem;
-          line-height: 1.5;
-          color: $color-text-primary;
+        .snippet-box {
           background-color: $color-input-background;
           border: 1px solid $color-border;
           border-radius: $border-radius-sm;
-          white-space: pre;
-          scrollbar-width: thin;
-          scrollbar-color: $color-secondary-alpha-50 transparent;
+
+          &.multiline .copy-icon-button {
+            top: 0.75rem;
+            transform: none;
+          }
+
+          .snippet-code {
+            margin: 0;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: $color-text-primary;
+            white-space: pre;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+              display: none;
+            }
+          }
         }
 
-        .snippet-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 0.75rem;
-
-          .mcp-url-note {
-            min-width: 0;
-            overflow-wrap: anywhere;
-          }
+        .mcp-url-note {
+          overflow-wrap: anywhere;
         }
       }
     }

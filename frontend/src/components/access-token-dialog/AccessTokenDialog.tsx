@@ -12,13 +12,14 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
-  InputAdornment,
+  IconButton,
   MenuItem,
   Radio,
   RadioGroup,
   Tab,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -98,6 +99,22 @@ const copyToClipboard = async (value: string, successMessage: string, failureMes
   }
 };
 
+interface CopyIconButtonProps {
+  label: string;
+  onCopy: () => void;
+}
+
+/** Icon-only copy button that its field reveals on hover or keyboard focus. */
+function CopyIconButton({ label, onCopy }: CopyIconButtonProps) {
+  return (
+    <Tooltip title={label}>
+      <IconButton size="small" aria-label={label} onClick={onCopy} className="copy-icon-button">
+        <FontAwesomeIcon icon={faCopy} />
+      </IconButton>
+    </Tooltip>
+  );
+}
+
 function TokenReveal({ token }: TokenRevealProps) {
   const { t } = useTranslation();
   const [snippetIndex, setSnippetIndex] = useState(0);
@@ -125,30 +142,17 @@ function TokenReveal({ token }: TokenRevealProps) {
     <Box className="token-reveal">
       <Alert severity="warning">{t('ACCESS_TOKEN_COPY_WARNING')}</Alert>
 
-      <TextField
-        value={token}
-        label={t('ACCESS_TOKEN_LABEL')}
-        fullWidth
-        className="token-field"
-        onFocus={(event) => event.target.select()}
-        slotProps={{
-          htmlInput: { readOnly: true, spellCheck: false },
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <Button
-                  size="small"
-                  startIcon={<FontAwesomeIcon icon={faCopy} />}
-                  onClick={() => handleCopy(token)}
-                  className="copy-button"
-                >
-                  {t('ACCESS_TOKEN_COPY')}
-                </Button>
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+      <Box className="copyable token-copyable">
+        <TextField
+          value={token}
+          label={t('ACCESS_TOKEN_LABEL')}
+          fullWidth
+          className="token-field"
+          onFocus={(event) => event.target.select()}
+          slotProps={{ htmlInput: { readOnly: true, spellCheck: false } }}
+        />
+        <CopyIconButton label={t('ACCESS_TOKEN_COPY')} onCopy={() => handleCopy(token)} />
+      </Box>
 
       <Box className="snippets">
         <Typography variant="subtitle2" color="text.secondary">
@@ -170,23 +174,13 @@ function TokenReveal({ token }: TokenRevealProps) {
             {t(activeSnippet.hintKey, { variable: MCP_TOKEN_ENV_VARIABLE })}
           </Typography>
         )}
-        <pre className="snippet-code">{activeSnippet.value}</pre>
-        <Box className="snippet-footer">
-          <Typography variant="caption" color="text.secondary" className="mcp-url-note">
-            {t('ACCESS_TOKEN_MCP_URL_NOTE', { url: ENV.MCP_URL })}
-          </Typography>
-          <Button
-            size="small"
-            startIcon={<FontAwesomeIcon icon={faCopy} />}
-            onClick={() => handleCopy(activeSnippet.value)}
-            className="copy-button"
-          >
-            {t('ACCESS_TOKEN_COPY')}
-          </Button>
+        <Box className={activeSnippet.value.includes('\n') ? 'copyable snippet-box multiline' : 'copyable snippet-box'}>
+          <pre className="snippet-code">{activeSnippet.value}</pre>
+          <CopyIconButton label={t('ACCESS_TOKEN_COPY')} onCopy={() => handleCopy(activeSnippet.value)} />
         </Box>
-        <Alert severity="warning" className="snippet-warning">
-          {t('ACCESS_TOKEN_SNIPPET_COMMIT_WARNING')}
-        </Alert>
+        <Typography variant="caption" color="text.secondary" className="mcp-url-note">
+          {t('ACCESS_TOKEN_MCP_URL_NOTE', { url: ENV.MCP_URL })}
+        </Typography>
       </Box>
     </Box>
   );

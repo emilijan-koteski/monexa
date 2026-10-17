@@ -27,6 +27,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { format } from 'date-fns';
+import type { Locale } from 'date-fns';
+import { enGB, mk } from 'date-fns/locale';
 import { toast } from 'react-toastify';
 import AccessTokenDialog from '../../../components/access-token-dialog/AccessTokenDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
@@ -39,8 +41,9 @@ import { isOAuthNotFoundError, useOAuthGrants, useRevokeOAuthGrant } from '../..
 import type { AccessToken, OAuthGrant } from '../../../types/models';
 import { MAX_ACTIVE_ACCESS_TOKENS } from '../../../utils/accessToken';
 import { getClientIdentity, getPermissionLabelKey } from '../../../utils/oauth';
+import { Language } from '../../../enums/Language';
 
-const DATE_FORMAT = 'MMM d, yyyy';
+const DATE_FORMAT = 'PP';
 
 interface ListContentProps<Item extends { id: number }> {
   items: Item[] | undefined;
@@ -64,7 +67,9 @@ interface AccessTokenItemProps {
   onRevoke: (accessToken: AccessToken) => void;
 }
 
-const formatDate = (value: string): string => format(new Date(value), DATE_FORMAT);
+const formatDate = (value: string, locale: Locale): string => format(new Date(value), DATE_FORMAT, { locale });
+
+const dateLocaleFor = (language: string): Locale => (language === Language.MK ? mk : enGB);
 
 function ListContent<Item extends { id: number }>({
   items,
@@ -123,9 +128,10 @@ function ListContent<Item extends { id: number }>({
 }
 
 function ConnectedAppItem({ grant, disabled, onDisconnect }: ConnectedAppItemProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = dateLocaleFor(i18n.language);
   const identity = getClientIdentity(grant);
-  const lastUsed = grant.lastUsedAt ? formatDate(grant.lastUsedAt) : t('CONNECTED_APPS_NEVER');
+  const lastUsed = grant.lastUsedAt ? formatDate(grant.lastUsedAt, dateLocale) : t('CONNECTED_APPS_NEVER');
 
   return (
     <Card className="connection-item">
@@ -159,7 +165,7 @@ function ConnectedAppItem({ grant, disabled, onDisconnect }: ConnectedAppItemPro
             <Chip size="small" label={t(getPermissionLabelKey(grant.scopes))} className="permission-chip" />
           </Stack>
           <Typography variant="caption" className="connection-meta">
-            {t('CONNECTED_APPS_CONNECTED_ON', { date: formatDate(grant.createdAt) })}
+            {t('CONNECTED_APPS_CONNECTED_ON', { date: formatDate(grant.createdAt, dateLocale) })}
             {' · '}
             {t('CONNECTED_APPS_LAST_USED', { value: lastUsed })}
           </Typography>
@@ -181,8 +187,9 @@ function ConnectedAppItem({ grant, disabled, onDisconnect }: ConnectedAppItemPro
 }
 
 function AccessTokenItem({ accessToken, disabled, onRevoke }: AccessTokenItemProps) {
-  const { t } = useTranslation();
-  const lastUsed = accessToken.lastUsedAt ? formatDate(accessToken.lastUsedAt) : t('CONNECTED_APPS_NEVER');
+  const { t, i18n } = useTranslation();
+  const dateLocale = dateLocaleFor(i18n.language);
+  const lastUsed = accessToken.lastUsedAt ? formatDate(accessToken.lastUsedAt, dateLocale) : t('CONNECTED_APPS_NEVER');
 
   return (
     <Card className="connection-item">
@@ -204,7 +211,7 @@ function AccessTokenItem({ accessToken, disabled, onRevoke }: AccessTokenItemPro
           <Typography variant="caption" className="connection-meta">
             {t('CONNECTED_APPS_LAST_USED', { value: lastUsed })}
             {' · '}
-            {t('ACCESS_TOKEN_EXPIRES', { date: formatDate(accessToken.expiresAt) })}
+            {t('ACCESS_TOKEN_EXPIRES', { date: formatDate(accessToken.expiresAt, dateLocale) })}
           </Typography>
         </Box>
 
