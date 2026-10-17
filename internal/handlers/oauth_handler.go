@@ -10,6 +10,7 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,13 +38,14 @@ const (
 	oauthBodyLimit      = "16K"
 	oauthMetadataMaxAge = time.Hour
 	oauthFormContextKey = "oauthForm"
+	mcpClientContextKey = "oauthMCPClientAuthentication"
 
-	authorizeRequestsPerWindow = 20
-	authorizeRateWindow        = time.Minute
-	registerRequestsPerWindow  = 10
-	registerRateWindow         = time.Hour
-	tokenRequestsPerWindow     = 60
-	tokenRateWindow            = time.Minute
+	authorizeRequestsPerMinute        = 20
+	registerRequestsPerHour           = 100
+	registerBurst                     = 20
+	publicClientRequestsPerMinute     = 120
+	tokenIPRequestsPerMinute          = 600
+	failedClientAuthRequestsPerMinute = 20
 
 	grantTypeAuthorizationCode = "authorization_code"
 	grantTypeRefreshToken      = "refresh_token"
@@ -80,8 +82,9 @@ const (
 	oauthErrServerError           = "server_error"
 	oauthErrRateLimited           = "rate_limited"
 
-	rateLimitClientKeyPrefix = "client:"
-	authorizeRateLimitedText = "Too many authorization requests. Please try again in a minute."
+	publicClientKeySeparator = "|"
+	retryAfterHeader         = "Retry-After"
+	authorizeRateLimitedText = "Too many authorization requests. Please try again shortly."
 )
 
 var (
@@ -95,6 +98,12 @@ var (
 	untrustedAuthorizeParameterNames = []string{paramClientID, paramRedirectURI}
 	defaultRegistrationGrantTypes    = []string{grantTypeAuthorizationCode, grantTypeRefreshToken}
 	defaultRegistrationResponseTypes = []string{responseTypeCode}
+
+	authorizeRateLimit        = rateLimit{requests: authorizeRequestsPerMinute, window: time.Minute, burst: authorizeRequestsPerMinute}
+	registerRateLimit         = rateLimit{requests: registerRequestsPerHour, window: time.Hour, burst: registerBurst}
+	publicClientRateLimit     = rateLimit{requests: publicClientRequestsPerMinute, window: time.Minute, burst: publicClientRequestsPerMinute}
+	tokenIPRateLimit          = rateLimit{requests: tokenIPRequestsPerMinute, window: time.Minute, burst: tokenIPRequestsPerMinute}
+	failedClientAuthRateLimit = rateLimit{requests: failedClientAuthRequestsPerMinute, window: time.Minute, burst: failedClientAuthRequestsPerMinute}
 )
 
 type oauthHandler struct {
@@ -108,6 +117,28 @@ type oauthHandler struct {
 type oauthFormResult struct {
 	values url.Values
 	err    error
+}
+
+type mcpClientAuthentication struct {
+	clientID      string
+	authenticated bool
+}
+
+type rateLimit struct {
+	requests int
+	window   time.Duration
+	burst    int
+}
+
+type rateLimiter struct {
+	limit rateLimit
+	store *middleware.RateLimiterMemoryStore
+}
+
+type clientRateLimiters struct {
+	publicClient     *rateLimiter
+	clientIP         *rateLimiter
+	failedClientAuth *rateLimiter
 }
 
 // RegisterOAuthHandler registers the RFC 8414 metadata document and the OAuth endpoints under /oauth.
@@ -130,16 +161,12 @@ func RegisterOAuthHandler(
 
 	e.GET(oauthMetadataPath, handler.Metadata)
 
-	oauth := e.Group(oauthGroupPath, middleware.BodyLimit(oauthBodyLimit))
+	oauth := e.Group(oauthGroupPath, convertBodyTooLarge, middleware.BodyLimit(oauthBodyLimit))
 
-	oauth.GET(oauthAuthorizePath, handler.Authorize,
-		newRateLimiter(authorizeRequestsPerWindow, authorizeRateWindow, ipRateLimitKey, denyAuthorizeRateLimited))
-	oauth.POST(oauthTokenPath, handler.Token,
-		newRateLimiter(tokenRequestsPerWindow, tokenRateWindow, clientRateLimitKey, denyRateLimited))
-	oauth.POST(oauthRegisterPath, handler.Register,
-		newRateLimiter(registerRequestsPerWindow, registerRateWindow, ipRateLimitKey, denyRateLimited))
-	oauth.POST(oauthRevokePath, handler.Revoke,
-		newRateLimiter(tokenRequestsPerWindow, tokenRateWindow, clientRateLimitKey, denyRateLimited))
+	oauth.GET(oauthAuthorizePath, handler.Authorize, limitPerIP(newRateLimiter(authorizeRateLimit), denyAuthorizeRateLimited))
+	oauth.POST(oauthTokenPath, handler.Token, handler.limitClients())
+	oauth.POST(oauthRegisterPath, handler.Register, limitPerIP(newRateLimiter(registerRateLimit), denyRateLimited))
+	oauth.POST(oauthRevokePath, handler.Revoke, handler.limitClients())
 }
 
 func (h *oauthHandler) Metadata(c echo.Context) error {
@@ -260,13 +287,14 @@ func (h *oauthHandler) refreshAccessToken(c echo.Context, form url.Values) error
 	return respondTokenResult(c, issued, err)
 }
 
-// exchangeForDelegatedToken serves the MCP server's RFC 8693 token exchange, which requires its HTTP Basic credentials.
+// exchangeForDelegatedToken serves the MCP server's RFC 8693 token exchange. HTTP Basic is the only accepted client
+// authentication there, so every 401 carries the Basic challenge.
 func (h *oauthHandler) exchangeForDelegatedToken(c echo.Context, form url.Values) error {
-	clientID, secret, ok := basicClientCredentials(c.Request())
-	if !ok || !h.tokenService.AuthenticateMCPClient(clientID, secret) {
-		return responses.OAuthInvalidClient(c, "client authentication failed", attemptedBasicAuth(c.Request()))
+	client := h.authenticateMCPClient(c)
+	if !client.authenticated {
+		return responses.OAuthInvalidClient(c, "client authentication failed", true)
 	}
-	if formClientID := form.Get(paramClientID); formClientID != "" && formClientID != clientID {
+	if formClientID := form.Get(paramClientID); formClientID != "" && formClientID != client.clientID {
 		return responses.OAuthError(c, http.StatusBadRequest, oauthErrInvalidRequest, "client_id does not match the authenticated client")
 	}
 	if name := firstMissing(form, paramSubjectToken, paramSubjectTokenType, paramResource); name != "" {
@@ -278,6 +306,51 @@ func (h *oauthHandler) exchangeForDelegatedToken(c echo.Context, form url.Values
 
 	issued, err := h.tokenService.ExchangeForDelegatedToken(c.Request().Context(), form.Get(paramSubjectToken), form.Get(paramResource))
 	return respondTokenResult(c, issued, err)
+}
+
+// authenticateMCPClient checks the request's Basic credentials against the MCP client once per request and caches
+// the outcome, so the rate limiter and the handler share one check.
+func (h *oauthHandler) authenticateMCPClient(c echo.Context) mcpClientAuthentication {
+	if cached, ok := c.Get(mcpClientContextKey).(mcpClientAuthentication); ok {
+		return cached
+	}
+	clientID, secret, ok := basicClientCredentials(c.Request())
+	result := mcpClientAuthentication{clientID: clientID, authenticated: ok && h.tokenService.AuthenticateMCPClient(clientID, secret)}
+	c.Set(mcpClientContextKey, result)
+	return result
+}
+
+// limitClients guards /token and /revoke: the authenticated MCP client is exempt, failed Basic attempts share a
+// per-IP bucket, and public clients are limited per client_id and IP under a coarse per-IP cap.
+func (h *oauthHandler) limitClients() echo.MiddlewareFunc {
+	limiters := clientRateLimiters{
+		publicClient:     newRateLimiter(publicClientRateLimit),
+		clientIP:         newRateLimiter(tokenIPRateLimit),
+		failedClientAuth: newRateLimiter(failedClientAuthRateLimit),
+	}
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if retryAfter, exceeded := h.clientLimitExceeded(c, limiters); exceeded {
+				return denyRateLimited(c, retryAfter)
+			}
+			return next(c)
+		}
+	}
+}
+
+// clientLimitExceeded takes the request from its buckets; the form client_id never overrides Basic credentials.
+func (h *oauthHandler) clientLimitExceeded(c echo.Context, limiters clientRateLimiters) (time.Duration, bool) {
+	ip := c.RealIP()
+	if attemptedBasicAuth(c.Request()) {
+		if h.authenticateMCPClient(c).authenticated {
+			return 0, false
+		}
+		return limiters.failedClientAuth.take(ip)
+	}
+	if retryAfter, exceeded := limiters.clientIP.take(ip); exceeded {
+		return retryAfter, true
+	}
+	return limiters.publicClient.take(publicClientKey(c, ip))
 }
 
 func (h *oauthHandler) redirectToErrorPage(c echo.Context, code, description string) error {
@@ -476,48 +549,75 @@ func respondServerError(c echo.Context, operation string, err error) error {
 	return responses.OAuthError(c, http.StatusInternalServerError, oauthErrServerError, "the authorization server encountered an unexpected error")
 }
 
-// newRateLimiter allows each key a burst of requests per window, refilled evenly across the window.
-func newRateLimiter(requests int, window time.Duration, key middleware.Extractor, deny func(echo.Context) error) echo.MiddlewareFunc {
-	return middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
-		IdentifierExtractor: key,
-		Store: middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
-			Rate:      rate.Every(window / time.Duration(requests)),
-			Burst:     requests,
-			ExpiresIn: window,
+// convertBodyTooLarge answers the body limit's 413 with an RFC 6749 error instead of Echo's default body.
+func convertBodyTooLarge(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		err := next(c)
+		var httpErr *echo.HTTPError
+		if errors.As(err, &httpErr) && httpErr.Code == http.StatusRequestEntityTooLarge && !c.Response().Committed {
+			return respondBodyTooLarge(c)
+		}
+		return err
+	}
+}
+
+func newRateLimiter(limit rateLimit) *rateLimiter {
+	return &rateLimiter{
+		limit: limit,
+		store: middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
+			Rate:      rate.Every(limit.window / time.Duration(limit.requests)),
+			Burst:     limit.burst,
+			ExpiresIn: limit.window,
 		}),
-		DenyHandler: func(c echo.Context, _ string, _ error) error {
-			return deny(c)
-		},
-	})
+	}
 }
 
-func ipRateLimitKey(c echo.Context) (string, error) {
-	return c.RealIP(), nil
+// take removes one request from the key's bucket and, when the bucket is empty, reports how long to wait.
+func (l *rateLimiter) take(key string) (time.Duration, bool) {
+	if allowed, _ := l.store.Allow(key); allowed {
+		return 0, false
+	}
+	return l.limit.retryAfter(), true
 }
 
-// clientRateLimitKey keys token requests by client: the form client_id, else the Basic username, else the IP.
-// Client ids are hashed so arbitrarily long ids cannot inflate the limiter's memory.
-func clientRateLimitKey(c echo.Context) (string, error) {
-	if form, err := oauthForm(c); err == nil {
-		if clientID := form.Get(paramClientID); clientID != "" {
-			return hashedClientKey(clientID), nil
+// retryAfter is the refill interval of one request, rounded up to whole seconds.
+func (l rateLimit) retryAfter() time.Duration {
+	interval := l.window / time.Duration(l.requests)
+	return max(time.Second, (interval + time.Second - 1).Truncate(time.Second))
+}
+
+func limitPerIP(limiter *rateLimiter, deny func(echo.Context, time.Duration) error) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if retryAfter, exceeded := limiter.take(c.RealIP()); exceeded {
+				return deny(c, retryAfter)
+			}
+			return next(c)
 		}
 	}
-	if clientID, _, ok := basicClientCredentials(c.Request()); ok {
-		return hashedClientKey(clientID), nil
+}
+
+// publicClientKey pairs the hashed client_id with the caller's IP, so no caller can drain a client's budget for
+// everyone else and arbitrarily long ids cannot inflate the limiter's memory.
+func publicClientKey(c echo.Context, ip string) string {
+	var clientID string
+	if form, err := oauthForm(c); err == nil {
+		clientID = form.Get(paramClientID)
 	}
-	return c.RealIP(), nil
-}
-
-func hashedClientKey(clientID string) string {
 	digest := sha256.Sum256([]byte(clientID))
-	return rateLimitClientKeyPrefix + hex.EncodeToString(digest[:])
+	return hex.EncodeToString(digest[:]) + publicClientKeySeparator + ip
 }
 
-func denyRateLimited(c echo.Context) error {
+func denyRateLimited(c echo.Context, retryAfter time.Duration) error {
+	setRetryAfter(c, retryAfter)
 	return responses.OAuthError(c, http.StatusTooManyRequests, oauthErrRateLimited, "")
 }
 
-func denyAuthorizeRateLimited(c echo.Context) error {
+func denyAuthorizeRateLimited(c echo.Context, retryAfter time.Duration) error {
+	setRetryAfter(c, retryAfter)
 	return responses.OAuthText(c, http.StatusTooManyRequests, authorizeRateLimitedText)
+}
+
+func setRetryAfter(c echo.Context, retryAfter time.Duration) {
+	c.Response().Header().Set(retryAfterHeader, strconv.Itoa(int(retryAfter/time.Second)))
 }

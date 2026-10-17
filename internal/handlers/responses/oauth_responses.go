@@ -33,9 +33,9 @@ func OAuthError(c echo.Context, status int, code, description string) error {
 	return OAuthJSON(c, status, oauthErrorBody{Error: code, ErrorDescription: description})
 }
 
-// OAuthInvalidClient rejects client authentication with 401, challenging for HTTP Basic when the client attempted it.
-func OAuthInvalidClient(c echo.Context, description string, attemptedBasic bool) error {
-	if attemptedBasic {
+// OAuthInvalidClient rejects client authentication with 401, adding the HTTP Basic challenge when challengeBasic is set.
+func OAuthInvalidClient(c echo.Context, description string, challengeBasic bool) error {
+	if challengeBasic {
 		c.Response().Header().Set(echo.HeaderWWWAuthenticate, oauthBasicChallenge)
 	}
 	return OAuthError(c, http.StatusUnauthorized, oauthInvalidClient, description)
