@@ -13,6 +13,7 @@ import {
   deletedReply,
   deletedSchema,
   idSchema,
+  MIN_AMOUNT,
   paymentMethodIdsSchema,
   rangeEndInput,
   rangeStartInput,
@@ -67,7 +68,7 @@ export const listRecords = defineTool({
     endDate: rangeEndInput("Only include records on or before this date (23:59:59 UTC for a date-only value).").optional(),
     categoryId: idSchema("Only include records in this category (ID from list_categories).").optional(),
     paymentMethodIds: paymentMethodIdsSchema.optional(),
-    search: searchSchema.optional(),
+    search: searchSchema("Case-insensitive text matched against record descriptions and category names.").optional(),
     sortBy: z.enum(["date", "amount"]).optional().describe("Sort field; default date."),
     sortOrder: z.enum(["asc", "desc"]).optional().describe("Sort direction; default desc."),
     limit: z
@@ -135,7 +136,7 @@ export const createRecord = defineTool({
     "(or the first payment method when there are no records yet). The result lists the defaults that were applied.",
   inputSchema: z.object({
     categoryId: idSchema("Category ID from list_categories."),
-    amount: amountSchema("Positive amount in the record's currency."),
+    amount: amountSchema(`Amount in the record's currency, at least ${MIN_AMOUNT}.`),
     currency: currencySchema.optional().describe("Currency of the amount; defaults to the user's display currency."),
     date: dayInput("Day of the transaction; defaults to today (UTC).").optional(),
     paymentMethodId: idSchema(
@@ -184,7 +185,7 @@ export const updateRecord = defineTool({
       id: recordIdSchema,
       categoryId: idSchema("New category ID from list_categories.").optional(),
       paymentMethodId: idSchema("New payment method ID from list_payment_methods.").optional(),
-      amount: amountSchema("New positive amount.").optional(),
+      amount: amountSchema(`New amount, at least ${MIN_AMOUNT}.`).optional(),
       currency: currencySchema.optional().describe("New currency of the amount."),
       description: z.string().optional().describe("New description; an empty string removes it."),
       date: dayInput("New day of the transaction.").optional(),

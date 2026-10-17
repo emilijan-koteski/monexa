@@ -47,7 +47,7 @@ export const getTrendReportData = defineTool({
   description:
     "Returns a trend report's totals for each month (1-12) of a year in the user's display currency. " +
     "When the included categories mix income and expense, a month's amount is income minus expenses; otherwise it is the total of that type. " +
-    "With include_details it also returns each month's amounts grouped by category and record description (label), largest first; " +
+    "With includeDetails it also returns each month's amounts grouped by category and record description (label), largest first; " +
     "records without a description share one entry per category with isUngrouped true.",
   inputSchema: z.object({
     id: idSchema("Trend report ID from list_trend_reports."),
@@ -59,7 +59,7 @@ export const getTrendReportData = defineTool({
       .optional()
       .describe("Calendar year (UTC); defaults to the current year."),
     type: categoryTypeSchema.optional().describe("Only include the report's categories of this type."),
-    include_details: z.boolean().default(false).describe("Also return the per-category breakdown of every month."),
+    includeDetails: z.boolean().default(false).describe("Also return the per-category breakdown of every month."),
   }),
   outputSchema: z.object({
     id: z.number().int(),
@@ -72,11 +72,11 @@ export const getTrendReportData = defineTool({
   annotations: READ,
   covers: ["GET /api/v1/trend-reports/:id/monthly-data", "GET /api/v1/trend-reports/:id/monthly-details"],
   since: SINCE_2_0_0,
-  async handler({ id, year = new Date().getUTCFullYear(), type, include_details }, api) {
+  async handler({ id, year = new Date().getUTCFullYear(), type, includeDetails }, api) {
     const query = { year, type };
     const [monthly, details] = await Promise.all([
       api.get<TrendReportMonthlyData>(`/trend-reports/${id}/monthly-data`, query),
-      include_details ? api.get<TrendReportMonthlyDetails>(`/trend-reports/${id}/monthly-details`, query) : undefined,
+      includeDetails ? api.get<TrendReportMonthlyDetails>(`/trend-reports/${id}/monthly-details`, query) : undefined,
     ]);
     return {
       data: {

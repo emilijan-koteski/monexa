@@ -22,6 +22,8 @@ export const DELETE: ToolHints = { readOnlyHint: false, destructiveHint: true, i
 
 export const SINCE_2_0_0 = "2.0.0";
 
+export const MIN_AMOUNT = 0.01;
+
 export const deletedSchema = z.object({ deleted: z.literal(true), id: z.number().int() });
 
 export function deletedReply(id: number) {
@@ -52,18 +54,16 @@ export function nameSchema(description: string) {
 }
 
 export function amountSchema(description: string) {
-  return z.number().positive().describe(description);
+  return z.number().min(MIN_AMOUNT).describe(description);
 }
 
 export const paymentMethodIdsSchema = z
   .array(z.number().int().positive())
   .describe("Only include records paid with one of these payment methods (IDs from list_payment_methods).");
 
-export const searchSchema = z
-  .string()
-  .trim()
-  .min(1, "must not be empty")
-  .describe("Case-insensitive text matched against record descriptions and category names.");
+export function searchSchema(description: string) {
+  return z.string().trim().min(1, "must not be empty").describe(description);
+}
 
 /** Today's date in UTC as YYYY-MM-DD. */
 export function todayUtc(now: Date = new Date()): string {

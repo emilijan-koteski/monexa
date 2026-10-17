@@ -20,7 +20,8 @@ import { getTrendReportData, listTrendReports } from "./trend-reports.js";
 
 export type { ToolDefinition } from "./definition.js";
 
-const UNEXPECTED_SHAPE_MESSAGE = "Monexa returned data in an unexpected shape; try again later.";
+const UNEXPECTED_SHAPE_MESSAGE =
+  "This Monexa connector and the Monexa API are out of sync, so retrying will not help; the connector needs an update.";
 
 export const toolDefinitions: readonly ToolDefinition[] = [
   getProfile,

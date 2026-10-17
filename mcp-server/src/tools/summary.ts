@@ -33,7 +33,10 @@ export const getSpendingSummary = defineTool({
     startDate: rangeStartInput("Start of the period, inclusive (00:00:00 UTC for a date-only value).").optional(),
     endDate: rangeEndInput("End of the period, inclusive (23:59:59 UTC for a date-only value).").optional(),
     paymentMethodIds: paymentMethodIdsSchema.optional(),
-    search: searchSchema.optional(),
+    search: searchSchema(
+      "Only count records whose description or category name contains this text (case-insensitive), " +
+        "or whose amount written with two decimals (e.g. 12.50) contains it.",
+    ).optional(),
   }),
   outputSchema: z.object({
     period: z.object({ startDate: z.string().nullable(), endDate: z.string().nullable() }),

@@ -16,6 +16,8 @@ import {
 } from "./shared.js";
 
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const HEX_COLOR_OR_EMPTY_PATTERN = /^(#[0-9a-fA-F]{6})?$/;
+const HEX_COLOR_MESSAGE = "must be a hex color such as #1976d2";
 
 export const categorySchema = z.object({
   id: z.number().int(),
@@ -29,10 +31,12 @@ const categoryResultSchema = z.object({ category: categorySchema });
 
 const categoryIdSchema = idSchema("Category ID from list_categories.");
 
-const colorSchema = z
+const colorSchema = z.string().regex(HEX_COLOR_PATTERN, HEX_COLOR_MESSAGE).describe("Display color as a hex code, e.g. #1976d2.");
+
+const newColorSchema = z
   .string()
-  .regex(HEX_COLOR_PATTERN, "must be a hex color such as #1976d2")
-  .describe("Display color as a hex code, e.g. #1976d2.");
+  .regex(HEX_COLOR_OR_EMPTY_PATTERN, `${HEX_COLOR_MESSAGE} or an empty string`)
+  .describe("New display color as a hex code, e.g. #1976d2; an empty string removes it.");
 
 export const listCategories = defineTool({
   name: "list_categories",
@@ -84,7 +88,7 @@ export const updateCategory = defineTool({
       name: nameSchema("New name.").optional(),
       type: categoryTypeSchema.optional().describe("New type: INCOME or EXPENSE."),
       description: z.string().optional().describe("New description; an empty string removes it."),
-      color: colorSchema.optional(),
+      color: newColorSchema.optional(),
     }),
   ),
   outputSchema: categoryResultSchema,

@@ -2,6 +2,7 @@ import { z } from "zod/v4";
 import type { RecurringExpense } from "../api/types.js";
 import { defineTool } from "./definition.js";
 import {
+  amountSchema,
   CREATE,
   currencySchema,
   dayInput,
@@ -10,13 +11,12 @@ import {
   deletedSchema,
   frequencySchema,
   idSchema,
+  MIN_AMOUNT,
   READ,
   requireChanges,
   SINCE_2_0_0,
   UPDATE,
 } from "./shared.js";
-
-const MIN_AMOUNT = 0.01;
 
 const recurringExpenseSchema = z.object({
   id: z.number().int(),
@@ -38,8 +38,6 @@ const recurringExpenseSchema = z.object({
 const recurringExpenseResultSchema = z.object({ recurringExpense: recurringExpenseSchema });
 
 const recurringExpenseIdSchema = idSchema("Recurring expense ID from list_recurring_expenses.");
-
-const recurringAmountSchema = z.number().min(MIN_AMOUNT);
 
 export const listRecurringExpenses = defineTool({
   name: "list_recurring_expenses",
@@ -66,7 +64,7 @@ export const createRecurringExpense = defineTool({
   inputSchema: z.object({
     categoryId: idSchema("Category ID from list_categories."),
     paymentMethodId: idSchema("Payment method ID from list_payment_methods."),
-    amount: recurringAmountSchema.describe(`Amount of each occurrence, at least ${MIN_AMOUNT}.`),
+    amount: amountSchema(`Amount of each occurrence, at least ${MIN_AMOUNT}.`),
     currency: currencySchema.describe("Currency of the amount."),
     frequency: frequencySchema.describe("How often a record is added."),
     startDate: dayInput("First due day; today or later."),
@@ -94,7 +92,7 @@ export const updateRecurringExpense = defineTool({
       id: recurringExpenseIdSchema,
       categoryId: idSchema("New category ID from list_categories.").optional(),
       paymentMethodId: idSchema("New payment method ID from list_payment_methods.").optional(),
-      amount: recurringAmountSchema.optional().describe(`New amount of each occurrence, at least ${MIN_AMOUNT}.`),
+      amount: amountSchema(`New amount of each occurrence, at least ${MIN_AMOUNT}.`).optional(),
       currency: currencySchema.optional().describe("New currency of the amount."),
       frequency: frequencySchema.optional().describe("New frequency."),
       description: z.string().optional().describe("New description; an empty string removes it."),
