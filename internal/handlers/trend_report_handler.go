@@ -97,6 +97,9 @@ func (h *trendReportHandler) Create(c echo.Context) error {
 
 	report, err := h.trendReportService.Create(c.Request().Context(), req)
 	if err != nil {
+		if errors.Is(err, services.ErrReferenceNotFound) {
+			return responses.BadRequestWithError(c, err)
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error creating trend report: %w", err))
 	}
 
@@ -134,6 +137,9 @@ func (h *trendReportHandler) Update(c echo.Context) error {
 
 	report, err := h.trendReportService.Update(c.Request().Context(), req)
 	if err != nil {
+		if errors.Is(err, services.ErrReferenceNotFound) {
+			return responses.BadRequestWithError(c, err)
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error updating trend report: %w", err))
 	}
 

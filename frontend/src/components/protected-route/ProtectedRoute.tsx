@@ -16,6 +16,7 @@ const ProtectedRoute = () => {
   });
 
   if (!isAuthenticated) {
+    sessionStorageUtils.setReturnTo(location.pathname + location.search);
     return <Navigate to="/login" replace />;
   }
 
@@ -24,7 +25,7 @@ const ProtectedRoute = () => {
   }
 
   if (ENV.LEGAL_COMPLIANCE_ENABLED && !isLegalAcceptancePage && data?.hasPendingDocuments) {
-    sessionStorageUtils.setRedirectAfterLegal(location.pathname);
+    sessionStorageUtils.setRedirectAfterLegal(location.pathname + location.search);
     return <Navigate to="/legal-acceptance" replace />;
   }
 

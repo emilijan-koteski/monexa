@@ -62,7 +62,7 @@ func (s *TrendReportService) Create(ctx context.Context, req requests.TrendRepor
 		return nil, errors.New("at least one category is required")
 	}
 
-	categories, err := s.loadCategories(ctx, req.CategoryIDs)
+	categories, err := s.loadCategories(ctx, *req.UserID, req.CategoryIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (s *TrendReportService) Update(ctx context.Context, req requests.TrendRepor
 		return nil, err
 	}
 
-	categories, err := s.loadCategories(ctx, req.CategoryIDs)
+	categories, err := s.loadCategories(ctx, *req.UserID, req.CategoryIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -407,15 +407,15 @@ func (s *TrendReportService) GetMonthlyDetails(ctx context.Context, req requests
 	}, nil
 }
 
-func (s *TrendReportService) loadCategories(ctx context.Context, categoryIDs []uint) ([]models.Category, error) {
+func (s *TrendReportService) loadCategories(ctx context.Context, userID uint, categoryIDs []uint) ([]models.Category, error) {
 	var categories []models.Category
 	if err := s.db.WithContext(ctx).
-		Where("id IN ?", categoryIDs).
+		Where("id IN ? AND user_id = ?", categoryIDs, userID).
 		Find(&categories).Error; err != nil {
 		return nil, fmt.Errorf("failed to load categories: %w", err)
 	}
 	if len(categories) == 0 {
-		return nil, errors.New("no valid categories found")
+		return nil, fmt.Errorf("%w: no valid categories found", ErrReferenceNotFound)
 	}
 	return categories, nil
 }

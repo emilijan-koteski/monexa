@@ -18,6 +18,17 @@
             "statusMessage": "Checking comment policy"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push*)",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/test_files_policy.py\" pretool",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [

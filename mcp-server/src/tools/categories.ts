@@ -1,129 +1,117 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
-import { apiRequest } from "../client.js";
-import type { Category, CategoryStatistics } from "../types.js";
+import { z } from "zod/v4";
+import type { Category } from "../api/types.js";
+import { defineTool } from "./definition.js";
+import {
+  categoryTypeSchema,
+  CREATE,
+  DELETE,
+  deletedReply,
+  deletedSchema,
+  idSchema,
+  nameSchema,
+  READ,
+  requireChanges,
+  SINCE_2_0_0,
+  UPDATE,
+} from "./shared.js";
 
-export function registerCategoryTools(server: McpServer): void {
-  server.tool(
-    "list-categories",
-    "List all user-defined categories. Returns both INCOME and EXPENSE types with their IDs, names, colors, and descriptions.",
-    {},
-    async () => {
-      const categories = await apiRequest<Category[]>("GET", "/categories");
-      return {
-        content: [
-          { type: "text", text: JSON.stringify(categories, null, 2) },
-        ],
-      };
-    }
-  );
+const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const HEX_COLOR_OR_EMPTY_PATTERN = /^(#[0-9a-fA-F]{6})?$/;
+const HEX_COLOR_MESSAGE = "must be a hex color such as #1976d2";
 
-  server.tool(
-    "create-category",
-    "Create a new spending or income category.",
-    {
-      name: z.string().min(1).describe("Category name"),
-      type: z
-        .enum(["INCOME", "EXPENSE"])
-        .describe("Category type: INCOME or EXPENSE"),
-      description: z.string().optional().describe("Category description"),
-      color: z
-        .string()
-        .optional()
-        .describe("Hex color code, e.g. #FF5733"),
-    },
-    async (input) => {
-      const category = await apiRequest<Category>("POST", "/categories", {
-        body: input,
-      });
-      return {
-        content: [
-          { type: "text", text: JSON.stringify(category, null, 2) },
-        ],
-      };
-    }
-  );
+export const categorySchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  type: categoryTypeSchema,
+  description: z.string().nullable(),
+  color: z.string().nullable(),
+});
 
-  server.tool(
-    "update-category",
-    "Update an existing category. Only provided fields are updated.",
-    {
-      id: z.number().int().positive().describe("Category ID to update"),
-      name: z.string().min(1).optional(),
-      description: z.string().optional(),
-      color: z.string().optional(),
-    },
-    async ({ id, ...body }) => {
-      const category = await apiRequest<Category>(
-        "PATCH",
-        `/categories/${id}`,
-        { body }
-      );
-      return {
-        content: [
-          { type: "text", text: JSON.stringify(category, null, 2) },
-        ],
-      };
-    }
-  );
+const categoryResultSchema = z.object({ category: categorySchema });
 
-  server.tool(
-    "delete-category",
-    "Delete a category by ID. Will fail if any records still reference this category.",
-    {
-      id: z.number().int().positive().describe("Category ID to delete"),
-    },
-    async ({ id }) => {
-      await apiRequest<string>("DELETE", `/categories/${id}`);
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              message: "Category deleted successfully",
-            }),
-          },
-        ],
-      };
-    }
-  );
+const categoryIdSchema = idSchema("Category ID from list_categories.");
 
-  server.tool(
-    "get-category-statistics",
-    "Get spending and income statistics broken down by category. Includes total income, total expense, net balance, and per-category amounts. All amounts are converted to the user's preferred currency.",
-    {
-      startDate: z
-        .string()
-        .optional()
-        .describe("Filter start date (YYYY-MM-DD)"),
-      endDate: z
-        .string()
-        .optional()
-        .describe("Filter end date (YYYY-MM-DD)"),
-      paymentMethodIds: z
-        .array(z.number().int().positive())
-        .optional()
-        .describe("Filter by payment method IDs"),
-      search: z.string().optional().describe("Search filter"),
-    },
-    async (input) => {
-      const stats = await apiRequest<CategoryStatistics>(
-        "GET",
-        "/categories/statistics",
-        {
-          params: {
-            startDate: input.startDate,
-            endDate: input.endDate,
-            paymentMethodIds: input.paymentMethodIds,
-            search: input.search,
-          },
-        }
-      );
-      return {
-        content: [
-          { type: "text", text: JSON.stringify(stats, null, 2) },
-        ],
-      };
-    }
-  );
-}
+const colorSchema = z.string().regex(HEX_COLOR_PATTERN, HEX_COLOR_MESSAGE).describe("Display color as a hex code, e.g. #1976d2.");
+
+const newColorSchema = z
+  .string()
+  .regex(HEX_COLOR_OR_EMPTY_PATTERN, `${HEX_COLOR_MESSAGE} or an empty string`)
+  .describe("New display color as a hex code, e.g. #1976d2; an empty string removes it.");
+
+export const listCategories = defineTool({
+  name: "list_categories",
+  title: "List categories",
+  description:
+    "Lists the user's categories with their IDs, names, types (INCOME or EXPENSE), descriptions and colors. " +
+    "Every record and recurring expense belongs to one category, and the category's type decides whether its amount counts as income or expense.",
+  inputSchema: z.object({
+    type: categoryTypeSchema.optional().describe("Only return categories of this type."),
+  }),
+  outputSchema: z.object({ categories: z.array(categorySchema) }),
+  annotations: READ,
+  covers: ["GET /api/v1/categories"],
+  since: SINCE_2_0_0,
+  async handler({ type }, api) {
+    const categories = await api.get<Category[]>("/categories");
+    return { data: { categories: categories.filter((category) => !type || category.type === type) } };
+  },
+});
+
+export const createCategory = defineTool({
+  name: "create_category",
+  title: "Create category",
+  description: "Creates an income or expense category for classifying records. Returns the new category with its ID.",
+  inputSchema: z.object({
+    name: nameSchema("Category name, e.g. Groceries."),
+    type: categoryTypeSchema.describe("INCOME for money coming in, EXPENSE for money going out."),
+    description: z.string().optional().describe("Optional description."),
+    color: colorSchema.optional(),
+  }),
+  outputSchema: categoryResultSchema,
+  annotations: CREATE,
+  covers: ["POST /api/v1/categories"],
+  since: SINCE_2_0_0,
+  async handler(input, api) {
+    return { data: { category: await api.post<Category>("/categories", input) } };
+  },
+});
+
+export const updateCategory = defineTool({
+  name: "update_category",
+  title: "Update category",
+  description:
+    "Changes a category's name, type, description or color; only the fields you pass change. " +
+    "Changing the type moves all of the category's records between income and expense.",
+  inputSchema: requireChanges(
+    z.object({
+      id: categoryIdSchema,
+      name: nameSchema("New name.").optional(),
+      type: categoryTypeSchema.optional().describe("New type: INCOME or EXPENSE."),
+      description: z.string().optional().describe("New description; an empty string removes it."),
+      color: newColorSchema.optional(),
+    }),
+  ),
+  outputSchema: categoryResultSchema,
+  annotations: UPDATE,
+  covers: ["PATCH /api/v1/categories/:id"],
+  since: SINCE_2_0_0,
+  async handler({ id, ...changes }, api) {
+    return { data: { category: await api.patch<Category>(`/categories/${id}`, changes) } };
+  },
+});
+
+export const deleteCategory = defineTool({
+  name: "delete_category",
+  title: "Delete category",
+  description:
+    "Deletes a category. Monexa refuses while any record still uses it; move those records to another category or delete them first.",
+  inputSchema: z.object({ id: categoryIdSchema }),
+  outputSchema: deletedSchema,
+  annotations: DELETE,
+  covers: ["DELETE /api/v1/categories/:id"],
+  since: SINCE_2_0_0,
+  async handler({ id }, api) {
+    await api.delete(`/categories/${id}`);
+    return deletedReply(id);
+  },
+});

@@ -18,6 +18,7 @@ const TrendsPage = lazy(() => import('../pages/trends/TrendsPage.tsx'));
 const TrendDetailsPage = lazy(() => import('../pages/trends/trend-details/TrendDetailsPage.tsx'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage.tsx'));
 const AccountPage = lazy(() => import('../pages/settings/account/AccountPage.tsx'));
+const ConnectedAppsPage = lazy(() => import('../pages/settings/connected-apps/ConnectedAppsPage.tsx'));
 const SettingsCategoriesPage = lazy(() => import('../pages/settings/categories/CategoriesPage.tsx'));
 const PaymentTypePage = lazy(() => import('../pages/settings/payment-type/PaymentTypePage.tsx'));
 const RecurringExpensesPage = lazy(() => import('../pages/settings/recurring-expenses/RecurringExpensesPage.tsx'));
@@ -27,6 +28,9 @@ const LanguagePage = lazy(() => import('../pages/settings/language/LanguagePage.
 const PrivacyPolicyPage = lazy(() => import('../pages/privacy-policy/PrivacyPolicyPage.tsx'));
 const TermsOfServicePage = lazy(() => import('../pages/terms-of-service/TermsOfServicePage.tsx'));
 const LegalAcceptancePage = lazy(() => import('../pages/legal-acceptance/LegalAcceptancePage.tsx'));
+
+const OAuthConsentPage = lazy(() => import('../pages/oauth-consent/OAuthConsentPage.tsx'));
+const OAuthErrorPage = lazy(() => import('../pages/oauth-error/OAuthErrorPage.tsx'));
 
 function AppRoutes() {
   return (
@@ -42,6 +46,8 @@ function AppRoutes() {
             </>
           )}
 
+          <Route path="/oauth/error" element={<OAuthErrorPage/>}/>
+
           <Route element={<AuthRoute/>}>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
@@ -54,6 +60,8 @@ function AppRoutes() {
               <Route path="/legal-acceptance" element={<LegalAcceptancePage/>}/>
             )}
 
+            <Route path="/oauth/consent" element={<OAuthConsentPage/>}/>
+
             <Route element={<AppLayout/>}>
               <Route path="/home" element={<HomePage/>}/>
               <Route path="/categories" element={<CategoriesPage/>}/>
@@ -63,6 +71,7 @@ function AppRoutes() {
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/settings" element={<SettingsPage/>}/>
               <Route path="/settings/account" element={<AccountPage/>}/>
+              <Route path="/settings/connected-apps" element={<ConnectedAppsPage/>}/>
               <Route path="/settings/categories" element={<SettingsCategoriesPage/>}/>
               <Route path="/settings/payment-type" element={<PaymentTypePage/>}/>
               <Route path="/settings/recurring-expenses" element={<RecurringExpensesPage/>}/>

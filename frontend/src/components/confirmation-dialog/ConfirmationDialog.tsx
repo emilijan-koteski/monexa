@@ -15,6 +15,7 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   title: string;
   message: string;
+  messageParams?: Record<string, string>;
   isLoading?: boolean;
   confirmText: string;
   confirmColor:
@@ -32,6 +33,7 @@ function ConfirmationDialog({
   onConfirm,
   title,
   message,
+  messageParams,
   isLoading = false,
   confirmText,
   confirmColor = 'primary',
@@ -48,7 +50,7 @@ function ConfirmationDialog({
     >
       <DialogTitle>{t(title)}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{t(message)}</DialogContentText>
+        <DialogContentText>{t(message, messageParams)}</DialogContentText>
       </DialogContent>
       <DialogActions className='dialog-actions'>
         <Button

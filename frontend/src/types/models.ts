@@ -3,6 +3,7 @@ import { Language } from '../enums/Language.ts';
 import { Currency } from '../enums/Currency.ts';
 import { DocumentType } from '../enums/DocumentType.ts';
 import { RecurrenceFrequency } from '../enums/RecurrenceFrequency.ts';
+import { OAuthClientKind } from '../enums/OAuthClientKind.ts';
 
 export interface User {
   id: number;
@@ -104,4 +105,42 @@ export interface LegalDocument {
 export interface PendingDocumentsResponse {
   hasPendingDocuments: boolean;
   pendingDocuments: LegalDocument[];
+}
+
+export interface OAuthAuthorization {
+  id: string;
+  clientId: string;
+  clientName: string;
+  clientKind: OAuthClientKind;
+  clientUri: string | null;
+  logoUri: string | null;
+  redirectUri: string;
+  redirectHost: string;
+  scopes: string[];
+  expiresAt: string;
+}
+
+export interface OAuthGrant {
+  id: number;
+  clientId: string;
+  clientName: string;
+  clientKind: OAuthClientKind;
+  clientUri: string | null;
+  scopes: string[];
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+
+export interface AccessToken {
+  id: number;
+  name: string;
+  tokenPrefix: string;
+  scopes: string[];
+  createdAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string;
+}
+
+export interface CreatedAccessToken extends AccessToken {
+  token: string;
 }

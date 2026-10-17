@@ -11,6 +11,8 @@ import (
 const (
 	DefaultAccessTokenDuration  = 7 * 24 * time.Hour
 	DefaultRefreshTokenDuration = 30 * 24 * time.Hour
+
+	DelegatedAccessTokenDuration = 5 * time.Minute
 )
 
 type JWTMaker struct {
@@ -57,6 +59,39 @@ func (maker *JWTMaker) CreateAccessToken(userID uint, ppid string, legalAccepted
 	if err != nil {
 		return "", nil, err
 	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(maker.secretKey))
+	if err != nil {
+		return "", nil, fmt.Errorf("error signing token: %w", err)
+	}
+
+	return tokenString, claims, nil
+}
+
+// CreateDelegatedAccessToken mints a short-lived access token for an AI agent acting on behalf of the user.
+// It expires after DelegatedAccessTokenDuration or at notAfter, whichever comes first.
+func (maker *JWTMaker) CreateDelegatedAccessToken(userID uint, ppid string, legalAcceptedAt *time.Time, scope, clientID, grantID string, notAfter time.Time) (string, *UserClaims, error) {
+	if grantID == "" {
+		return "", nil, fmt.Errorf("delegated token requires a grant id")
+	}
+	now := time.Now()
+	if !notAfter.After(now) {
+		return "", nil, fmt.Errorf("delegated token notAfter must be in the future")
+	}
+	expiresAt := now.Add(DelegatedAccessTokenDuration)
+	if notAfter.Before(expiresAt) {
+		expiresAt = notAfter
+	}
+
+	claims, err := NewUserClaims(userID, ppid, DelegatedAccessTokenDuration, TokenTypeAccess, legalAcceptedAt)
+	if err != nil {
+		return "", nil, err
+	}
+	claims.Scope = scope
+	claims.ClientID = clientID
+	claims.GrantID = grantID
+	claims.ExpiresAt = jwt.NewNumericDate(expiresAt)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(maker.secretKey))

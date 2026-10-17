@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python3 "$(git rev-parse --show-toplevel)/.claude/hooks/test_files_policy.py" pre-push "$@"

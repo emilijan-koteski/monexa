@@ -109,6 +109,13 @@ func (s *RecordService) Create(ctx context.Context, req requests.RecordRequest) 
 		return nil, errors.New("invalid currency")
 	}
 
+	if err := ensureCategoryOwned(ctx, s.db, *req.UserID, *req.CategoryID); err != nil {
+		return nil, err
+	}
+	if err := ensurePaymentMethodOwned(ctx, s.db, *req.UserID, *req.PaymentMethodID); err != nil {
+		return nil, err
+	}
+
 	record := models.Record{
 		UserID:          *req.UserID,
 		CategoryID:      *req.CategoryID,
@@ -142,10 +149,16 @@ func (s *RecordService) Update(ctx context.Context, req requests.RecordRequest) 
 		return nil, err
 	}
 
-	if req.CategoryID != nil {
+	if req.CategoryID != nil && *req.CategoryID != record.CategoryID {
+		if err = ensureCategoryOwned(ctx, s.db, *req.UserID, *req.CategoryID); err != nil {
+			return nil, err
+		}
 		record.CategoryID = *req.CategoryID
 	}
-	if req.PaymentMethodID != nil {
+	if req.PaymentMethodID != nil && *req.PaymentMethodID != record.PaymentMethodID {
+		if err = ensurePaymentMethodOwned(ctx, s.db, *req.UserID, *req.PaymentMethodID); err != nil {
+			return nil, err
+		}
 		record.PaymentMethodID = *req.PaymentMethodID
 	}
 	if req.Amount != nil {

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+test/
+coverage/
+**/*.test.ts
+**/*.spec.ts
+.env
+.env.*
+*.log
+.DS_Store

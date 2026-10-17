@@ -1,6 +1,7 @@
 package database
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
@@ -13,6 +14,11 @@ import (
 	"github.com/go-gormigrate/gormigrate/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+)
+
+const (
+	seededTestUserEmail        = "test@monexa.com"
+	lockedPasswordEntropyBytes = 32
 )
 
 func computeContentHash(docType string, version int, title, titleMk, content, contentMk string) string {
@@ -35,6 +41,27 @@ func dropUniqueEmailIndex(tx *gorm.DB) error {
 		DROP INDEX IF EXISTS unique_email_active_users;
 	`
 	return tx.Exec(query).Error
+}
+
+func autoMigrateWithoutForeignKeys(tx *gorm.DB, dst ...any) error {
+	session := tx.Session(&gorm.Session{})
+	session.Config.DisableForeignKeyConstraintWhenMigrating = true
+	return session.AutoMigrate(dst...)
+}
+
+func lockTestUser(tx *gorm.DB) error {
+	secret := make([]byte, lockedPasswordEntropyBytes)
+	if _, err := rand.Read(secret); err != nil {
+		return err
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(hex.EncodeToString(secret)), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	if err := tx.Exec("UPDATE users SET password = ? WHERE email = ?", string(hash), seededTestUserEmail).Error; err != nil {
+		return err
+	}
+	return tx.Exec("DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE email = ?)", seededTestUserEmail).Error
 }
 
 func Migrate(db *gorm.DB) {
@@ -595,6 +622,77 @@ func Migrate(db *gorm.DB) {
 					return tx.Migrator().DropColumn(&models.Record{}, "RecurringExpenseID")
 				}
 				return nil
+			},
+		},
+		{
+			ID: "20261016120000_lock_test_user_in_production",
+			Migrate: func(tx *gorm.DB) error {
+				if os.Getenv("APP_ENV") != "production" {
+					log.Println("ℹ️ Skipped locking the seeded test account: APP_ENV is not production")
+					return nil
+				}
+				if err := lockTestUser(tx); err != nil {
+					return err
+				}
+				log.Println("🔒 Locked the seeded test account (APP_ENV=production)")
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return nil
+			},
+		},
+		{
+			ID: "20261016130000_create_oauth_clients_table",
+			Migrate: func(tx *gorm.DB) error {
+				return autoMigrateWithoutForeignKeys(tx, &models.OAuthClient{})
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_clients")
+			},
+		},
+		{
+			ID: "20261016130100_create_oauth_grants_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := autoMigrateWithoutForeignKeys(tx, &models.OAuthGrant{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.oauth_grants add constraint fk_oauth_grants_user foreign key (user_id) references public.users(id);
+					alter table public.oauth_grants add constraint fk_oauth_grants_client foreign key (client_id) references public.oauth_clients(id);
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_grants")
+			},
+		},
+		{
+			ID: "20261016130200_create_oauth_authorizations_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := autoMigrateWithoutForeignKeys(tx, &models.OAuthAuthorization{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.oauth_authorizations add constraint fk_oauth_authorizations_client foreign key (client_id) references public.oauth_clients(id) on delete cascade;
+					alter table public.oauth_authorizations add constraint fk_oauth_authorizations_user foreign key (user_id) references public.users(id);
+					alter table public.oauth_authorizations add constraint fk_oauth_authorizations_grant foreign key (grant_id) references public.oauth_grants(id) on delete cascade;
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_authorizations")
+			},
+		},
+		{
+			ID: "20261016130300_create_oauth_tokens_table",
+			Migrate: func(tx *gorm.DB) error {
+				if err := autoMigrateWithoutForeignKeys(tx, &models.OAuthToken{}); err != nil {
+					return err
+				}
+				return tx.Exec(`
+					alter table public.oauth_tokens add constraint fk_oauth_tokens_grant foreign key (grant_id) references public.oauth_grants(id) on delete cascade;
+				`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable("oauth_tokens")
 			},
 		},
 	})

@@ -87,9 +87,9 @@ const handleLogout = (): void => {
 };
 
 const handleLegalRequired = (): void => {
-  const currentPath = window.location.pathname;
-  if (currentPath !== '/legal-acceptance') {
-    sessionStorageUtils.setRedirectAfterLegal(currentPath);
+  const { pathname, search } = window.location;
+  if (pathname !== '/legal-acceptance') {
+    sessionStorageUtils.setRedirectAfterLegal(pathname + search);
     window.location.href = '/legal-acceptance';
   }
 };

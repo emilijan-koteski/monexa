@@ -1,0 +1,152 @@
+@use 'sass:color';
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#access-token-dialog {
+  .MuiDialog-paper {
+    @include sm-down {
+      border-radius: 0;
+      border: none;
+    }
+  }
+
+  .MuiDialogTitle-root {
+    @include sm-down {
+      font-size: 1.25rem;
+      padding: 16px 20px 12px;
+    }
+  }
+
+  .MuiDialogContent-root {
+    @include sm-down {
+      padding: 12px 20px;
+    }
+
+    #access-token-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding-top: 0.5rem;
+
+      .permission-option {
+        align-items: flex-start;
+        margin-top: 0.25rem;
+
+        .MuiRadio-root {
+          padding-top: 0.5rem;
+        }
+      }
+    }
+
+    .token-reveal {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding-top: 0.5rem;
+
+      .token-field {
+        input {
+          font-family: monospace;
+          font-size: 0.9rem;
+        }
+      }
+
+      .copyable {
+        position: relative;
+        min-width: 0;
+
+        .copy-icon-button {
+          position: absolute;
+          top: 50%;
+          right: 0.5rem;
+          transform: translateY(-50%);
+          font-size: 0.9rem;
+          color: $color-text-primary;
+          background-color: color.mix(#ffffff, $color-background-lighter, 8%);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.15s ease-in-out;
+
+          &:hover {
+            background-color: color.mix(#ffffff, $color-background-lighter, 16%);
+          }
+        }
+
+        &:hover .copy-icon-button,
+        &:focus-within .copy-icon-button {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        @media (hover: none) {
+          .copy-icon-button {
+            opacity: 1;
+            pointer-events: auto;
+          }
+        }
+      }
+
+      .snippets {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 0;
+
+        .snippet-box {
+          background-color: $color-input-background;
+          border: 1px solid $color-border;
+          border-radius: $border-radius-sm;
+
+          &.multiline .copy-icon-button {
+            top: 0.75rem;
+            transform: none;
+          }
+
+          .snippet-code {
+            margin: 0;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: $color-text-primary;
+            white-space: pre;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+              display: none;
+            }
+          }
+        }
+
+        .mcp-url-note {
+          overflow-wrap: anywhere;
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    @include sm-down {
+      padding: 12px 20px 16px;
+    }
+
+    .cancel-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+
+    .submit-button {
+      padding: 10px 24px;
+      border-radius: $border-radius-sm;
+
+      @include sm-down {
+        min-width: 80px;
+      }
+    }
+  }
+}

@@ -1,10 +1,13 @@
 import type { SettingGroup } from '../types/SettingGroup.ts';
-import { faCreditCard, faDollarSign, faFileContract, faLanguage, faList, faRepeat, faShieldHalved, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faDollarSign, faFileContract, faLanguage, faList, faPlug, faRepeat, faShieldHalved, faUser } from '@fortawesome/free-solid-svg-icons';
 
 export const settingsGroups: SettingGroup[] = [
   {
     categoryKey: 'GENERAL',
-    items: [{ icon: faUser, titleKey: 'ACCOUNT', path: '/settings/account' }],
+    items: [
+      { icon: faUser, titleKey: 'ACCOUNT', path: '/settings/account' },
+      { icon: faPlug, titleKey: 'CONNECTED_APPS', path: '/settings/connected-apps' },
+    ],
   },
   {
     categoryKey: 'RECORDS',

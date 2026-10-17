@@ -11,6 +11,7 @@ import { useLogin } from '../../services/authService.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
 import { changeLanguage } from '../../i18n.ts';
 import { Language } from '../../enums/Language.ts';
+import { sessionStorageUtils } from '../../utils/storage.ts';
 import './login-page.scss';
 
 const LoginPage = () => {
@@ -55,7 +56,9 @@ const LoginPage = () => {
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate({ ...data, email: data.email.trim().toLowerCase() }, {
       onSuccess: () => {
-        navigate('/home');
+        const returnTo = sessionStorageUtils.getReturnTo() ?? '/home';
+        sessionStorageUtils.clearReturnTo();
+        navigate(returnTo, { replace: true });
       },
     });
   };

@@ -95,6 +95,9 @@ func (h *recurringExpenseHandler) Create(c echo.Context) error {
 
 	recurringExpense, err := h.recurringExpenseService.Create(c.Request().Context(), req)
 	if err != nil {
+		if errors.Is(err, services.ErrReferenceNotFound) {
+			return responses.BadRequestWithError(c, err)
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error creating recurring expense: %w", err))
 	}
 
@@ -132,6 +135,9 @@ func (h *recurringExpenseHandler) Update(c echo.Context) error {
 
 	recurringExpense, err := h.recurringExpenseService.Update(c.Request().Context(), req)
 	if err != nil {
+		if errors.Is(err, services.ErrReferenceNotFound) {
+			return responses.BadRequestWithError(c, err)
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error updating recurring expense: %w", err))
 	}
 

@@ -1,0 +1,64 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#oauth-error-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gradient-background;
+
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+  }
+
+  .language-change-container {
+    align-self: flex-end;
+  }
+
+  .error-paper {
+    width: 100%;
+    padding: 3rem;
+    backdrop-filter: blur(10px);
+
+    @include sm-down {
+      padding: 1.5rem;
+    }
+  }
+
+  .error-content {
+    align-items: center;
+    text-align: center;
+
+    .app-title {
+      font-weight: 700;
+      background: $gradient-primary;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .error-icon {
+      font-size: 2.5rem;
+      color: $color-warning;
+    }
+
+    .error-title {
+      color: $color-text-primary;
+      font-weight: 600;
+    }
+
+    .error-description {
+      overflow-wrap: anywhere;
+
+      .error-description-label {
+        font-weight: 600;
+      }
+    }
+  }
+}

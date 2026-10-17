@@ -75,3 +75,7 @@ export interface TrendReportMonthlyDetails {
   currency: string;
   year: number;
 }
+
+export interface OAuthRedirectResponse {
+  redirectUrl: string;
+}
