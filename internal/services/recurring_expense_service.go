@@ -12,6 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const activeOwnerJoin = "JOIN users ON users.id = recurring_expenses.user_id AND users.deleted_at IS NULL"
+
 type RecurringExpenseService struct {
 	db *gorm.DB
 }
@@ -243,7 +245,8 @@ func (s *RecurringExpenseService) GetDueRecurringExpenses(ctx context.Context) (
 
 	var due []models.RecurringExpense
 	if err := s.db.WithContext(ctx).
-		Where("is_active = ? AND next_run_date <= ? AND (end_date IS NULL OR next_run_date <= end_date)", true, today).
+		Joins(activeOwnerJoin).
+		Where("recurring_expenses.is_active = ? AND recurring_expenses.next_run_date <= ? AND (recurring_expenses.end_date IS NULL OR recurring_expenses.next_run_date <= recurring_expenses.end_date)", true, today).
 		Find(&due).Error; err != nil {
 		return nil, err
 	}
@@ -251,14 +254,16 @@ func (s *RecurringExpenseService) GetDueRecurringExpenses(ctx context.Context) (
 	return due, nil
 }
 
-// GenerateDueRecords re-checks the expense is active inside the transaction before
-// materializing its due occurrences, guarding against concurrent changes.
+// GenerateDueRecords re-checks inside the transaction that the expense is active and its owner is not deleted
+// before materializing its due occurrences, guarding against concurrent changes.
 func (s *RecurringExpenseService) GenerateDueRecords(ctx context.Context, recurringExpenseID uint) (int, error) {
 	generated := 0
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var recurringExpense models.RecurringExpense
-		if err := tx.Where("id = ? AND is_active = ?", recurringExpenseID, true).First(&recurringExpense).Error; err != nil {
+		if err := tx.Joins(activeOwnerJoin).
+			Where("recurring_expenses.id = ? AND recurring_expenses.is_active = ?", recurringExpenseID, true).
+			First(&recurringExpense).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil
 			}

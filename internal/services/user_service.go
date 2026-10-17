@@ -509,6 +509,16 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 		return fmt.Errorf("failed to anonymize records: %w", err)
 	}
 
+	if err := tx.Unscoped().Model(&models.RecurringExpense{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
+		"description": gorm.Expr("CONCAT('[Deleted Recurring Expense #', id, ']')"),
+		"amount":      0,
+		"is_active":   false,
+		"deleted_at":  now,
+	}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to anonymize recurring expenses: %w", err)
+	}
+
 	if err := tx.Unscoped().Model(&models.PaymentMethod{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"name":       gorm.Expr("CONCAT('[Deleted Payment Method #', id, ']')"),
 		"deleted_at": now,
