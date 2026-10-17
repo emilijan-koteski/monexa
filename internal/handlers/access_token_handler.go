@@ -65,6 +65,8 @@ func (h *accessTokenHandler) Create(c echo.Context) error {
 			return responses.BadRequestWithError(c, err)
 		case errors.Is(err, services.ErrAccessTokenLimitReached):
 			return responses.ConflictWithMessage(c, "access token limit reached (10)")
+		case errors.Is(err, services.ErrUserNotFound):
+			return responses.Unauthorized(c)
 		default:
 			return accessTokenFailure(c, "creating access token", err)
 		}

@@ -15,6 +15,7 @@ var (
 	ErrOAuthInvalidRedirectURI    = errors.New("invalid_redirect_uri")
 	ErrAccessTokenLimitReached    = errors.New("access token limit reached")
 	ErrAccessTokenInvalid         = errors.New("invalid access token request")
+	ErrUserNotFound               = errors.New("user not found or deleted")
 )
 
 // OAuthNoRedirectError rejects an /authorize request whose client or redirect_uri is not trusted, so the user sees an error page instead.

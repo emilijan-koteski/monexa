@@ -122,10 +122,14 @@ func (h *oauthConsentHandler) RevokeGrant(c echo.Context) error {
 }
 
 func authorizationFailure(c echo.Context, operation string, err error) error {
-	if errors.Is(err, services.ErrOAuthAuthorizationNotFound) {
+	switch {
+	case errors.Is(err, services.ErrOAuthAuthorizationNotFound):
 		return responses.NotFound(c)
+	case errors.Is(err, services.ErrUserNotFound):
+		return responses.Unauthorized(c)
+	default:
+		return consentFailure(c, operation, err)
 	}
-	return consentFailure(c, operation, err)
 }
 
 func consentFailure(c echo.Context, operation string, err error) error {

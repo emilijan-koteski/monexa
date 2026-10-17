@@ -118,13 +118,14 @@ func revokeMatchingGrants(tx *gorm.DB, now time.Time, grantQuery string, grantAr
 	return nil
 }
 
+// lockUserRow serializes grant creation per user and returns ErrUserNotFound for a missing or soft-deleted account.
 func lockUserRow(tx *gorm.DB, userID uint) error {
 	var locked []uint
-	if err := tx.Raw("SELECT id FROM users WHERE id = ? FOR NO KEY UPDATE", userID).Scan(&locked).Error; err != nil {
+	if err := tx.Raw("SELECT id FROM users WHERE id = ? AND deleted_at IS NULL FOR NO KEY UPDATE", userID).Scan(&locked).Error; err != nil {
 		return fmt.Errorf("failed to lock user: %w", err)
 	}
 	if len(locked) == 0 {
-		return gorm.ErrRecordNotFound
+		return ErrUserNotFound
 	}
 	return nil
 }
