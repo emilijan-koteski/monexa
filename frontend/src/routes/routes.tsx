@@ -28,6 +28,9 @@ const PrivacyPolicyPage = lazy(() => import('../pages/privacy-policy/PrivacyPoli
 const TermsOfServicePage = lazy(() => import('../pages/terms-of-service/TermsOfServicePage.tsx'));
 const LegalAcceptancePage = lazy(() => import('../pages/legal-acceptance/LegalAcceptancePage.tsx'));
 
+const OAuthConsentPage = lazy(() => import('../pages/oauth-consent/OAuthConsentPage.tsx'));
+const OAuthErrorPage = lazy(() => import('../pages/oauth-error/OAuthErrorPage.tsx'));
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -42,6 +45,8 @@ function AppRoutes() {
             </>
           )}
 
+          <Route path="/oauth/error" element={<OAuthErrorPage/>}/>
+
           <Route element={<AuthRoute/>}>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
@@ -53,6 +58,8 @@ function AppRoutes() {
             {ENV.LEGAL_COMPLIANCE_ENABLED && (
               <Route path="/legal-acceptance" element={<LegalAcceptancePage/>}/>
             )}
+
+            <Route path="/oauth/consent" element={<OAuthConsentPage/>}/>
 
             <Route element={<AppLayout/>}>
               <Route path="/home" element={<HomePage/>}/>

@@ -16,6 +16,7 @@ const ProtectedRoute = () => {
   });
 
   if (!isAuthenticated) {
+    sessionStorageUtils.setReturnTo(location.pathname + location.search);
     return <Navigate to="/login" replace />;
   }
 

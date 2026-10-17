@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'language',
   DRAWER_STATE: 'drawerExpanded',
   REDIRECT_AFTER_LEGAL: 'redirectAfterLegal',
+  RETURN_TO: 'returnTo',
 } as const;
 
 export const localStorageUtils = {
@@ -24,6 +25,15 @@ export const localStorageUtils = {
   setDrawerState: (state: string): void => localStorage.setItem(STORAGE_KEYS.DRAWER_STATE, state),
 };
 
+const CONTROL_CHARACTERS = /\p{Cc}/u;
+
+export const isSafeReturnPath = (path: string | null): path is string =>
+  path !== null &&
+  path.startsWith('/') &&
+  !path.startsWith('//') &&
+  !path.startsWith('/\\') &&
+  !CONTROL_CHARACTERS.test(path);
+
 export const sessionStorageUtils = {
   setRedirectAfterLegal: (path: string): void => {
     sessionStorage.setItem(STORAGE_KEYS.REDIRECT_AFTER_LEGAL, path);
@@ -33,5 +43,16 @@ export const sessionStorageUtils = {
   },
   clearRedirectAfterLegal: (): void => {
     sessionStorage.removeItem(STORAGE_KEYS.REDIRECT_AFTER_LEGAL);
+  },
+
+  setReturnTo: (path: string): void => {
+    sessionStorage.setItem(STORAGE_KEYS.RETURN_TO, path);
+  },
+  getReturnTo: (): string | null => {
+    const path = sessionStorage.getItem(STORAGE_KEYS.RETURN_TO);
+    return isSafeReturnPath(path) ? path : null;
+  },
+  clearReturnTo: (): void => {
+    sessionStorage.removeItem(STORAGE_KEYS.RETURN_TO);
   },
 };

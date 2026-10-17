@@ -11,7 +11,7 @@ import { useRegister } from '../../services/authService.ts';
 import { useActiveDocuments } from '../../services/legalDocumentService.ts';
 import { DocumentType } from '../../enums/DocumentType.ts';
 import LanguageChange from '../../components/language-change/LanguageChange.tsx';
-import { localStorageUtils } from '../../utils/storage.ts';
+import { localStorageUtils, sessionStorageUtils } from '../../utils/storage.ts';
 import { ENV } from '../../config/env.ts';
 import './register-page.scss';
 
@@ -94,7 +94,9 @@ const RegisterPage = () => {
 
     registerMutation.mutate(registerData, {
       onSuccess: () => {
-        navigate('/');
+        const returnTo = sessionStorageUtils.getReturnTo() ?? '/';
+        sessionStorageUtils.clearReturnTo();
+        navigate(returnTo, { replace: true });
       },
     });
   };
