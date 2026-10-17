@@ -18,10 +18,6 @@ type oauthConsentHandler struct {
 	grantService         *services.OAuthGrantService
 }
 
-type oauthRedirectResponse struct {
-	RedirectURL string `json:"redirectUrl"`
-}
-
 func RegisterOAuthConsentHandler(
 	e *echo.Echo,
 	authorizationService *services.OAuthAuthorizationService,
@@ -73,7 +69,7 @@ func (h *oauthConsentHandler) Approve(c echo.Context) error {
 		return authorizationFailure(c, "approving authorization", err)
 	}
 
-	return responses.SuccessWithData(c, oauthRedirectResponse{RedirectURL: redirectURL})
+	return responses.SuccessWithData(c, dtoResponses.OAuthRedirectResponse{RedirectURL: redirectURL})
 }
 
 func (h *oauthConsentHandler) Deny(c echo.Context) error {
@@ -87,7 +83,7 @@ func (h *oauthConsentHandler) Deny(c echo.Context) error {
 		return authorizationFailure(c, "denying authorization", err)
 	}
 
-	return responses.SuccessWithData(c, oauthRedirectResponse{RedirectURL: redirectURL})
+	return responses.SuccessWithData(c, dtoResponses.OAuthRedirectResponse{RedirectURL: redirectURL})
 }
 
 func (h *oauthConsentHandler) ListGrants(c echo.Context) error {

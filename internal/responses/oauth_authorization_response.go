@@ -27,6 +27,10 @@ type OAuthAuthorizationResponse struct {
 	ExpiresAt    time.Time             `json:"expiresAt"`
 }
 
+type OAuthRedirectResponse struct {
+	RedirectURL string `json:"redirectUrl"`
+}
+
 // NewOAuthAuthorizationResponse describes a pending authorization, with its client preloaded, for the consent page.
 func NewOAuthAuthorizationResponse(authorization *models.OAuthAuthorization) OAuthAuthorizationResponse {
 	clientURI, logoURI := verifiedClientLinks(authorization.Client)

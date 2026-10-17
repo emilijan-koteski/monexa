@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/emilijan-koteski/monexa/internal/handlers/responses"
 	"github.com/emilijan-koteski/monexa/internal/middlewares"
@@ -283,8 +285,7 @@ func (h *authHandler) DeleteAccount(c echo.Context) error {
 		return responses.FailureWithError(c, fmt.Errorf("error deleting user: %w", err))
 	}
 
-	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), userID)
-	_ = h.oauthGrantService.RevokeAllForUser(c.Request().Context(), userID)
+	h.revokeUserAccess(c.Request().Context(), userID)
 
 	return responses.Success(c)
 }
@@ -304,8 +305,7 @@ func (h *authHandler) ChangePassword(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, err.Error())
 	}
 
-	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), claims.UserID)
-	_ = h.oauthGrantService.RevokeAllForUser(c.Request().Context(), claims.UserID)
+	h.revokeUserAccess(c.Request().Context(), claims.UserID)
 
 	return responses.SuccessWithMessage(c, "password changed successfully")
 }
@@ -338,8 +338,7 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 		return responses.BadRequestWithMessage(c, "invalid or expired reset token")
 	}
 
-	_ = h.sessionService.RevokeAllUserSessions(c.Request().Context(), user.ID)
-	_ = h.oauthGrantService.RevokeAllForUser(c.Request().Context(), user.ID)
+	h.revokeUserAccess(c.Request().Context(), user.ID)
 
 	legalAcceptedAt := h.legalDocumentService.GetLegalAcceptedAt(c.Request().Context(), user.ID)
 	accessToken, _, err := h.tokenMaker.CreateAccessToken(user.ID, user.PPID, legalAcceptedAt)
@@ -372,4 +371,14 @@ func (h *authHandler) ResetPassword(c echo.Context) error {
 	response["refreshToken"] = refreshToken
 
 	return responses.SuccessWithData(c, response)
+}
+
+// revokeUserAccess ends every session and connected app of the user, logging failures without failing the request.
+func (h *authHandler) revokeUserAccess(ctx context.Context, userID uint) {
+	if err := h.sessionService.RevokeAllUserSessions(ctx, userID); err != nil {
+		log.Printf("auth: failed to revoke sessions of user %d: %v", userID, err)
+	}
+	if err := h.oauthGrantService.RevokeAllForUser(ctx, userID); err != nil {
+		log.Printf("auth: failed to revoke connected apps of user %d: %v", userID, err)
+	}
 }
