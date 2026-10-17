@@ -48,9 +48,6 @@ var delegatedAllowlist = map[string]bool{
 	"GET /api/v1/trend-reports/:id":                 true,
 	"GET /api/v1/trend-reports/:id/monthly-data":    true,
 	"GET /api/v1/trend-reports/:id/monthly-details": true,
-	"POST /api/v1/trend-reports":                    true,
-	"PATCH /api/v1/trend-reports/:id":               true,
-	"DELETE /api/v1/trend-reports/:id":              true,
 
 	"GET /api/v1/users/me": true,
 }

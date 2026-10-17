@@ -257,12 +257,12 @@
   {
     "method": "POST",
     "path": "/api/v1/trend-reports",
-    "delegated": true
+    "delegated": false
   },
   {
     "method": "DELETE",
     "path": "/api/v1/trend-reports/:id",
-    "delegated": true
+    "delegated": false
   },
   {
     "method": "GET",
@@ -272,7 +272,7 @@
   {
     "method": "PATCH",
     "path": "/api/v1/trend-reports/:id",
-    "delegated": true
+    "delegated": false
   },
   {
     "method": "GET",

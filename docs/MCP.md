@@ -70,7 +70,7 @@ Select Approve to connect or Deny to cancel. Nothing is shared until you approve
 | Permission | Scope | Allows |
 | --- | --- | --- |
 | Read | `monexa.read` | Viewing records, categories, payment methods, recurring expenses, trend reports and settings. |
-| Read & write | `monexa.read` and `monexa.write` | Everything in Read, plus creating, editing and deleting records, categories, payment methods and recurring expenses and changing your settings. Trend reports stay read-only through the MCP tools, although the permission allows more at the API level. |
+| Read & write | `monexa.read` and `monexa.write` | Everything in Read, plus creating, editing and deleting records, categories, payment methods and recurring expenses and changing your settings. Trend reports are read-only for connected apps. |
 
 An app asks for the permissions it needs, and the consent screen lists them. If you want an agent to only look at your data, create a read-only [access token](#access-tokens-for-your-own-agents). A read-only connection that tries to change something gets the message "This connection doesn't have permission for that (it may be read-only)."
 
@@ -269,7 +269,7 @@ Read tools only look at your data; write tools need the Read & write permission.
 
 - `list_records` returns at most 500 records per call (50 by default) and has no paging beyond that. Narrow the request by date range, category, payment method or search text; the response says when it was cut off.
 - Supported currencies are MKD, EUR, USD, AUD, CHF and GBP.
-- Trend reports are read-only for now. Creating, editing and deleting them is planned for a later release.
+- Trend reports are read-only for connected apps. Creating, editing and deleting them is planned for a later release.
 - Dates are `YYYY-MM-DD` or full RFC 3339 timestamps. A date-only record date is stored as 12:00 UTC that day.
 - You can have 10 active access tokens, and each expires after 30, 90 or 365 days.
 
