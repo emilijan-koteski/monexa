@@ -125,6 +125,8 @@
   "CURRENCY_AUD": "Австралиски долар",
   "CURRENCY_CHF": "Швајцарски франк",
   "CURRENCY_GBP": "Британска фунта",
+  "CURRENCY_HUF": "Унгарска форинта",
+  "CURRENCY_RSD": "Српски динар",
   "LANGUAGE_UPDATED_SUCCESS": "Јазикот е успешно ажуриран!",
   "LANGUAGE_UPDATE_ERROR": "Неуспешно ажурирање на јазикот. Обидете се повторно.",
   "LANGUAGE_EN": "Англиски",

@@ -127,6 +127,7 @@ func main() {
 		CategoryService:           categoryService,
 		SettingService:            settingService,
 		TrendReportService:        trendReportService,
+		CurrencyService:           currencyService,
 		OAuthGrantService:         oauthGrantService,
 		OAuthClientService:        oauthClientService,
 		OAuthAuthorizationService: oauthAuthorizationService,

@@ -695,6 +695,11 @@ func Migrate(db *gorm.DB) {
 				return tx.Migrator().DropTable("oauth_tokens")
 			},
 		},
+		{
+			ID:       "20261031120000_add_huf_rsd_exchange_rates",
+			Migrate:  migrateHufRsdFallbackRates,
+			Rollback: rollbackHufRsdFallbackRates,
+		},
 	})
 
 	if err := m.Migrate(); err != nil {

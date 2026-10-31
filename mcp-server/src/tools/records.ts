@@ -40,6 +40,8 @@ export const recordSchema = z.object({
   description: z.string().nullable(),
   date: z.string(),
   recurringExpenseId: z.number().int().nullable(),
+  groupId: z.number().int().nullable().optional(),
+  groupExpenseShareId: z.number().int().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
 });

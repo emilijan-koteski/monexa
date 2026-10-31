@@ -125,6 +125,8 @@
   "CURRENCY_AUD": "Australian Dollar",
   "CURRENCY_CHF": "Swiss Franc",
   "CURRENCY_GBP": "British Pound",
+  "CURRENCY_HUF": "Hungarian Forint",
+  "CURRENCY_RSD": "Serbian Dinar",
   "LANGUAGE_UPDATED_SUCCESS": "Language updated successfully!",
   "LANGUAGE_UPDATE_ERROR": "Failed to update language. Please try again.",
   "LANGUAGE_EN": "English",

@@ -11,7 +11,8 @@ const WEBSITE_URL = "https://monexa.world";
 export const SERVER_INSTRUCTIONS = [
   "Monexa is a personal finance tracker. Users record income and expenses as records, each with an amount, a currency, a date, a category and a payment method, and can define recurring expenses and trend reports.",
   "Categories, payment methods, records, recurring expenses and trend reports are identified by numeric IDs that come from the corresponding list tools.",
-  "Supported currencies are MKD, EUR, USD, AUD, CHF and GBP. Each record keeps its own currency; summaries and statistics are converted into the display currency from the user's settings.",
+  "Supported currencies are MKD, EUR, USD, AUD, CHF, GBP, HUF and RSD. Each record keeps its own currency; summaries and statistics are converted into the display currency from the user's settings.",
+  "A record with a groupId is the user's share of a shared-group expense, kept in sync by the group: its amount, currency, date and deletion are managed in the Monexa app, while its category, payment method and description can be changed.",
   "Dates are accepted as YYYY-MM-DD or as full RFC 3339 timestamps; full timestamps are used as given. A date-only record date is stored as 12:00 UTC on that day. Recurring-expense start and end dates keep only their UTC calendar day. In date-range filters a date-only start means 00:00:00 UTC and a date-only end means 23:59:59 UTC, both inclusive.",
   "Today is the current date in UTC; get_profile returns it, and create_record uses it when no date is given.",
 ].join("\n");

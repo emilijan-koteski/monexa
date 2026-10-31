@@ -5,4 +5,6 @@ type ExchangeRateSourceType string
 const (
 	ExchangeRateApi ExchangeRateSourceType = "EXCHANGE_RATE_API"
 	Fallback        ExchangeRateSourceType = "FALLBACK"
+	Identity        ExchangeRateSourceType = "IDENTITY"
+	ManualRate      ExchangeRateSourceType = "MANUAL"
 )

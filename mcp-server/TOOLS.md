@@ -47,6 +47,7 @@ Generated from the tool registry in `src/tools` by `npm run docs`. `npm run chec
 | `POST /api/v1/auth/sessions/revoke` | Sign-in and session management of the Monexa app; connected apps authenticate with OAuth. |
 | `POST /api/v1/auth/tokens/renew` | Sign-in and session management of the Monexa app; connected apps authenticate with OAuth. |
 | `GET /api/v1/categories/:id` | list_categories returns the same data. |
+| `GET /api/v1/exchange-rates/rate` | UI helper for the shared-group expense form. |
 | `GET /api/v1/health` | Infrastructure health check. |
 | `GET /api/v1/health/restricted` | Infrastructure health check. |
 | `GET /api/v1/legal-documents` | Legal documents are reviewed and accepted in the Monexa app. |

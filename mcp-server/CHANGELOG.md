@@ -4,6 +4,11 @@ All notable changes to the Monexa MCP server are recorded here. The format follo
 
 ## [Unreleased]
 
+### Added
+
+- Currencies `HUF` and `RSD` in every currency parameter and result.
+- `groupId` and `groupExpenseShareId` on records, set when a record is the user's share of a shared-group expense.
+
 ## [2.0.0] - 2026-10-17
 
 ### Changed

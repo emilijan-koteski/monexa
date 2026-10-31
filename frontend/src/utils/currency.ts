@@ -7,6 +7,7 @@ import { Currency } from '../enums/Currency';
 export interface CurrencyConfig {
   symbol: string;
   position: 'before' | 'after';
+  decimals?: number;
 }
 
 const CURRENCY_CONFIGS: Record<string, CurrencyConfig> = {
@@ -16,6 +17,8 @@ const CURRENCY_CONFIGS: Record<string, CurrencyConfig> = {
   [Currency.AUD]: { symbol: 'A$', position: 'before' },
   [Currency.CHF]: { symbol: 'CHF', position: 'before' },
   [Currency.GBP]: { symbol: '£', position: 'before' },
+  [Currency.HUF]: { symbol: 'Ft', position: 'after', decimals: 0 },
+  [Currency.RSD]: { symbol: 'дин', position: 'after' },
 };
 
 /**
@@ -31,13 +34,12 @@ export function getCurrencySymbol(currency: string): string {
 export function formatCurrencyAmount(
   amount: number | string,
   currency: string,
-  decimals: number = 2
+  decimals?: number
 ): string {
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const fixedAmount = numAmount.toFixed(decimals);
-  const formattedAmount = formatAmount(fixedAmount);
-
   const config = CURRENCY_CONFIGS[currency];
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const fixedAmount = numAmount.toFixed(decimals ?? config?.decimals ?? 2);
+  const formattedAmount = formatAmount(fixedAmount);
 
   if (!config) {
     return `${formattedAmount} ${currency}`;
@@ -55,7 +57,7 @@ export function formatRecordAmount(
   amount: number | string,
   currency: string,
   isExpense: boolean,
-  decimals: number = 2
+  decimals?: number
 ): string {
   const sign = isExpense ? '-' : '+';
   const formattedAmount = formatCurrencyAmount(amount, currency, decimals);

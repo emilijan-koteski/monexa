@@ -1,4 +1,4 @@
-export type Currency = "MKD" | "EUR" | "USD" | "AUD" | "CHF" | "GBP";
+export type Currency = "MKD" | "EUR" | "USD" | "AUD" | "CHF" | "GBP" | "HUF" | "RSD";
 export type Language = "EN" | "MK";
 export type CategoryType = "INCOME" | "EXPENSE";
 export type Frequency = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
@@ -49,6 +49,8 @@ export interface FinancialRecord {
   description: string | null;
   date: Timestamp;
   recurringExpenseId: number | null;
+  groupId?: number | null;
+  groupExpenseShareId?: number | null;
 }
 
 export interface RecurringExpense {

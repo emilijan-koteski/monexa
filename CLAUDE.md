@@ -10,7 +10,7 @@ Monexa is a personal finance / expense tracker with multi-currency support. The 
 - **Frontend** (`frontend/`) — React 19 + Vite + TypeScript, MUI v7, TanStack Query.
 - **MCP server** (`mcp-server/`) — remote MCP service (Express, Streamable HTTP at `https://mcp.monexa.world/mcp`) that exposes the API to AI assistants; it is an API *client* of the backend, deployed as its own Dokploy service.
 
-Tool versions come from `mise.toml` (Go 1.25, Node 22); run `mise install`. Supported currencies are `MKD, EUR, USD, AUD, CHF, GBP`; supported languages are `EN, MK` (English/Macedonian).
+Tool versions come from `mise.toml` (Go 1.25, Node 22); run `mise install`. Supported currencies are `MKD, EUR, USD, AUD, CHF, GBP, HUF, RSD`; supported languages are `EN, MK` (English/Macedonian).
 
 ## Commands
 
