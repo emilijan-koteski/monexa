@@ -142,3 +142,7 @@ func ServiceUnavailable(c echo.Context) error {
 func ServiceUnavailableWithMessage(c echo.Context, message string) error {
 	return c.JSON(http.StatusServiceUnavailable, createMessageBody(http.StatusServiceUnavailable, message))
 }
+
+func TooManyRequestsWithMessage(c echo.Context, message string) error {
+	return c.JSON(http.StatusTooManyRequests, createMessageBody(http.StatusTooManyRequests, message))
+}

@@ -22,6 +22,7 @@ type Deps struct {
 	SettingService            *services.SettingService
 	TrendReportService        *services.TrendReportService
 	CurrencyService           *services.CurrencyService
+	GroupService              *services.GroupService
 	OAuthGrantService         *services.OAuthGrantService
 	OAuthClientService        *services.OAuthClientService
 	OAuthAuthorizationService *services.OAuthAuthorizationService
@@ -46,6 +47,7 @@ func Register(e *echo.Echo, deps Deps) {
 	handlers.RegisterSettingHandler(e, deps.SettingService, deps.RestrictedMiddlewares...)
 	handlers.RegisterTrendReportHandler(e, deps.TrendReportService, deps.RestrictedMiddlewares...)
 	handlers.RegisterExchangeRateHandler(e, deps.CurrencyService, deps.RestrictedMiddlewares...)
+	handlers.RegisterGroupHandler(e, deps.GroupService, deps.RestrictedMiddlewares...)
 	if deps.LegalComplianceEnabled {
 		handlers.RegisterLegalDocumentHandler(e, deps.LegalDocumentService)
 	}

@@ -101,6 +101,76 @@
   },
   {
     "method": "GET",
+    "path": "/api/v1/groups",
+    "delegated": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/groups",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id",
+    "delegated": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/groups/:id",
+    "delegated": false
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/groups/:id",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id/invite-code",
+    "delegated": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/groups/:id/invite-code",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id/me",
+    "delegated": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/groups/:id/members",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id/members/:memberId",
+    "delegated": false
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/groups/:id/members/:memberId",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id/members/:memberId/link",
+    "delegated": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/groups/join/:code",
+    "delegated": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/groups/join/:code",
+    "delegated": false
+  },
+  {
+    "method": "GET",
     "path": "/api/v1/health",
     "delegated": false
   },

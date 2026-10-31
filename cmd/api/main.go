@@ -80,6 +80,7 @@ func main() {
 	paymentMethodService := services.NewPaymentMethodService(db)
 	exportService := services.NewExportService(db, settingService, legalComplianceEnabled)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
+	groupService := services.NewGroupService(db)
 	log.Println("👍 [6] All services initiated successfully")
 
 	// Start background jobs
@@ -128,6 +129,7 @@ func main() {
 		SettingService:            settingService,
 		TrendReportService:        trendReportService,
 		CurrencyService:           currencyService,
+		GroupService:              groupService,
 		OAuthGrantService:         oauthGrantService,
 		OAuthClientService:        oauthClientService,
 		OAuthAuthorizationService: oauthAuthorizationService,
