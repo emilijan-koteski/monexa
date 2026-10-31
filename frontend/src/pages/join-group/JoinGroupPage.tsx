@@ -57,7 +57,7 @@ function JoinGroupPage() {
 
   useEffect(() => {
     if (preview) {
-      setChoice(preview.guests.length > 0 ? String(preview.guests[0].id) : NEW_PERSON);
+      setChoice(preview.guests.length > 0 ? '' : NEW_PERSON);
       setNewName(preview.suggestedName);
     }
   }, [preview]);
@@ -140,7 +140,7 @@ function JoinGroupPage() {
               fullWidth
             />
           )}
-          <Button variant="contained" size="large" onClick={join} disabled={joinGroup.isPending} className="join-button">
+          <Button variant="contained" size="large" onClick={join} disabled={joinGroup.isPending || choice === ''} className="join-button">
             {joinGroup.isPending ? <CircularProgress size={24} /> : t('GROUP_JOIN')}
           </Button>
           <Typography variant="caption" className="join-muted join-privacy">{t('GROUP_JOIN_PRIVACY')}</Typography>

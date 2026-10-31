@@ -124,6 +124,8 @@
     border-bottom: 1px solid $color-border;
 
     .MuiTab-root {
+      min-width: 0;
+      padding: 6px 4px;
       min-height: 48px;
       text-transform: none;
       font-size: 0.95rem;
