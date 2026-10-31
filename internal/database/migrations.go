@@ -700,6 +700,36 @@ func Migrate(db *gorm.DB) {
 			Migrate:  migrateHufRsdFallbackRates,
 			Rollback: rollbackHufRsdFallbackRates,
 		},
+		{
+			ID:       "20261031120100_create_groups_table",
+			Migrate:  migrateCreateGroups,
+			Rollback: func(tx *gorm.DB) error { return tx.Migrator().DropTable("groups") },
+		},
+		{
+			ID:       "20261031120200_create_group_members_table",
+			Migrate:  migrateCreateGroupMembers,
+			Rollback: func(tx *gorm.DB) error { return tx.Migrator().DropTable("group_members") },
+		},
+		{
+			ID:       "20261031120300_create_group_expenses_table",
+			Migrate:  migrateCreateGroupExpenses,
+			Rollback: func(tx *gorm.DB) error { return tx.Migrator().DropTable("group_expenses") },
+		},
+		{
+			ID:       "20261031120400_create_group_expense_shares_table",
+			Migrate:  migrateCreateGroupExpenseShares,
+			Rollback: func(tx *gorm.DB) error { return tx.Migrator().DropTable("group_expense_shares") },
+		},
+		{
+			ID:       "20261031120500_create_group_settlements_table",
+			Migrate:  migrateCreateGroupSettlements,
+			Rollback: func(tx *gorm.DB) error { return tx.Migrator().DropTable("group_settlements") },
+		},
+		{
+			ID:       "20261031120600_add_record_group_columns",
+			Migrate:  migrateAddRecordGroupColumns,
+			Rollback: rollbackAddRecordGroupColumns,
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
