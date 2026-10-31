@@ -611,7 +611,6 @@
   "GROUP_PAIR_YOU_OWE": "You owe {{name}} {{amount}}",
   "GROUP_PAIR_SQUARE": "All square with {{name}}",
   "GROUP_PAYMENTS": "Payments",
-  "GROUP_PAYMENT_LINE": "{{from}} paid {{to}} {{amount}}",
   "GROUP_REMOVE": "Remove",
   "GROUP_ADD_AMOUNT": "Add amount",
   "GROUP_CLOSE": "Close",
@@ -673,5 +672,11 @@
   "GROUP_SYNC_OFF_REMOVED": "Sync off: synced records removed",
   "GROUP_SYNC_ERROR": "Could not change the sync. Please try again.",
   "GROUP_SHARED": "Shared group",
-  "GROUP_RECORD_MANAGED_HINT": "Synced from {{name}}: change the amount, currency and date there"
+  "GROUP_RECORD_MANAGED_HINT": "Synced from {{name}}: change the amount, currency and date there",
+  "GROUP_YOU_PAY": "You pay {{to}}",
+  "GROUP_PAYS_YOU": "{{from}} pays you",
+  "GROUP_YOU_PAID_LINE": "You paid {{to}} {{amount}}",
+  "GROUP_PAID_YOU_LINE": "{{from}} paid you {{amount}}",
+  "GROUP_YOU_PAID_SUMMARY": "You paid {{to}} {{amount}}.",
+  "GROUP_PAID_YOU_SUMMARY": "{{from}} paid you {{amount}}."
 }

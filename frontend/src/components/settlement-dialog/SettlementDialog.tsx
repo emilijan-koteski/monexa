@@ -131,7 +131,11 @@ function SettlementDialog({ open, onClose, group, preset }: SettlementDialogProp
       <DialogActions className="dialog-actions" sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 1 }}>
         {cents ? (
           <Typography variant="body2">
-            {t('GROUP_PAYMENT_SUMMARY', { from: name(from), to: name(to, true), amount: formatCurrencyAmount(fromCents(cents), currency) })}
+            {from === meId
+              ? t('GROUP_YOU_PAID_SUMMARY', { to: name(to), amount: formatCurrencyAmount(fromCents(cents), currency) })
+              : to === meId
+                ? t('GROUP_PAID_YOU_SUMMARY', { from: name(from), amount: formatCurrencyAmount(fromCents(cents), currency) })
+                : t('GROUP_PAYMENT_SUMMARY', { from: name(from), to: name(to), amount: formatCurrencyAmount(fromCents(cents), currency) })}
           </Typography>
         ) : null}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>

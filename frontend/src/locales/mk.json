@@ -611,7 +611,6 @@
   "GROUP_PAIR_YOU_OWE": "Му/ѝ должите на {{name}} {{amount}}",
   "GROUP_PAIR_SQUARE": "Израмнети сте со {{name}}",
   "GROUP_PAYMENTS": "Плаќања",
-  "GROUP_PAYMENT_LINE": "{{from}} му/ѝ плати на {{to}} {{amount}}",
   "GROUP_REMOVE": "Отстрани",
   "GROUP_ADD_AMOUNT": "Внеси износ",
   "GROUP_CLOSE": "Затвори",
@@ -673,5 +672,11 @@
   "GROUP_SYNC_OFF_REMOVED": "Синхронизацијата е исклучена: записите се отстранети",
   "GROUP_SYNC_ERROR": "Синхронизацијата не можеше да се смени. Обидете се повторно.",
   "GROUP_SHARED": "Заедничка група",
-  "GROUP_RECORD_MANAGED_HINT": "Синхронизирано од {{name}}: износот, валутата и датумот се менуваат таму"
+  "GROUP_RECORD_MANAGED_HINT": "Синхронизирано од {{name}}: износот, валутата и датумот се менуваат таму",
+  "GROUP_YOU_PAY": "Вие плаќате на {{to}}",
+  "GROUP_PAYS_YOU": "{{from}} ви плаќа",
+  "GROUP_YOU_PAID_LINE": "Му/ѝ плативте на {{to}} {{amount}}",
+  "GROUP_PAID_YOU_LINE": "{{from}} ви плати {{amount}}",
+  "GROUP_YOU_PAID_SUMMARY": "Му/ѝ плативте на {{to}} {{amount}}.",
+  "GROUP_PAID_YOU_SUMMARY": "{{from}} ви плати {{amount}}."
 }

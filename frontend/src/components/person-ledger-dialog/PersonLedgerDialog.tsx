@@ -155,11 +155,9 @@ function PersonLedgerDialog({
                 <Box key={payment.id} className="ledger-payment">
                   <Box className="ledger-text">
                     <Typography>
-                      {t('GROUP_PAYMENT_LINE', {
-                        from: payment.fromMemberId === meId ? t('GROUP_YOU') : name,
-                        to: payment.toMemberId === meId ? t('GROUP_YOU_LOWER') : name,
-                        amount: formatCurrencyAmount(payment.baseAmount, currency),
-                      })}
+                      {payment.fromMemberId === meId
+                        ? t('GROUP_YOU_PAID_LINE', { to: name, amount: formatCurrencyAmount(payment.baseAmount, currency) })
+                        : t('GROUP_PAID_YOU_LINE', { from: name, amount: formatCurrencyAmount(payment.baseAmount, currency) })}
                     </Typography>
                     <Typography className="ledger-date">
                       {day(payment.date)}{payment.note ? ` · ${payment.note}` : ''}

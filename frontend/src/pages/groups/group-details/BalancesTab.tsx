@@ -59,7 +59,13 @@ function BalancesTab({ group, balances, members, onMarkPaid, onOpenLedger, onRec
                 <FontAwesomeIcon icon={faArrowRight} className="muted" />
                 {to && <MemberAvatar member={to} size={32} />}
                 <Box className="transfer-text">
-                  <Typography variant="body2" className="soft">{t('GROUP_PAYS', { from: label(transfer.fromMemberId), to: label(transfer.toMemberId, true) })}</Typography>
+                  <Typography variant="body2" className="soft">
+                    {members.get(transfer.fromMemberId)?.isMe
+                      ? t('GROUP_YOU_PAY', { to: label(transfer.toMemberId) })
+                      : members.get(transfer.toMemberId)?.isMe
+                        ? t('GROUP_PAYS_YOU', { from: label(transfer.fromMemberId) })
+                        : t('GROUP_PAYS', { from: label(transfer.fromMemberId), to: label(transfer.toMemberId) })}
+                  </Typography>
                   <Typography fontWeight={600}>{formatCurrencyAmount(transfer.amount, currency)}</Typography>
                 </Box>
                 {!archived && (
