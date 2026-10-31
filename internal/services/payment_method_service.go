@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/requests"
 	"gorm.io/gorm"
@@ -90,7 +91,14 @@ func (s *PaymentMethodService) Delete(ctx context.Context, paymentMethodID uint)
 		return err
 	}
 	if count > 0 {
-		return errors.New("cannot delete payment method that is referenced by active records")
+		return fmt.Errorf("%w: cannot delete payment method that is referenced by active records", ErrInUse)
+	}
+	var syncCount int64
+	if err := s.db.WithContext(ctx).Model(&models.GroupMember{}).Where("sync_payment_method_id = ? AND sync_enabled = ?", paymentMethodID, true).Count(&syncCount).Error; err != nil {
+		return err
+	}
+	if syncCount > 0 {
+		return fmt.Errorf("%w: cannot delete payment method that a shared group uses for your synced records", ErrInUse)
 	}
 
 	if err := s.db.WithContext(ctx).Where("id = ?", paymentMethodID).Delete(&models.PaymentMethod{}).Error; err != nil {

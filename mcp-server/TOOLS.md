@@ -53,13 +53,23 @@ Generated from the tool registry in `src/tools` by `npm run docs`. `npm run chec
 | `DELETE /api/v1/groups/:id` | Shared groups are planned for a minor release. |
 | `GET /api/v1/groups/:id` | Shared groups are planned for a minor release. |
 | `PATCH /api/v1/groups/:id` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/balances` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/expenses` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/:id/expenses` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/expenses/:expenseId` | Shared groups are planned for a minor release. |
+| `PATCH /api/v1/groups/:id/expenses/:expenseId` | Shared groups are planned for a minor release. |
 | `DELETE /api/v1/groups/:id/invite-code` | Shared groups are planned for a minor release. |
 | `POST /api/v1/groups/:id/invite-code` | Shared groups are planned for a minor release. |
 | `DELETE /api/v1/groups/:id/me` | Shared groups are planned for a minor release. |
+| `PATCH /api/v1/groups/:id/me` | Shared groups are planned for a minor release. |
 | `POST /api/v1/groups/:id/members` | Shared groups are planned for a minor release. |
 | `DELETE /api/v1/groups/:id/members/:memberId` | Shared groups are planned for a minor release. |
 | `PATCH /api/v1/groups/:id/members/:memberId` | Shared groups are planned for a minor release. |
 | `DELETE /api/v1/groups/:id/members/:memberId/link` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/settlements` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/:id/settlements` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/settlements/:settlementId` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/stats` | Shared groups are planned for a minor release. |
 | `GET /api/v1/groups/join/:code` | Shared groups are planned for a minor release. |
 | `POST /api/v1/groups/join/:code` | Shared groups are planned for a minor release. |
 | `GET /api/v1/health` | Infrastructure health check. |

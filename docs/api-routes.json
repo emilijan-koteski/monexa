@@ -125,6 +125,31 @@
     "delegated": false
   },
   {
+    "method": "GET",
+    "path": "/api/v1/groups/:id/balances",
+    "delegated": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/groups/:id/expenses",
+    "delegated": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/groups/:id/expenses",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id/expenses/:expenseId",
+    "delegated": false
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/groups/:id/expenses/:expenseId",
+    "delegated": false
+  },
+  {
     "method": "DELETE",
     "path": "/api/v1/groups/:id/invite-code",
     "delegated": false
@@ -136,6 +161,11 @@
   },
   {
     "method": "DELETE",
+    "path": "/api/v1/groups/:id/me",
+    "delegated": false
+  },
+  {
+    "method": "PATCH",
     "path": "/api/v1/groups/:id/me",
     "delegated": false
   },
@@ -157,6 +187,26 @@
   {
     "method": "DELETE",
     "path": "/api/v1/groups/:id/members/:memberId/link",
+    "delegated": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/groups/:id/settlements",
+    "delegated": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/groups/:id/settlements",
+    "delegated": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/groups/:id/settlements/:settlementId",
+    "delegated": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/groups/:id/stats",
     "delegated": false
   },
   {

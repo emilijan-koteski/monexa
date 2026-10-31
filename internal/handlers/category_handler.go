@@ -162,6 +162,9 @@ func (h *categoryHandler) Delete(c echo.Context) error {
 
 	err = h.categoryService.Delete(c.Request().Context(), id)
 	if err != nil {
+		if errors.Is(err, services.ErrInUse) {
+			return responses.ConflictWithMessage(c, err.Error())
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error deleting category: %w", err))
 	}
 

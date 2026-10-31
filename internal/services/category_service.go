@@ -132,7 +132,14 @@ func (s *CategoryService) Delete(ctx context.Context, categoryID uint) error {
 		return err
 	}
 	if count > 0 {
-		return errors.New("cannot delete category that is referenced by active records")
+		return fmt.Errorf("%w: cannot delete category that is referenced by active records", ErrInUse)
+	}
+	var syncCount int64
+	if err := s.db.WithContext(ctx).Model(&models.GroupMember{}).Where("sync_category_id = ? AND sync_enabled = ?", categoryID, true).Count(&syncCount).Error; err != nil {
+		return err
+	}
+	if syncCount > 0 {
+		return fmt.Errorf("%w: cannot delete category that a shared group uses for your synced records", ErrInUse)
 	}
 
 	if err := s.db.WithContext(ctx).Where("id = ?", categoryID).Delete(&models.Category{}).Error; err != nil {

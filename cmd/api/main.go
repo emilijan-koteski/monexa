@@ -81,6 +81,7 @@ func main() {
 	exportService := services.NewExportService(db, settingService, legalComplianceEnabled)
 	trendReportService := services.NewTrendReportService(db, settingService, currencyService)
 	groupService := services.NewGroupService(db)
+	groupExpenseService := services.NewGroupExpenseService(db, currencyService)
 	log.Println("👍 [6] All services initiated successfully")
 
 	// Start background jobs
@@ -130,6 +131,7 @@ func main() {
 		TrendReportService:        trendReportService,
 		CurrencyService:           currencyService,
 		GroupService:              groupService,
+		GroupExpenseService:       groupExpenseService,
 		OAuthGrantService:         oauthGrantService,
 		OAuthClientService:        oauthClientService,
 		OAuthAuthorizationService: oauthAuthorizationService,

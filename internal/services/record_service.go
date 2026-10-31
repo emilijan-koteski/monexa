@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 	"github.com/emilijan-koteski/monexa/internal/requests"
 	"github.com/emilijan-koteski/monexa/internal/responses"
+	"github.com/emilijan-koteski/monexa/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -149,45 +151,83 @@ func (s *RecordService) Update(ctx context.Context, req requests.RecordRequest) 
 		return nil, err
 	}
 
+	managed := record.GroupExpenseShareID != nil && record.GroupSyncDetachedAt == nil
+	updates := map[string]any{}
+
 	if req.CategoryID != nil && *req.CategoryID != record.CategoryID {
 		if err = ensureCategoryOwned(ctx, s.db, *req.UserID, *req.CategoryID); err != nil {
 			return nil, err
 		}
-		record.CategoryID = *req.CategoryID
+		updates["category_id"] = *req.CategoryID
 	}
 	if req.PaymentMethodID != nil && *req.PaymentMethodID != record.PaymentMethodID {
 		if err = ensurePaymentMethodOwned(ctx, s.db, *req.UserID, *req.PaymentMethodID); err != nil {
 			return nil, err
 		}
-		record.PaymentMethodID = *req.PaymentMethodID
+		updates["payment_method_id"] = *req.PaymentMethodID
 	}
-	if req.Amount != nil {
-		record.Amount = *req.Amount
+	if req.Amount != nil && utils.ToCents(*req.Amount) != utils.ToCents(record.Amount) {
+		if managed {
+			return nil, ErrRecordManagedByGroup
+		}
+		updates["amount"] = *req.Amount
 	}
-	if req.Currency != nil && types.IsValidCurrencyType(*req.Currency) {
-		record.Currency = *req.Currency
+	if req.Currency != nil && types.IsValidCurrencyType(*req.Currency) && *req.Currency != record.Currency {
+		if managed {
+			return nil, ErrRecordManagedByGroup
+		}
+		updates["currency"] = *req.Currency
 	}
 	if req.Description != nil {
 		if *req.Description == "" {
-			record.Description = nil
+			updates["description"] = nil
 		} else {
-			record.Description = req.Description
+			updates["description"] = *req.Description
 		}
 	}
-	if req.Date != nil {
-		record.Date = *req.Date
+	if req.Date != nil && !req.Date.Equal(record.Date) {
+		if managed {
+			if !sameUTCDay(*req.Date, record.Date) {
+				return nil, ErrRecordManagedByGroup
+			}
+		} else {
+			updates["date"] = *req.Date
+		}
 	}
 
-	if err = s.db.WithContext(ctx).Save(&record).Error; err != nil {
-		return nil, err
+	if len(updates) > 0 {
+		if err = s.db.WithContext(ctx).Model(&models.Record{}).
+			Where("id = ? AND user_id = ?", record.ID, record.UserID).
+			Updates(updates).Error; err != nil {
+			return nil, err
+		}
 	}
 
-	return record, nil
+	return s.GetByExample(ctx, models.Record{ID: record.ID})
 }
 
+func sameUTCDay(a, b time.Time) bool {
+	ay, am, ad := a.UTC().Date()
+	by, bm, bd := b.UTC().Date()
+	return ay == by && am == bm && ad == bd
+}
+
+// Delete removes a record unless it is still synced from a shared group, in which case it returns ErrRecordManagedByGroup.
 func (s *RecordService) Delete(ctx context.Context, recordID uint) error {
-	if err := s.db.WithContext(ctx).Where("id = ?", recordID).Delete(&models.Record{}).Error; err != nil {
-		return err
+	result := s.db.WithContext(ctx).
+		Where("id = ? AND (group_expense_share_id IS NULL OR group_sync_detached_at IS NOT NULL)", recordID).
+		Delete(&models.Record{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		var count int64
+		if err := s.db.WithContext(ctx).Model(&models.Record{}).Where("id = ?", recordID).Count(&count).Error; err != nil {
+			return err
+		}
+		if count > 0 {
+			return ErrRecordManagedByGroup
+		}
 	}
 	return nil
 }
