@@ -1,0 +1,32 @@
+@use '../../styles/colors' as *;
+
+.member-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .member-chip {
+    height: 44px;
+    border-radius: 22px;
+    font-size: 0.9rem;
+    color: $color-text-soft;
+    background-color: transparent;
+    border: 1px solid $color-border-hover;
+
+    .MuiChip-avatar {
+      margin-left: 8px;
+    }
+
+    .MuiChip-deleteIcon {
+      color: $color-text-primary;
+      font-size: 0.8rem;
+      margin-right: 12px;
+    }
+
+    &.selected {
+      color: $color-text-primary;
+      background-color: $color-secondary-alpha-30;
+      border-color: $color-secondary-light;
+    }
+  }
+}

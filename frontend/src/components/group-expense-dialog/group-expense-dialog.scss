@@ -1,0 +1,229 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#group-expense-dialog {
+  .expense-dialog-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .expense-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-top: 0.5rem;
+  }
+
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .section-label {
+    color: $color-text-muted;
+    line-height: 1.4;
+  }
+
+  .amount-row {
+    display: flex;
+    gap: 12px;
+
+    .amount-input {
+      flex: 2;
+
+      input {
+        font-size: 1.6rem;
+      }
+    }
+
+    .currency-input {
+      flex: 1;
+      min-width: 100px;
+    }
+  }
+
+  .rate-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+
+    .rate-line {
+      color: $color-text-muted;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+
+      &.approximate {
+        color: $color-pending;
+      }
+    }
+
+    .manual-rate-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .converted {
+      color: $color-text-soft;
+    }
+  }
+
+  .pending-toggle {
+    min-height: 44px;
+  }
+
+  .category-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+
+    .category-chip {
+      flex-shrink: 0;
+      height: 40px;
+      border-radius: 20px;
+      color: $color-text-soft;
+      background-color: transparent;
+      border: 1px solid $color-border-hover;
+
+      svg {
+        margin-left: 10px;
+      }
+
+      &.selected {
+        color: $color-text-primary;
+        background-color: $color-secondary-dark;
+        border-color: $color-secondary-dark;
+      }
+    }
+  }
+
+  .split-with {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .everyone-chip {
+      height: 44px;
+      border-radius: 22px;
+      color: $color-text-soft;
+      background-color: transparent;
+      border: 1px solid $color-border-hover;
+
+      svg {
+        margin-left: 12px;
+      }
+
+      &.selected {
+        color: $color-text-primary;
+        background-color: $color-secondary-dark;
+        border-color: $color-secondary-dark;
+      }
+    }
+  }
+
+  .mode-toggle .MuiToggleButton-root {
+    min-height: 44px;
+    text-transform: none;
+
+    &.Mui-selected {
+      color: $color-text-primary;
+      background-color: $color-secondary-dark;
+    }
+  }
+
+  .split-rows {
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+    background-color: $color-background-default;
+    padding: 2px 12px;
+
+    .split-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 56px;
+      border-bottom: 1px solid $color-border;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .split-name {
+      flex: 1;
+    }
+
+    .split-amount {
+      font-weight: 600;
+    }
+
+    .split-input {
+      width: 140px;
+
+      input {
+        text-align: right;
+      }
+    }
+
+    .split-empty {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      color: $color-text-muted;
+    }
+  }
+
+  .split-status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.9rem;
+
+    &.good {
+      color: $color-owed;
+    }
+
+    &.bad {
+      color: $color-owe;
+    }
+
+    &.muted {
+      color: $color-text-muted;
+    }
+  }
+
+  .split-hint {
+    color: $color-text-muted;
+  }
+
+  .date-note {
+    gap: 1rem;
+  }
+
+  .expense-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    .expense-summary {
+      color: $color-text-soft;
+      font-size: 0.9rem;
+    }
+
+    .expense-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .submit-button {
+      background-color: $color-primary-accessible;
+    }
+  }
+}

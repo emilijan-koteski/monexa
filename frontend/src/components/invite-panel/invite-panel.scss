@@ -1,0 +1,52 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+.invite-panel {
+  padding: 1rem 1.25rem;
+  border-radius: $border-radius-lg;
+
+  .invite-panel-label {
+    color: $color-text-muted;
+  }
+
+  .invite-code {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-align: center;
+  }
+
+  .invite-hint {
+    color: $color-text-soft;
+    text-align: center;
+  }
+
+  .invite-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+
+    .MuiButton-root {
+      min-height: 44px;
+    }
+  }
+
+  .invite-qr {
+    align-self: center;
+    padding: 12px;
+    background-color: #ffffff;
+    border-radius: $border-radius-md;
+    line-height: 0;
+  }
+
+  .invite-owner-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    .MuiButton-root {
+      min-height: 44px;
+    }
+  }
+}

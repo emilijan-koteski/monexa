@@ -1,0 +1,49 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#groups-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  @include sm-down {
+    padding: 0 0.5rem;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .page-title {
+      flex: 1;
+      font-weight: 600;
+    }
+  }
+
+  .groups-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+
+    .MuiButton-root {
+      min-height: 44px;
+    }
+  }
+
+  .groups-tabs .MuiChip-root {
+    height: 40px;
+    border-radius: 20px;
+    padding: 0 6px;
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  .accessible-primary {
+    background-color: $color-primary-accessible;
+  }
+}

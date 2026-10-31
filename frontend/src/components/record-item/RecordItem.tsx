@@ -1,11 +1,13 @@
 import './record-item.scss';
 import { Card, CardContent, Typography, IconButton, Box, Chip, Stack } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faRepeat, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPeopleGroup, faRepeat, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { FinancialRecord } from '../../types/models';
 import { CategoryType } from '../../enums/CategoryType';
 import { formatRecordAmount } from '../../utils/currency';
+import { isManagedRecord, useGroups } from '../../services/groupService';
 
 interface RecordItemProps {
   record: FinancialRecord;
@@ -27,6 +29,10 @@ function RecordItem({
   onDelete,
 }: RecordItemProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { data: groups } = useGroups(!!record.groupId);
+  const groupName = groups?.find((group) => group.id === record.groupId)?.name;
+  const managed = isManagedRecord(record);
   const displayName = record.description || categoryName || `Category #${record.categoryId}`;
   const isExpense = categoryType === CategoryType.EXPENSE;
 
@@ -48,6 +54,16 @@ function RecordItem({
                 size="small"
                 variant="outlined"
                 className="payment-method-chip"
+              />
+            )}
+            {record.groupId && (
+              <Chip
+                icon={<FontAwesomeIcon icon={faPeopleGroup} />}
+                label={groupName ?? t('GROUP_SHARED')}
+                size="small"
+                variant="outlined"
+                className="group-chip"
+                onClick={() => navigate(`/groups/${record.groupId}`)}
               />
             )}
             {record.recurringExpenseId && (
@@ -76,13 +92,15 @@ function RecordItem({
           >
             <FontAwesomeIcon icon={faEdit} fontSize="medium" />
           </IconButton>
-          <IconButton
-            color="error"
-            size="large"
-            onClick={() => onDelete(record)}
-          >
-            <FontAwesomeIcon icon={faTrash} fontSize="medium" />
-          </IconButton>
+          {!managed && (
+            <IconButton
+              color="error"
+              size="large"
+              onClick={() => onDelete(record)}
+            >
+              <FontAwesomeIcon icon={faTrash} fontSize="medium" />
+            </IconButton>
+          )}
         </Box>
       </CardContent>
     </Card>

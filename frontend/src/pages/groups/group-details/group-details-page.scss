@@ -1,0 +1,418 @@
+@use '../../../styles/colors' as *;
+@use '../../../styles/variables' as *;
+
+#group-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 6rem;
+
+  @include sm-down {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  .muted {
+    color: $color-text-muted;
+  }
+
+  .soft {
+    color: $color-text-soft;
+  }
+
+  .owed {
+    color: $color-owed;
+  }
+
+  .owe {
+    color: $color-owe;
+  }
+
+  .settled {
+    color: $color-text-muted;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .back-button svg {
+      font-size: 1.2rem;
+    }
+
+    .group-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: $border-radius-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .group-heading {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-title {
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      @include sm-down {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .hero-card {
+    padding: 1.1rem 1.25rem;
+    border-radius: $border-radius-lg;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    .hero-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .hero-amount {
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .pending-chip {
+      align-self: flex-start;
+      color: $color-pending;
+      background-color: $color-warning-alpha-10;
+      border: 1px solid $color-warning-alpha-30;
+
+      svg {
+        color: $color-pending;
+        margin-left: 10px;
+      }
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .MuiButton-root {
+        min-height: 44px;
+      }
+    }
+  }
+
+  .accessible-primary {
+    background-color: $color-primary-accessible;
+  }
+
+  .group-tabs {
+    border-bottom: 1px solid $color-border;
+
+    .MuiTab-root {
+      min-height: 48px;
+      text-transform: none;
+      font-size: 0.95rem;
+      color: $color-text-muted;
+
+      &.Mui-selected {
+        color: $color-text-primary;
+      }
+    }
+  }
+
+  .filter-row {
+    overflow-x: auto;
+
+    .MuiChip-root {
+      height: 40px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+  }
+
+  .day-label {
+    color: $color-text-muted;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .transfer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: $border-radius-md;
+
+    .transfer-text {
+      flex: 1;
+      min-width: 0;
+      padding-left: 4px;
+    }
+
+    .MuiButton-root {
+      min-height: 40px;
+    }
+  }
+
+  .settled-card {
+    padding: 1rem;
+    text-align: center;
+    color: $color-owed;
+    border-radius: $border-radius-md;
+  }
+
+  .pending-note {
+    color: $color-pending;
+  }
+
+  .everyone-card,
+  .stat-card,
+  .people-card {
+    padding: 4px 14px;
+    border-radius: $border-radius-md;
+  }
+
+  .everyone-row,
+  .stat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 0;
+  }
+
+  .everyone-line,
+  .stat-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .everyone-name,
+  .stat-name {
+    flex: 1;
+  }
+
+  .everyone-amount {
+    font-weight: 600;
+  }
+
+  .everyone-bar,
+  .stat-bar {
+    height: 6px;
+    border-radius: 3px;
+    background-color: $color-border;
+  }
+
+  .everyone-bar {
+    &.owed .MuiLinearProgress-bar {
+      background-color: $color-owed;
+    }
+
+    &.owe .MuiLinearProgress-bar {
+      background-color: $color-owe;
+    }
+
+    &.settled .MuiLinearProgress-bar {
+      background-color: $color-text-muted;
+    }
+  }
+
+  .between-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    min-height: 60px;
+    text-align: left;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+    background-color: $color-background-lighter;
+
+    .between-text {
+      flex: 1;
+    }
+  }
+
+  .tall-button {
+    min-height: 48px;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+
+    .kpi {
+      padding: 14px;
+      border-radius: $border-radius-md;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .kpi-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+  }
+
+  .stat-icon {
+    width: 20px;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: $color-text-soft;
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      margin-left: 8px;
+
+      &.paid {
+        background-color: $color-secondary-light;
+      }
+
+      &.share {
+        background-color: #ffb35c;
+      }
+    }
+  }
+
+  .pair-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .stat-bar {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+
+      &.paid .MuiLinearProgress-bar {
+        background-color: $color-secondary-light;
+      }
+
+      &.share .MuiLinearProgress-bar {
+        background-color: #ffb35c;
+      }
+    }
+
+    .pair-value {
+      width: 110px;
+      text-align: right;
+      color: $color-text-soft;
+    }
+  }
+
+  .period-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 12px 14px;
+    min-height: 170px;
+    overflow-x: auto;
+    border-radius: $border-radius-md;
+
+    .period-column {
+      flex: 1;
+      min-width: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .period-bar {
+      width: 100%;
+      border-radius: 6px 6px 2px 2px;
+      background-color: $color-primary-light;
+    }
+  }
+
+  .person-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid $color-border;
+
+    .person-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-chip {
+      &.linked {
+        color: $color-owed;
+        border: 1px solid $color-success-alpha-50;
+        background-color: transparent;
+      }
+
+      &.guest {
+        color: $color-pending;
+        border: 1px solid $color-warning-alpha-50;
+        background-color: transparent;
+      }
+    }
+  }
+
+  .add-person-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .add-person-button {
+    min-height: 48px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .add-expense-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background-color: $color-primary-accessible;
+    box-shadow: 0 10px 24px $shadow-dark;
+    z-index: 10;
+
+    @include sm-down {
+      bottom: 16px;
+      right: 16px;
+    }
+  }
+}
+
+.danger-item {
+  color: $color-owe;
+}

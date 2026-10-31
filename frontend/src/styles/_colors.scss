@@ -135,3 +135,13 @@ $shadow-error: rgba(229, 60, 56, 0.3);
 $shadow-warning: rgba(243, 230, 0, 0.3);
 $shadow-info: rgba(85, 234, 212, 0.3);
 $shadow-dark: rgba(0, 0, 0, 0.3);
+
+// ========================================
+// SHARED GROUPS (accessible on the dark backgrounds)
+// ========================================
+$color-text-muted: #a8abdc;
+$color-text-soft: #c9cbee;
+$color-primary-accessible: #d0275f;
+$color-owed: $color-success;
+$color-owe: #ff6b67;
+$color-pending: $color-warning;

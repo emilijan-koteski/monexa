@@ -1,0 +1,30 @@
+@use '../../styles/colors' as *;
+
+.member-avatar {
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.member-avatar-badge {
+  font-size: 0.55rem;
+  color: $color-background-default;
+  background-color: $color-success;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 0 0 2px $color-background-lighter;
+}
+
+.member-avatar-group {
+  display: flex;
+  padding-left: 6px;
+
+  .member-avatar {
+    margin-left: -6px;
+    box-shadow: 0 0 0 2px $color-background-lighter;
+  }
+
+  .member-avatar-extra {
+    color: $color-text-soft;
+    background-color: $color-background-dark;
+  }
+}

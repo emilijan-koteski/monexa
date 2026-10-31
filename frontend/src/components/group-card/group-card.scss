@@ -1,0 +1,88 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+.group-card {
+  background-color: $color-background-lighter;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-lg;
+
+  .group-card-action {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .group-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .group-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: $border-radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+  }
+
+  .group-card-title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .group-card-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .group-card-meta,
+  .group-card-dates {
+    color: $color-text-muted;
+  }
+
+  .group-card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .group-card-balance {
+    flex: 1;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    &.owed {
+      color: $color-owed;
+    }
+
+    &.owe {
+      color: $color-owe;
+    }
+
+    &.settled {
+      color: $color-text-muted;
+    }
+  }
+
+  .group-card-pending {
+    align-self: flex-start;
+    color: $color-pending;
+    background-color: $color-warning-alpha-10;
+    border: 1px solid $color-warning-alpha-30;
+
+    svg {
+      color: $color-pending;
+      font-size: 0.75rem;
+    }
+  }
+}
