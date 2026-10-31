@@ -553,16 +553,7 @@ func (s *GroupService) Delete(ctx context.Context, groupID, userID uint) error {
 		if err := requireOwner(me); err != nil {
 			return err
 		}
-		if err := detachGroupRecordsTx(tx, group.ID, nil); err != nil {
-			return err
-		}
-		if err := tx.Model(&models.Group{ID: group.ID}).Update("invite_code", nil).Error; err != nil {
-			return fmt.Errorf("failed to clear invite code: %w", err)
-		}
-		if err := tx.Delete(&models.Group{ID: group.ID}).Error; err != nil {
-			return fmt.Errorf("failed to delete group: %w", err)
-		}
-		return nil
+		return closeGroupTx(tx, group.ID)
 	})
 }
 
@@ -899,4 +890,50 @@ func (s *GroupService) Leave(ctx context.Context, groupID, userID uint, keepReco
 		}
 		return unlinkMemberTx(tx, me)
 	})
+}
+
+// releaseUserGroupsTx turns a deleted account's memberships back into named guests and hands over, or closes, the groups it owned.
+func releaseUserGroupsTx(tx *gorm.DB, userID uint) error {
+	var memberships []models.GroupMember
+	if err := tx.Where("user_id = ?", userID).Order("group_id").Find(&memberships).Error; err != nil {
+		return fmt.Errorf("failed to load memberships: %w", err)
+	}
+	for i := range memberships {
+		membership := &memberships[i]
+		if _, err := lockGroupRow(tx, membership.GroupID); err != nil && !errors.Is(err, ErrGroupNotFound) {
+			return err
+		}
+		if membership.Role == types.GroupOwner {
+			err := handOverOwnership(tx, membership.GroupID, membership.ID)
+			if errors.Is(err, ErrOwnerMustTransfer) {
+				err = closeGroupTx(tx, membership.GroupID)
+			}
+			if err != nil {
+				return err
+			}
+		}
+		if err := detachGroupRecordsTx(tx, membership.GroupID, &userID); err != nil {
+			return err
+		}
+		if err := unlinkMemberTx(tx, membership); err != nil {
+			return fmt.Errorf("failed to unlink member: %w", err)
+		}
+	}
+	return tx.Unscoped().Model(&models.GroupMember{}).Where("user_id = ?", userID).Updates(map[string]any{
+		"user_id":   nil,
+		"linked_at": nil,
+	}).Error
+}
+
+func closeGroupTx(tx *gorm.DB, groupID uint) error {
+	if err := detachGroupRecordsTx(tx, groupID, nil); err != nil {
+		return err
+	}
+	if err := tx.Model(&models.Group{ID: groupID}).Update("invite_code", nil).Error; err != nil {
+		return fmt.Errorf("failed to clear invite code: %w", err)
+	}
+	if err := tx.Delete(&models.Group{ID: groupID}).Error; err != nil {
+		return fmt.Errorf("failed to close group: %w", err)
+	}
+	return nil
 }
