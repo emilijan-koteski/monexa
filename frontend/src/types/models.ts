@@ -26,6 +26,9 @@ export interface FinancialRecord {
   description?: string;
   date: string;
   recurringExpenseId?: number | null;
+  groupId?: number | null;
+  groupExpenseShareId?: number | null;
+  groupSyncDetachedAt?: string | null;
 }
 
 export interface RecurringExpense {

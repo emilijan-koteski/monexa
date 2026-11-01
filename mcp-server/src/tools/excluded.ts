@@ -13,6 +13,7 @@ const LEGAL_DOCUMENTS = "Legal documents are reviewed and accepted in the Monexa
 const LEGAL_DOCUMENT_HASHING = "Integrity tooling for publishing legal documents; not user data.";
 const INFRASTRUCTURE = "Infrastructure health check.";
 const TREND_REPORT_EDITING = "Creating and editing trend reports is planned for a minor release.";
+const SHARED_GROUPS = "Shared groups are planned for a minor release.";
 
 export const excludedRoutes: readonly ExcludedRoute[] = [
   { route: "GET /.well-known/oauth-authorization-server", reason: OAUTH_PROTOCOL },
@@ -29,6 +30,31 @@ export const excludedRoutes: readonly ExcludedRoute[] = [
   { route: "POST /api/v1/auth/sessions/revoke", reason: APP_AUTHENTICATION },
   { route: "POST /api/v1/auth/tokens/renew", reason: APP_AUTHENTICATION },
   { route: "GET /api/v1/categories/:id", reason: "list_categories returns the same data." },
+  { route: "GET /api/v1/exchange-rates/rate", reason: "UI helper for the shared-group expense form." },
+  { route: "GET /api/v1/groups", reason: SHARED_GROUPS },
+  { route: "POST /api/v1/groups", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id", reason: SHARED_GROUPS },
+  { route: "GET /api/v1/groups/:id", reason: SHARED_GROUPS },
+  { route: "PATCH /api/v1/groups/:id", reason: SHARED_GROUPS },
+  { route: "GET /api/v1/groups/:id/balances", reason: SHARED_GROUPS },
+  { route: "GET /api/v1/groups/:id/expenses", reason: SHARED_GROUPS },
+  { route: "POST /api/v1/groups/:id/expenses", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id/expenses/:expenseId", reason: SHARED_GROUPS },
+  { route: "PATCH /api/v1/groups/:id/expenses/:expenseId", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id/invite-code", reason: SHARED_GROUPS },
+  { route: "POST /api/v1/groups/:id/invite-code", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id/me", reason: SHARED_GROUPS },
+  { route: "PATCH /api/v1/groups/:id/me", reason: SHARED_GROUPS },
+  { route: "POST /api/v1/groups/:id/members", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id/members/:memberId", reason: SHARED_GROUPS },
+  { route: "PATCH /api/v1/groups/:id/members/:memberId", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id/members/:memberId/link", reason: SHARED_GROUPS },
+  { route: "GET /api/v1/groups/:id/settlements", reason: SHARED_GROUPS },
+  { route: "POST /api/v1/groups/:id/settlements", reason: SHARED_GROUPS },
+  { route: "DELETE /api/v1/groups/:id/settlements/:settlementId", reason: SHARED_GROUPS },
+  { route: "GET /api/v1/groups/:id/stats", reason: SHARED_GROUPS },
+  { route: "GET /api/v1/groups/join/:code", reason: SHARED_GROUPS },
+  { route: "POST /api/v1/groups/join/:code", reason: SHARED_GROUPS },
   { route: "GET /api/v1/health", reason: INFRASTRUCTURE },
   { route: "GET /api/v1/health/restricted", reason: INFRASTRUCTURE },
   { route: "GET /api/v1/legal-documents", reason: LEGAL_DOCUMENTS },

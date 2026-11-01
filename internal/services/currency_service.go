@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +11,15 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/models/types"
 	"gorm.io/gorm"
 )
+
+var ErrRateUnavailable = errors.New("exchange rate unavailable")
+
+// RateQuote is a conversion rate together with where it came from and when it was fetched.
+type RateQuote struct {
+	Rate      float64                      `json:"rate"`
+	Source    types.ExchangeRateSourceType `json:"source"`
+	FetchedAt *time.Time                   `json:"fetchedAt"`
+}
 
 type CurrencyService struct {
 	db                 *gorm.DB
@@ -24,54 +34,96 @@ func NewCurrencyService(db *gorm.DB, exchangeRateClient *clients.ExchangeRateAPI
 }
 
 func (s *CurrencyService) FetchAndStoreLatestRates(ctx context.Context) error {
-	supportedCurrencies := []types.CurrencyType{types.MacedonianDenar, types.Euro, types.USDollar, types.AustralianDollar, types.SwissFranc, types.BritishPound}
-	var errors []error
+	var errs []error
 
-	for _, baseCurrency := range supportedCurrencies {
+	for _, baseCurrency := range types.SupportedCurrencies() {
 		apiRates, err := s.exchangeRateClient.FetchRates(ctx, baseCurrency)
 		if err != nil {
-			errors = append(errors, fmt.Errorf("failed to fetch rates for %s: %w", baseCurrency, err))
+			errs = append(errs, fmt.Errorf("failed to fetch rates for %s: %w", baseCurrency, err))
 			continue
 		}
 
-		tx := s.db.WithContext(ctx).Begin()
-
-		fetchedAt := time.Now()
-		for targetCurrency, rate := range apiRates {
-			if targetCurrency == baseCurrency {
-				continue
-			}
-
-			inverseRate := 1.0 / rate
-
-			exchangeRate := models.ExchangeRate{
-				FromCurrency: targetCurrency,
-				ToCurrency:   baseCurrency,
-				Rate:         inverseRate,
-				Source:       types.ExchangeRateApi,
-				FetchedAt:    fetchedAt,
-			}
-
-			if err := tx.Create(&exchangeRate).Error; err != nil {
-				tx.Rollback()
-				errors = append(errors, fmt.Errorf("failed to store rate %s->%s: %w", targetCurrency, baseCurrency, err))
-				break
-			}
-		}
-
-		if err := tx.Commit().Error; err != nil {
-			errors = append(errors, fmt.Errorf("failed to commit rates for %s: %w", baseCurrency, err))
+		if err := s.storeRatesForBase(ctx, baseCurrency, apiRates); err != nil {
+			errs = append(errs, err)
 		}
 	}
 
-	if len(errors) > 0 {
-		return fmt.Errorf("encountered %d errors while fetching rates: %v", len(errors), errors)
+	if len(errs) > 0 {
+		return fmt.Errorf("encountered %d errors while fetching rates: %v", len(errs), errs)
 	}
 
 	return nil
 }
 
-func (s *CurrencyService) getHistoricalRateWithFallback(ctx context.Context, date time.Time, fromCurrency, toCurrency types.CurrencyType) (float64, error) {
+func (s *CurrencyService) storeRatesForBase(ctx context.Context, baseCurrency types.CurrencyType, apiRates map[types.CurrencyType]float64) error {
+	fetchedAt := time.Now()
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		for targetCurrency, rate := range apiRates {
+			if targetCurrency == baseCurrency || rate == 0 {
+				continue
+			}
+
+			exchangeRate := models.ExchangeRate{
+				FromCurrency: targetCurrency,
+				ToCurrency:   baseCurrency,
+				Rate:         1.0 / rate,
+				Source:       types.ExchangeRateApi,
+				FetchedAt:    fetchedAt,
+			}
+
+			if err := tx.Create(&exchangeRate).Error; err != nil {
+				return fmt.Errorf("failed to store rate %s->%s: %w", targetCurrency, baseCurrency, err)
+			}
+		}
+		return nil
+	})
+}
+
+// GetRate returns the rate for converting from one currency to another on a date, going through EUR when no direct pair is stored.
+func (s *CurrencyService) GetRate(ctx context.Context, date time.Time, fromCurrency, toCurrency types.CurrencyType) (RateQuote, error) {
+	if fromCurrency == toCurrency {
+		return RateQuote{Rate: 1, Source: types.Identity}, nil
+	}
+
+	direct, err := s.findHistoricalRate(ctx, date, fromCurrency, toCurrency)
+	if err == nil {
+		return RateQuote{Rate: direct.Rate, Source: direct.Source, FetchedAt: &direct.FetchedAt}, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return RateQuote{}, err
+	}
+
+	if fromCurrency == types.Euro || toCurrency == types.Euro {
+		return RateQuote{}, ErrRateUnavailable
+	}
+	toEuro, err := s.findHistoricalRate(ctx, date, fromCurrency, types.Euro)
+	if err != nil {
+		return RateQuote{}, rateLookupError(err)
+	}
+	fromEuro, err := s.findHistoricalRate(ctx, date, types.Euro, toCurrency)
+	if err != nil {
+		return RateQuote{}, rateLookupError(err)
+	}
+
+	source := types.ExchangeRateApi
+	if toEuro.Source == types.Fallback || fromEuro.Source == types.Fallback {
+		source = types.Fallback
+	}
+	fetchedAt := toEuro.FetchedAt
+	if fromEuro.FetchedAt.Before(fetchedAt) {
+		fetchedAt = fromEuro.FetchedAt
+	}
+	return RateQuote{Rate: toEuro.Rate * fromEuro.Rate, Source: source, FetchedAt: &fetchedAt}, nil
+}
+
+func rateLookupError(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrRateUnavailable
+	}
+	return err
+}
+
+func (s *CurrencyService) findHistoricalRate(ctx context.Context, date time.Time, fromCurrency, toCurrency types.CurrencyType) (*models.ExchangeRate, error) {
 	var rate models.ExchangeRate
 
 	err := s.db.WithContext(ctx).
@@ -79,13 +131,11 @@ func (s *CurrencyService) getHistoricalRateWithFallback(ctx context.Context, dat
 		Order("fetched_at DESC").
 		First(&rate).
 		Error
-
 	if err == nil {
-		return rate.Rate, nil
+		return &rate, nil
 	}
-
-	if err != gorm.ErrRecordNotFound {
-		return 0, fmt.Errorf("failed to fetch historical rate: %w", err)
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("failed to fetch historical rate: %w", err)
 	}
 
 	err = s.db.WithContext(ctx).
@@ -93,12 +143,18 @@ func (s *CurrencyService) getHistoricalRateWithFallback(ctx context.Context, dat
 		Order("fetched_at ASC").
 		First(&rate).
 		Error
-
-	if err == nil {
-		return rate.Rate, nil
+	if err != nil {
+		return nil, err
 	}
+	return &rate, nil
+}
 
-	return 0, fmt.Errorf("failed to fetch exchange rate: %w", err)
+func (s *CurrencyService) getHistoricalRateWithFallback(ctx context.Context, date time.Time, fromCurrency, toCurrency types.CurrencyType) (float64, error) {
+	quote, err := s.GetRate(ctx, date, fromCurrency, toCurrency)
+	if err != nil {
+		return 0, fmt.Errorf("failed to fetch exchange rate: %w", err)
+	}
+	return quote.Rate, nil
 }
 
 func (s *CurrencyService) GetHistoricalRatesForRecords(ctx context.Context, records []models.Record, targetCurrency types.CurrencyType) (map[string]float64, error) {

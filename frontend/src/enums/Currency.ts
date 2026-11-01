@@ -4,5 +4,7 @@ export enum Currency {
   USD = 'USD',
   AUD = 'AUD',
   CHF = 'CHF',
-  GBP = 'GBP'
+  GBP = 'GBP',
+  HUF = 'HUF',
+  RSD = 'RSD'
 }

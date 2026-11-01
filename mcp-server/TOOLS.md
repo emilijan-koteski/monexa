@@ -47,6 +47,31 @@ Generated from the tool registry in `src/tools` by `npm run docs`. `npm run chec
 | `POST /api/v1/auth/sessions/revoke` | Sign-in and session management of the Monexa app; connected apps authenticate with OAuth. |
 | `POST /api/v1/auth/tokens/renew` | Sign-in and session management of the Monexa app; connected apps authenticate with OAuth. |
 | `GET /api/v1/categories/:id` | list_categories returns the same data. |
+| `GET /api/v1/exchange-rates/rate` | UI helper for the shared-group expense form. |
+| `GET /api/v1/groups` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id` | Shared groups are planned for a minor release. |
+| `PATCH /api/v1/groups/:id` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/balances` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/expenses` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/:id/expenses` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/expenses/:expenseId` | Shared groups are planned for a minor release. |
+| `PATCH /api/v1/groups/:id/expenses/:expenseId` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/invite-code` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/:id/invite-code` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/me` | Shared groups are planned for a minor release. |
+| `PATCH /api/v1/groups/:id/me` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/:id/members` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/members/:memberId` | Shared groups are planned for a minor release. |
+| `PATCH /api/v1/groups/:id/members/:memberId` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/members/:memberId/link` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/settlements` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/:id/settlements` | Shared groups are planned for a minor release. |
+| `DELETE /api/v1/groups/:id/settlements/:settlementId` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/:id/stats` | Shared groups are planned for a minor release. |
+| `GET /api/v1/groups/join/:code` | Shared groups are planned for a minor release. |
+| `POST /api/v1/groups/join/:code` | Shared groups are planned for a minor release. |
 | `GET /api/v1/health` | Infrastructure health check. |
 | `GET /api/v1/health/restricted` | Infrastructure health check. |
 | `GET /api/v1/legal-documents` | Legal documents are reviewed and accepted in the Monexa app. |

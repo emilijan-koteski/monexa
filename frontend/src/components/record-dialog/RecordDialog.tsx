@@ -14,6 +14,7 @@ import { useCategories, useCreateCategory } from '../../services/categoryService
 import { usePaymentMethods, useCreatePaymentMethod } from '../../services/paymentMethodService';
 import { useSettings } from '../../services/settingService';
 import { useDescriptionSuggestions } from '../../services/recordService';
+import { isManagedRecord, useGroups } from '../../services/groupService';
 import { formatAmount, stripCommas } from '../../utils/amount';
 import { truncateText } from '../../utils/string';
 import { Currency } from '../../enums/Currency';
@@ -71,6 +72,11 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
   const { data: settings } = useSettings();
+  const managed = !!record && isManagedRecord(record);
+  const { data: groups } = useGroups(managed);
+  const managedHint = managed
+    ? t('GROUP_RECORD_MANAGED_HINT', { name: groups?.find((group) => group.id === record?.groupId)?.name ?? t('GROUP_SHARED') })
+    : '';
 
   const {
     control,
@@ -273,8 +279,9 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                     {...field}
                     label={t('AMOUNT')}
                     fullWidth
+                    disabled={managed}
                     error={!!errors.amount}
-                    helperText={errors.amount ? t(errors.amount.message || '') : ''}
+                    helperText={errors.amount ? t(errors.amount.message || '') : managedHint}
                     className="form-field amount-field"
                     slotProps={{
                       htmlInput: {
@@ -296,6 +303,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                     {...field}
                     select
                     label={t('CURRENCY')}
+                    disabled={managed}
                     error={!!errors.currency}
                     helperText={errors.currency ? t(errors.currency.message || '') : ''}
                     className="form-field currency-field"
@@ -316,6 +324,7 @@ function RecordDialog({ open, onClose, onSubmit, record, isLoading = false, defa
                   label={t('DATE')}
                   value={field.value}
                   onChange={(date) => field.onChange(date)}
+                  disabled={managed}
                   slotProps={{
                     textField: {
                       fullWidth: true,

@@ -47,6 +47,18 @@
           border-color: $color-border;
         }
 
+        .group-chip {
+          font-size: 0.7rem;
+          height: 22px;
+          border-color: $color-primary-alpha-50;
+          color: $color-primary-light;
+
+          svg {
+            font-size: 0.65rem;
+            color: $color-primary-light;
+          }
+        }
+
         .recurring-chip {
           font-size: 0.7rem;
           height: 22px;

@@ -161,6 +161,9 @@ func (h *paymentMethodHandler) Delete(c echo.Context) error {
 
 	err = h.paymentMethodService.Delete(c.Request().Context(), id)
 	if err != nil {
+		if errors.Is(err, services.ErrInUse) {
+			return responses.ConflictWithMessage(c, err.Error())
+		}
 		return responses.FailureWithError(c, fmt.Errorf("error deleting payment method: %w", err))
 	}
 

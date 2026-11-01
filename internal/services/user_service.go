@@ -490,6 +490,11 @@ func (s *UserService) FinalizeUserDeletion(ctx context.Context, userID uint) err
 
 	now := time.Now()
 
+	if err := releaseUserGroupsTx(tx, userID); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to release shared groups: %w", err)
+	}
+
 	if err := tx.Unscoped().Model(&models.Category{}).Where("user_id = ? AND deleted_at IS NULL", userID).Updates(map[string]any{
 		"name":        gorm.Expr("CONCAT('[Deleted Category #', id, ']')"),
 		"description": gorm.Expr("CONCAT('[Deleted Category #', id, ']')"),

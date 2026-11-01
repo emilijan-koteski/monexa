@@ -1,0 +1,97 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#person-ledger-dialog {
+  .ledger-title-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ledger-avatars {
+    display: flex;
+    padding-left: 6px;
+
+    .member-avatar {
+      margin-left: -6px;
+      box-shadow: 0 0 0 2px $color-background-lighter;
+    }
+  }
+
+  .ledger-net {
+    padding: 1rem;
+    border-radius: $border-radius-lg;
+    background-color: $color-background-default;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ledger-net-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+
+    &.owed {
+      color: $color-owed;
+    }
+
+    &.owe {
+      color: $color-owe;
+    }
+
+    &.settled {
+      color: $color-text-muted;
+    }
+  }
+
+  .ledger-muted,
+  .ledger-nothing {
+    color: $color-text-muted;
+  }
+
+  .ledger-item,
+  .ledger-payment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 4px 12px 4px 4px;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-border;
+    background-color: $color-background-default;
+  }
+
+  .ledger-payment {
+    padding-left: 14px;
+  }
+
+  .ledger-pending-icon {
+    width: 42px;
+    display: flex;
+    justify-content: center;
+    color: $color-pending;
+  }
+
+  .ledger-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ledger-date {
+    font-size: 0.75rem;
+    color: $color-text-muted;
+  }
+
+  .ledger-amount {
+    font-weight: 600;
+  }
+
+  .ledger-item.ticked {
+    .ledger-title,
+    .ledger-amount {
+      color: $color-text-muted;
+      text-decoration: line-through;
+    }
+  }
+}

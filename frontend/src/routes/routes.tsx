@@ -29,6 +29,10 @@ const PrivacyPolicyPage = lazy(() => import('../pages/privacy-policy/PrivacyPoli
 const TermsOfServicePage = lazy(() => import('../pages/terms-of-service/TermsOfServicePage.tsx'));
 const LegalAcceptancePage = lazy(() => import('../pages/legal-acceptance/LegalAcceptancePage.tsx'));
 
+const GroupsPage = lazy(() => import('../pages/groups/GroupsPage.tsx'));
+const GroupDetailsPage = lazy(() => import('../pages/groups/group-details/GroupDetailsPage.tsx'));
+const JoinGroupPage = lazy(() => import('../pages/join-group/JoinGroupPage.tsx'));
+
 const OAuthConsentPage = lazy(() => import('../pages/oauth-consent/OAuthConsentPage.tsx'));
 const OAuthErrorPage = lazy(() => import('../pages/oauth-error/OAuthErrorPage.tsx'));
 
@@ -61,9 +65,12 @@ function AppRoutes() {
             )}
 
             <Route path="/oauth/consent" element={<OAuthConsentPage/>}/>
+            <Route path="/join/:code" element={<JoinGroupPage/>}/>
 
             <Route element={<AppLayout/>}>
               <Route path="/home" element={<HomePage/>}/>
+              <Route path="/groups" element={<GroupsPage/>}/>
+              <Route path="/groups/:groupId" element={<GroupDetailsPage/>}/>
               <Route path="/categories" element={<CategoriesPage/>}/>
               <Route path="/categories/:categoryId" element={<CategoryDetailsPage/>}/>
               <Route path="/trends" element={<TrendsPage/>}/>

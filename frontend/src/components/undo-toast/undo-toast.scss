@@ -1,0 +1,18 @@
+@use '../../styles/colors' as *;
+
+.undo-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  .undo-toast-message {
+    flex: 1;
+  }
+
+  .undo-toast-button {
+    min-height: 40px;
+    font-weight: 700;
+    color: $color-primary-light;
+  }
+}

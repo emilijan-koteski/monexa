@@ -1,0 +1,120 @@
+@use '../../styles/colors' as *;
+@use '../../styles/variables' as *;
+
+#group-dialog {
+  .group-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+  }
+
+  .field-label {
+    color: $color-text-muted;
+    line-height: 1.5;
+  }
+
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+
+    @include sm-down {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .icon-option {
+      height: 48px;
+      border-radius: $border-radius-md;
+      border: 1px solid $color-border-hover;
+      color: $color-text-soft;
+      font-size: 1.1rem;
+
+      &.selected {
+        border-color: currentColor;
+      }
+    }
+  }
+
+  .color-row {
+    display: flex;
+    gap: 4px;
+
+    .color-option {
+      width: 44px;
+      height: 44px;
+
+      &.selected .color-dot {
+        box-shadow: 0 0 0 3px $color-background-lighter, 0 0 0 5px $color-text-primary;
+      }
+    }
+
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+    }
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+
+    @include sm-down {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .guest-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .guest-chip {
+      height: 40px;
+      border-radius: 20px;
+      border: 1px dashed $color-border-focus;
+      background-color: transparent;
+
+      &.me {
+        border-style: solid;
+        border-color: $color-secondary-light;
+        background-color: $color-secondary-alpha-20;
+      }
+    }
+  }
+
+  .guest-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+
+    .guest-add-button {
+      flex-shrink: 0;
+    }
+  }
+
+  .guest-hint,
+  .group-created-text {
+    color: $color-text-muted;
+  }
+
+  .group-created {
+    align-items: stretch;
+    padding-top: 0.5rem;
+
+    .group-created-check {
+      align-self: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      color: $color-success;
+      background-color: $color-success-alpha-10;
+    }
+  }
+}

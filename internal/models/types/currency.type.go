@@ -1,5 +1,7 @@
 package types
 
+import "slices"
+
 type CurrencyType string
 
 const (
@@ -9,13 +11,26 @@ const (
 	AustralianDollar CurrencyType = "AUD"
 	SwissFranc       CurrencyType = "CHF"
 	BritishPound     CurrencyType = "GBP"
+	HungarianForint  CurrencyType = "HUF"
+	SerbianDinar     CurrencyType = "RSD"
 )
 
+var supportedCurrencies = []CurrencyType{
+	MacedonianDenar,
+	Euro,
+	USDollar,
+	AustralianDollar,
+	SwissFranc,
+	BritishPound,
+	HungarianForint,
+	SerbianDinar,
+}
+
+// SupportedCurrencies returns every currency the app accepts, in display order.
+func SupportedCurrencies() []CurrencyType {
+	return slices.Clone(supportedCurrencies)
+}
+
 func IsValidCurrencyType(currencyType CurrencyType) bool {
-	switch currencyType {
-	case MacedonianDenar, Euro, USDollar, AustralianDollar, SwissFranc, BritishPound:
-		return true
-	default:
-		return false
-	}
+	return slices.Contains(supportedCurrencies, currencyType)
 }

@@ -7,4 +7,6 @@ export const currencies = [
   { value: Currency.AUD, labelKey: 'CURRENCY_AUD' },
   { value: Currency.CHF, labelKey: 'CURRENCY_CHF' },
   { value: Currency.GBP, labelKey: 'CURRENCY_GBP' },
+  { value: Currency.HUF, labelKey: 'CURRENCY_HUF' },
+  { value: Currency.RSD, labelKey: 'CURRENCY_RSD' },
 ];

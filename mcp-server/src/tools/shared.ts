@@ -5,7 +5,7 @@ import type { CategoryType, Currency, Frequency, Language } from "../api/types.j
 import { log } from "../log.js";
 import type { ToolHints } from "./definition.js";
 
-export const CURRENCIES = ["MKD", "EUR", "USD", "AUD", "CHF", "GBP"] as const satisfies readonly Currency[];
+export const CURRENCIES = ["MKD", "EUR", "USD", "AUD", "CHF", "GBP", "HUF", "RSD"] as const satisfies readonly Currency[];
 export const LANGUAGES = ["EN", "MK"] as const satisfies readonly Language[];
 export const CATEGORY_TYPES = ["INCOME", "EXPENSE"] as const satisfies readonly CategoryType[];
 export const FREQUENCIES = ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"] as const satisfies readonly Frequency[];
