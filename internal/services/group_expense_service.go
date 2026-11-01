@@ -367,7 +367,7 @@ func detachChangedTicksTx(tx *gorm.DB, expense *models.GroupExpense, shares []mo
 func previousDescriptions(group *models.Group, expense *models.GroupExpense, shares []models.GroupExpenseShare) map[uint]string {
 	out := map[uint]string{}
 	for _, share := range shares {
-		out[share.MemberID] = syncDescription(group, expense, shareCents(share.Amount))
+		out[share.MemberID] = syncDescription(group, expense)
 	}
 	return out
 }

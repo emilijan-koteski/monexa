@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/emilijan-koteski/monexa/internal/models"
@@ -50,13 +49,9 @@ func removeSyncedRecordsTx(tx *gorm.DB, groupID, userID uint) error {
 	return nil
 }
 
-// syncDescription is the description a synced record gets: "<group> · <title>", plus the original amount when it was paid in another currency.
-func syncDescription(group *models.Group, expense *models.GroupExpense, origCents int64) string {
-	description := group.Name + " · " + expense.Title
-	if expense.Currency != group.BaseCurrency {
-		description += fmt.Sprintf(" (%s %s)", strconv.FormatFloat(utils.FromCents(origCents), 'f', 2, 64), expense.Currency)
-	}
-	return description
+// syncDescription is the description a synced record gets: "<group> · <title>".
+func syncDescription(group *models.Group, expense *models.GroupExpense) string {
+	return group.Name + " · " + expense.Title
 }
 
 // memberSyncReady reports whether a member's shares should become records, switching sync off when its category or payment method is gone.
@@ -94,8 +89,8 @@ func shareCents(value *float64) int64 {
 
 // upsertShareRecordTx creates or refreshes the member's record for one share; user-edited descriptions are kept.
 func upsertShareRecordTx(tx *gorm.DB, group *models.Group, member *models.GroupMember, expense *models.GroupExpense, share *models.GroupExpenseShare, previousDescription string) error {
-	description := syncDescription(group, expense, shareCents(share.Amount))
-	amount := utils.FromCents(shareCents(share.BaseAmount))
+	description := syncDescription(group, expense)
+	amount := utils.FromCents(shareCents(share.Amount))
 
 	var existing models.Record
 	err := tx.Where("group_expense_share_id = ?", share.ID).First(&existing).Error
@@ -115,7 +110,7 @@ func upsertShareRecordTx(tx *gorm.DB, group *models.Group, member *models.GroupM
 		}
 		updates := map[string]any{
 			"amount":   amount,
-			"currency": group.BaseCurrency,
+			"currency": expense.Currency,
 			"date":     expense.Date,
 			"group_id": group.ID,
 		}
@@ -133,7 +128,7 @@ func upsertShareRecordTx(tx *gorm.DB, group *models.Group, member *models.GroupM
 		CategoryID:          *member.SyncCategoryID,
 		PaymentMethodID:     *member.SyncPaymentMethodID,
 		Amount:              amount,
-		Currency:            group.BaseCurrency,
+		Currency:            expense.Currency,
 		Description:         &description,
 		Date:                expense.Date,
 		GroupID:             &group.ID,
