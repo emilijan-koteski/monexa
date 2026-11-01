@@ -1,9 +1,11 @@
-import { Box, Button, ButtonBase, FormControlLabel, LinearProgress, Paper, Stack, Switch, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, ButtonBase, Collapse, FormControlLabel, LinearProgress, Paper, Stack, Switch, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faBoxArchive, faChevronRight, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faBoxArchive, faChevronDown, faChevronRight, faChevronUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import type { Group, GroupBalances, GroupMember } from '../../../types/groups';
+import type { Group, GroupBalances, GroupMember, GroupTransfer } from '../../../types/groups';
 import { formatCurrencyAmount } from '../../../utils/currency';
+import { explainSimplified, simplifyChangesPayments } from '../../../utils/groups';
 import MemberAvatar from '../../../components/member-avatar/MemberAvatar';
 import type { SettlementPreset } from '../../../components/settlement-dialog/SettlementDialog';
 
@@ -34,6 +36,23 @@ function BalancesTab({ group, balances, members, onMarkPaid, onOpenLedger, onRec
   };
   const maxNet = Math.max(1, ...balances.members.map((member) => Math.abs(member.net)));
   const tone = (value: number) => (value > 0 ? 'owed' : value < 0 ? 'owe' : 'settled');
+  const [showDirect, setShowDirect] = useState(false);
+  const money = (amount: number) => formatCurrencyAmount(amount, currency);
+  const transferSentence = (transfer: GroupTransfer) =>
+    members.get(transfer.fromMemberId)?.isMe
+      ? t('GROUP_YOU_PAY', { to: label(transfer.toMemberId) })
+      : members.get(transfer.toMemberId)?.isMe
+        ? t('GROUP_PAYS_YOU', { from: label(transfer.fromMemberId) })
+        : t('GROUP_PAYS', { from: label(transfer.fromMemberId), to: label(transfer.toMemberId) });
+  const simplifiedDiffers = simplifyChangesPayments(balances);
+  const explanation = simplifiedDiffers ? explainSimplified(balances) : null;
+  const myLine = explanation
+    ? t(explanation.net > 0 ? 'GROUP_SIMPLIFY_ME_GET' : explanation.net < 0 ? 'GROUP_SIMPLIFY_ME_PAY' : 'GROUP_SIMPLIFY_ME_EVEN', {
+      owed: money(explanation.owedToMe),
+      owe: money(explanation.iOwe),
+      net: money(Math.abs(explanation.net)),
+    })
+    : null;
 
   return (
     <Stack gap={3} className="balances-tab">
@@ -59,13 +78,7 @@ function BalancesTab({ group, balances, members, onMarkPaid, onOpenLedger, onRec
                 <FontAwesomeIcon icon={faArrowRight} className="muted" />
                 {to && <MemberAvatar member={to} size={32} />}
                 <Box className="transfer-text">
-                  <Typography variant="body2" className="soft">
-                    {members.get(transfer.fromMemberId)?.isMe
-                      ? t('GROUP_YOU_PAY', { to: label(transfer.toMemberId) })
-                      : members.get(transfer.toMemberId)?.isMe
-                        ? t('GROUP_PAYS_YOU', { from: label(transfer.fromMemberId) })
-                        : t('GROUP_PAYS', { from: label(transfer.fromMemberId), to: label(transfer.toMemberId) })}
-                  </Typography>
+                  <Typography variant="body2" className="soft">{transferSentence(transfer)}</Typography>
                   <Typography fontWeight={600}>{formatCurrencyAmount(transfer.amount, currency)}</Typography>
                 </Box>
                 {!archived && (
@@ -80,6 +93,41 @@ function BalancesTab({ group, balances, members, onMarkPaid, onOpenLedger, onRec
               </Paper>
             );
           })
+        )}
+        {simplifiedDiffers && (
+          <Paper className="simplify-explainer">
+            {myLine && <Typography variant="body2">{myLine}</Typography>}
+            {explanation?.covers.map((cover) => (
+              <Typography key={`${cover.payerId}-${cover.creditorId}`} variant="body2">
+                {t('GROUP_SIMPLIFY_COVERS', { payer: label(cover.payerId), amount: money(cover.amount), creditor: label(cover.creditorId) })}
+              </Typography>
+            ))}
+            <Button
+              size="small"
+              onClick={() => setShowDirect((value) => !value)}
+              endIcon={<FontAwesomeIcon icon={showDirect ? faChevronUp : faChevronDown} />}
+              className="direct-toggle"
+            >
+              {showDirect ? t('GROUP_HIDE_DIRECT_PAYMENTS') : t('GROUP_SHOW_DIRECT_PAYMENTS', { count: balances.direct.length })}
+            </Button>
+            <Collapse in={showDirect}>
+              <Stack gap={1} className="direct-list">
+                {balances.direct.map((transfer) => {
+                  const from = members.get(transfer.fromMemberId);
+                  const to = members.get(transfer.toMemberId);
+                  return (
+                    <Box key={`${transfer.fromMemberId}-${transfer.toMemberId}`} className="direct-row">
+                      {from && <MemberAvatar member={from} size={24} />}
+                      <FontAwesomeIcon icon={faArrowRight} className="muted" />
+                      {to && <MemberAvatar member={to} size={24} />}
+                      <Typography variant="body2" className="direct-text">{transferSentence(transfer)}</Typography>
+                      <Typography variant="body2" fontWeight={600}>{money(transfer.amount)}</Typography>
+                    </Box>
+                  );
+                })}
+              </Stack>
+            </Collapse>
+          </Paper>
         )}
         {balances.pendingCount > 0 && (
           <Typography variant="caption" className="pending-note">

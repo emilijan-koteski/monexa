@@ -68,6 +68,7 @@ type GroupBalancesResponse struct {
 	ExpenseCount int                          `json:"expenseCount"`
 	Members      []GroupBalanceMemberResponse `json:"members"`
 	Suggested    []GroupTransferResponse      `json:"suggested"`
+	Direct       []GroupTransferResponse      `json:"direct"`
 	WithMe       []GroupPairResponse          `json:"withMe"`
 }
 
