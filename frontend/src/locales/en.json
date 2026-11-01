@@ -667,6 +667,7 @@
   "GROUP_SYNC_EXAMPLE": "You pay {{total}} for lunch for three. Your records get {{share}}: your share.",
   "GROUP_SYNC_NOT_SPENDING": "What friends owe you is not your spending, so it is not recorded. Paying each other back is not recorded either.",
   "GROUP_SYNC_LOCKED_FIELDS": "Amount, currency and date follow the group. Category, payment method and description are yours to change.",
+  "GROUP_SYNCED_RECORD_DELETE_MESSAGE": "This removes it from your records only. The group expense stays, and the record comes back the next time the expense is edited or you save your My records settings in the group.",
   "GROUP_SYNC_ON_DONE": "Your shares now appear in your records",
   "GROUP_SYNC_OFF_KEPT": "Sync off: records kept as normal records",
   "GROUP_SYNC_OFF_REMOVED": "Sync off: synced records removed",

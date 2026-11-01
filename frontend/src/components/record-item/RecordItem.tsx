@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import type { FinancialRecord } from '../../types/models';
 import { CategoryType } from '../../enums/CategoryType';
 import { formatRecordAmount } from '../../utils/currency';
-import { isManagedRecord, useGroups } from '../../services/groupService';
+import { useGroups } from '../../services/groupService';
 
 interface RecordItemProps {
   record: FinancialRecord;
@@ -32,7 +32,6 @@ function RecordItem({
   const navigate = useNavigate();
   const { data: groups } = useGroups(!!record.groupId);
   const groupName = groups?.find((group) => group.id === record.groupId)?.name;
-  const managed = isManagedRecord(record);
   const displayName = record.description || categoryName || `Category #${record.categoryId}`;
   const isExpense = categoryType === CategoryType.EXPENSE;
 
@@ -92,15 +91,13 @@ function RecordItem({
           >
             <FontAwesomeIcon icon={faEdit} fontSize="medium" />
           </IconButton>
-          {!managed && (
-            <IconButton
-              color="error"
-              size="large"
-              onClick={() => onDelete(record)}
-            >
-              <FontAwesomeIcon icon={faTrash} fontSize="medium" />
-            </IconButton>
-          )}
+          <IconButton
+            color="error"
+            size="large"
+            onClick={() => onDelete(record)}
+          >
+            <FontAwesomeIcon icon={faTrash} fontSize="medium" />
+          </IconButton>
         </Box>
       </CardContent>
     </Card>

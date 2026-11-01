@@ -19,6 +19,7 @@ import { toast } from 'react-toastify';
 import { useFilteredRecords, useUpdateRecord, useDeleteRecord } from '../../../services/recordService';
 import { useCategory } from '../../../services/categoryService';
 import { usePaymentMethods } from '../../../services/paymentMethodService';
+import { isManagedRecord } from '../../../services/groupService';
 import RecordItem from '../../../components/record-item/RecordItem';
 import RecordDialog, { type RecordFormData } from '../../../components/record-dialog/RecordDialog';
 import ConfirmationDialog from '../../../components/confirmation-dialog/ConfirmationDialog';
@@ -284,7 +285,7 @@ const CategoryDetailsPage = () => {
         onConfirm={handleDeleteConfirm}
         isLoading={deleteRecordMutation.isPending}
         title="DELETE_CONFIRMATION_TITLE"
-        message="DELETE_CONFIRMATION_MESSAGE"
+        message={recordToDelete && isManagedRecord(recordToDelete) ? 'GROUP_SYNCED_RECORD_DELETE_MESSAGE' : 'DELETE_CONFIRMATION_MESSAGE'}
         confirmText="DELETE"
         confirmColor="error"
       />

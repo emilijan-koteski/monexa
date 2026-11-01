@@ -269,7 +269,7 @@ Read tools only look at your data; write tools need the Read & write permission.
 
 - `list_records` returns at most 500 records per call (50 by default) and has no paging beyond that. Narrow the request by date range, category, payment method or search text; the response says when it was cut off.
 - Supported currencies are MKD, EUR, USD, AUD, CHF, GBP, HUF and RSD.
-- Records synced from a shared group (they carry a `groupId`) keep their amount, currency and date in step with the group. Change those, or delete the record, in the Monexa app; the category, payment method and description can be changed from here.
+- Records synced from a shared group (they carry a `groupId`) keep their amount, currency and date in step with the group. Change those in the Monexa app; the category, payment method and description can be changed from here. Deleting such a record removes it from the user's records only, and it comes back the next time the group expense changes.
 - Trend reports are read-only for connected apps. Creating, editing and deleting them is planned for a later release.
 - Dates are `YYYY-MM-DD` or full RFC 3339 timestamps. A date-only record date is stored as 12:00 UTC that day.
 - You can have 10 active access tokens, and each expires after 30, 90 or 365 days.
