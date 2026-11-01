@@ -7,7 +7,6 @@ import {
   Checkbox,
   Chip,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -22,6 +21,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTrash, faTriangleExclamation, faUsers } from '@fortawesome/free-solid-svg-icons';
@@ -360,7 +360,7 @@ function GroupExpenseDialog({ open, onClose, group, expenses, expense, fillAmoun
   };
 
   return (
-    <Dialog open={open} onClose={() => !isSaving && onClose()} id="group-expense-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
+    <AppDialog open={open} onClose={() => !isSaving && onClose()} id="group-expense-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
       <DialogTitle className="expense-dialog-title">
         <span>{expense ? t('GROUP_EDIT_EXPENSE') : t('GROUP_NEW_EXPENSE')}</span>
         {expense && onDelete && (
@@ -539,7 +539,7 @@ function GroupExpenseDialog({ open, onClose, group, expenses, expense, fillAmoun
           </Button>
         </Box>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

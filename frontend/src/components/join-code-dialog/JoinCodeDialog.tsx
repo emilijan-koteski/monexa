@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
+import { Button, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { formatInviteInput } from '../../utils/groups';
@@ -30,7 +31,7 @@ function JoinCodeDialog({ open, onClose }: JoinCodeDialogProps) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth id="join-code-dialog">
+    <AppDialog open={open} onClose={onClose} maxWidth="xs" fullWidth id="join-code-dialog">
       <DialogTitle>{t('GROUP_JOIN_WITH_CODE')}</DialogTitle>
       <DialogContent>
         <form id="join-code-form" onSubmit={submit}>
@@ -50,7 +51,7 @@ function JoinCodeDialog({ open, onClose }: JoinCodeDialogProps) {
         <Button onClick={onClose}>{t('CANCEL')}</Button>
         <Button type="submit" form="join-code-form" variant="contained" disabled={code.length !== CODE_LENGTH}>{t('GROUP_CONTINUE')}</Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

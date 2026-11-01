@@ -4,7 +4,7 @@ import { Box, Button, CircularProgress, Container, IconButton, List, ListItem, L
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEdit, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { useCreatePaymentMethod, useDeletePaymentMethod, usePaymentMethods, useUpdatePaymentMethod } from '../../../services/paymentMethodService';
 import type { PaymentMethod } from '../../../types/models';
 import { toast } from 'react-toastify';
@@ -13,7 +13,7 @@ import ConfirmationDialog from '../../../components/confirmation-dialog/Confirma
 
 const PaymentTypePage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { data: paymentMethods, isLoading } = usePaymentMethods();
   const createMutation = useCreatePaymentMethod();
   const updateMutation = useUpdatePaymentMethod();
@@ -25,7 +25,7 @@ const PaymentTypePage = () => {
   const [paymentMethodToDelete, setPaymentMethodToDelete] = useState<PaymentMethod | null>(null);
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleNewPaymentMethod = () => {

@@ -25,7 +25,7 @@ import {
   faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { format } from 'date-fns';
 import type { Locale } from 'date-fns';
 import { enGB, mk } from 'date-fns/locale';
@@ -232,7 +232,7 @@ function AccessTokenItem({ accessToken, disabled, onRevoke }: AccessTokenItemPro
 
 const ConnectedAppsPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const grantsQuery = useOAuthGrants();
   const accessTokensQuery = useAccessTokens();
   const revokeGrantMutation = useRevokeOAuthGrant();
@@ -252,7 +252,7 @@ const ConnectedAppsPage = () => {
     : '';
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleDisconnectClick = (grant: OAuthGrant) => {

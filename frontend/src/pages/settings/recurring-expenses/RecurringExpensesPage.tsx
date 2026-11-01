@@ -4,7 +4,7 @@ import { Box, Button, CircularProgress, Container, IconButton, Stack, Typography
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import {
@@ -25,7 +25,7 @@ const toApiDate = (date: Date): string => format(date, "yyyy-MM-dd'T'HH:mm:ss'Z'
 
 const RecurringExpensesPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { data: recurringExpenses, isLoading } = useRecurringExpenses();
   const { data: categories } = useCategories();
   const { data: paymentMethods } = usePaymentMethods();
@@ -39,7 +39,7 @@ const RecurringExpensesPage = () => {
   const [recurringExpenseToDelete, setRecurringExpenseToDelete] = useState<RecurringExpense | null>(null);
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleNew = () => {

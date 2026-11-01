@@ -1,6 +1,7 @@
 import './trend-report-dialog.scss';
 import { useEffect, useRef, useState } from 'react';
-import { Autocomplete, Box, Button, Checkbox, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, useMediaQuery, useTheme } from '@mui/material';
+import { Autocomplete, Box, Button, Checkbox, Chip, CircularProgress, DialogActions, DialogContent, DialogTitle, TextField, useMediaQuery, useTheme } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -125,7 +126,7 @@ function TrendReportDialog({ open, onClose, onSubmit, report, isLoading = false,
   const allSelected = selectedCategories.length === allCategories.length;
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleClose}
       id="trend-report-dialog"
@@ -272,7 +273,7 @@ function TrendReportDialog({ open, onClose, onSubmit, report, isLoading = false,
           )}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

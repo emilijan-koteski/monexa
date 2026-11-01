@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -14,6 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -103,7 +103,7 @@ function SettlementDialog({ open, onClose, group, preset }: SettlementDialogProp
   };
 
   return (
-    <Dialog open={open} onClose={() => !createSettlement.isPending && onClose()} maxWidth="sm" fullWidth fullScreen={isMobile} id="settlement-dialog">
+    <AppDialog open={open} onClose={() => !createSettlement.isPending && onClose()} maxWidth="sm" fullWidth fullScreen={isMobile} id="settlement-dialog">
       <DialogTitle>{t('GROUP_RECORD_PAYMENT')}</DialogTitle>
       <DialogContent>
         <Stack gap={2} sx={{ pt: 1 }}>
@@ -145,7 +145,7 @@ function SettlementDialog({ open, onClose, group, preset }: SettlementDialogProp
           </Button>
         </Box>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

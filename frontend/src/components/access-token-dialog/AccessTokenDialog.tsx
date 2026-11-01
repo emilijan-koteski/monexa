@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -24,6 +23,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -240,7 +240,7 @@ function AccessTokenDialog({ open, onClose }: AccessTokenDialogProps) {
   };
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleDialogClose}
       id="access-token-dialog"
@@ -347,7 +347,7 @@ function AccessTokenDialog({ open, onClose }: AccessTokenDialogProps) {
           </>
         )}
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

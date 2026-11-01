@@ -14,7 +14,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faChevronRight, faDownload, faKey, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import ChangePasswordDialog from '../../../components/change-password-dialog/ChangePasswordDialog';
@@ -27,7 +27,7 @@ import type { DownloadDataParams } from '../../../components/download-data-dialo
 
 const AccountPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
@@ -37,7 +37,7 @@ const AccountPage = () => {
   const downloadMutation = useDownloadData();
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleOpenDialog = () => {

@@ -15,6 +15,8 @@ import { faChevronDown, faChevronUp, faCircle } from '@fortawesome/free-solid-sv
 import { useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { NavigationItem } from '../config/navigation';
+import { HOME_PATH } from '../navigation/appHistory';
+import { useAppNavigation } from '../navigation/useAppNavigation';
 import './nav-item.scss';
 
 interface NavItemProps {
@@ -26,6 +28,7 @@ interface NavItemProps {
 const NavItem = ({ item, isExpanded, depth = 0 }: NavItemProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { goHome } = useAppNavigation();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -44,6 +47,9 @@ const NavItem = ({ item, isExpanded, depth = 0 }: NavItemProps) => {
       setAnchorEl(event.currentTarget);
     } else if (hasChildren) {
       setOpen(!open);
+    } else if (item.path === HOME_PATH) {
+      goHome();
+      handleMenuClose();
     } else if (item.path) {
       navigate(item.path);
       handleMenuClose();

@@ -1,6 +1,7 @@
 import './payment-type-dialog.scss';
 import { useEffect } from 'react';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, useMediaQuery, useTheme } from '@mui/material';
+import { Button, CircularProgress, DialogActions, DialogContent, DialogTitle, TextField, useMediaQuery, useTheme } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -71,7 +72,7 @@ function PaymentTypeDialog({
   };
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleClose}
       id="payment-type-dialog"
@@ -118,7 +119,7 @@ function PaymentTypeDialog({
           {isLoading ? <CircularProgress size={24} /> : paymentMethod ? t('UPDATE') : t('CREATE')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

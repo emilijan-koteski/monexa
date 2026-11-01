@@ -4,7 +4,8 @@ import { Box, CircularProgress, Container, IconButton, Stack, ToggleButton, Togg
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { enGB, mk } from 'date-fns/locale';
@@ -24,7 +25,7 @@ import { calcComparison } from '../utils/calcComparison';
 
 const TrendDetailsPage = () => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack, goBackTo } = useAppNavigation();
   const theme = useTheme();
   const { reportId } = useParams<{ reportId: string }>();
   const [searchParams] = useSearchParams();
@@ -126,7 +127,7 @@ const TrendDetailsPage = () => {
   };
 
   const handleBack = () => {
-    navigate(`/trends?yearPreset=${yearPresetParam}&year=${activeYear}`);
+    goBack(`/trends?yearPreset=${yearPresetParam}&year=${activeYear}`);
   };
 
   const handleEditSubmit = async (data: TrendReportFormData) => {
@@ -152,7 +153,7 @@ const TrendDetailsPage = () => {
       await deleteMutation.mutateAsync(id);
       toast.success(t('TREND_REPORT_DELETED_SUCCESS'));
       setDeleteDialogOpen(false);
-      navigate('/trends');
+      goBackTo('/trends');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t('TREND_REPORT_DELETE_ERROR'));
     }
