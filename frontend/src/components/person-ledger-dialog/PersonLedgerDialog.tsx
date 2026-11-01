@@ -1,5 +1,6 @@
 import './person-ledger-dialog.scss';
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Checkbox, DialogActions, DialogContent, DialogTitle, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
@@ -126,7 +127,7 @@ function PersonLedgerDialog({
       : t('GROUP_PAIR_SQUARE', { name });
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth fullScreen={isMobile} id="person-ledger-dialog">
+    <AppDialog open={open} onClose={onClose} maxWidth="sm" fullWidth fullScreen={isMobile} id="person-ledger-dialog">
       <DialogTitle className="ledger-title-bar">
         <Box className="ledger-avatars">
           <MemberAvatar member={me} size={30} />
@@ -183,7 +184,7 @@ function PersonLedgerDialog({
           </Button>
         )}
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

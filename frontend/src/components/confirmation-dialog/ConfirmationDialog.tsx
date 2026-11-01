@@ -1,12 +1,12 @@
 import './confirmation-dialog.scss';
 import {
-  Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
   Button,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { useTranslation } from 'react-i18next';
 
 interface ConfirmationDialogProps {
@@ -41,7 +41,7 @@ function ConfirmationDialog({
   const { t } = useTranslation();
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={onClose}
       id='confirmation-dialog'
@@ -70,7 +70,7 @@ function ConfirmationDialog({
           {t(confirmText)}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

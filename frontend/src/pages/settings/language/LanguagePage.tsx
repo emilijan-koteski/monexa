@@ -13,7 +13,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { useSettings, useUpdateSettings } from '../../../services/settingService';
 import { Language } from '../../../enums/Language';
 import { toast } from 'react-toastify';
@@ -22,12 +22,12 @@ import { changeLanguage } from '../../../i18n.ts';
 
 const LanguagePage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { data: settings, isLoading } = useSettings();
   const updateMutation = useUpdateSettings();
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleLanguageChange = async (language: Language) => {

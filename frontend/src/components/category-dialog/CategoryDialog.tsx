@@ -1,6 +1,7 @@
 import './category-dialog.scss';
 import { useEffect } from 'react';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, TextField, useMediaQuery, useTheme } from '@mui/material';
+import { Button, CircularProgress, DialogActions, DialogContent, DialogTitle, MenuItem, TextField, useMediaQuery, useTheme } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -89,7 +90,7 @@ function CategoryDialog({
   };
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleClose}
       id="category-dialog"
@@ -193,7 +194,7 @@ function CategoryDialog({
           )}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

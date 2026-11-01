@@ -1,6 +1,7 @@
 import './download-data-dialog.scss';
 import { useMemo, useState } from 'react';
-import { Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Button, Checkbox, CircularProgress, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useTranslation } from 'react-i18next';
 import { DownloadDataDialogMode } from '../../enums/DownloadDataDialogMode';
@@ -102,7 +103,7 @@ function DownloadDataDialog({
     isLoading || (mode === DownloadDataDialogMode.FULL && selectedCategories.size === 0);
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleClose}
       id="download-data-dialog"
@@ -216,7 +217,7 @@ function DownloadDataDialog({
           {isLoading ? <CircularProgress size={24} /> : t('DOWNLOAD')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

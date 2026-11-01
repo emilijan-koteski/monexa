@@ -1,6 +1,7 @@
 import './recurring-expense-dialog.scss';
 import { useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete, MenuItem, Box, CircularProgress, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete, MenuItem, Box, CircularProgress, Typography, useMediaQuery, useTheme } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -208,7 +209,7 @@ function RecurringExpenseDialog({ open, onClose, onSubmit, recurringExpense, isL
   const isDataLoading = categoriesLoading || paymentMethodsLoading;
 
   return (
-    <Dialog open={open} onClose={handleClose} id="recurring-expense-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
+    <AppDialog open={open} onClose={handleClose} id="recurring-expense-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
       <DialogTitle>{recurringExpense ? t('EDIT_RECURRING_EXPENSE') : t('NEW_RECURRING_EXPENSE')}</DialogTitle>
 
       <DialogContent>
@@ -440,7 +441,7 @@ function RecurringExpenseDialog({ open, onClose, onSubmit, recurringExpense, isL
         onSubmit={handlePaymentMethodCreate}
         isLoading={createPaymentMethodMutation.isPending}
       />
-    </Dialog>
+    </AppDialog>
   );
 }
 

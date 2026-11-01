@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import {
   Button,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -13,6 +12,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { Controller, useForm } from 'react-hook-form';
@@ -96,7 +96,7 @@ function ChangePasswordDialog({
   };
 
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={handleClose}
       id="change-password-dialog"
@@ -216,7 +216,7 @@ function ChangePasswordDialog({
           {isLoading ? <CircularProgress size={24} /> : t('CHANGE_PASSWORD')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

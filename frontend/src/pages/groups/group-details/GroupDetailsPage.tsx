@@ -7,7 +7,6 @@ import {
   Chip,
   CircularProgress,
   Container,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -25,6 +24,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
+import AppDialog from '../../../components/app-dialog/AppDialog';
 import { alpha } from '@mui/material/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -42,6 +42,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { toast } from 'react-toastify';
 import type { Group, GroupExpense, GroupExpenseShare, GroupMember, GroupSettlement } from '../../../types/groups';
 import { GroupMemberRole } from '../../../enums/GroupMemberRole';
@@ -86,6 +87,7 @@ interface ExpenseDialogState {
 function GroupDetailsPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { goBack, goBackTo } = useAppNavigation();
   const queryClient = useQueryClient();
   const { groupId } = useParams();
   const id = Number(groupId) || 0;
@@ -261,7 +263,7 @@ function GroupDetailsPage() {
     try {
       await deleteGroup.mutateAsync(group.id);
       toast.success(t('GROUP_DELETED', { name: group.name }));
-      navigate('/groups', { replace: true });
+      goBackTo('/groups');
     } catch (deleteError) {
       failure('GROUP_DELETE_ERROR')(deleteError);
     }
@@ -271,7 +273,7 @@ function GroupDetailsPage() {
     try {
       await leaveGroup.mutateAsync({ groupId: group.id, keepRecords: leaveKeep === 'keep' });
       toast.success(t('GROUP_LEFT', { name: group.name }));
-      navigate('/groups', { replace: true });
+      goBackTo('/groups');
     } catch (leaveError) {
       failure('GROUP_ACTION_ERROR')(leaveError);
     }
@@ -283,7 +285,7 @@ function GroupDetailsPage() {
   return (
     <Container maxWidth="md" id="group-details-page">
       <Box className="page-header">
-        <IconButton color="primary" className="back-button" aria-label={t('GROUP_BACK_TO_GROUPS')} onClick={() => navigate('/groups')}>
+        <IconButton color="primary" className="back-button" aria-label={t('GROUP_BACK_TO_GROUPS')} onClick={() => goBack('/groups')}>
           <FontAwesomeIcon icon={faArrowLeft} />
         </IconButton>
         <Box className="group-icon" sx={{ color: group.color, backgroundColor: alpha(group.color, 0.18) }}>
@@ -445,7 +447,7 @@ function GroupDetailsPage() {
         confirmColor="error"
         isLoading={deleteGroup.isPending}
       />
-      <Dialog open={leaveOpen} onClose={() => setLeaveOpen(false)} maxWidth="xs" fullWidth>
+      <AppDialog open={leaveOpen} onClose={() => setLeaveOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle>{t('GROUP_LEAVE_TITLE', { name: group.name })}</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>{isOwner ? t('GROUP_LEAVE_OWNER_MESSAGE') : t('GROUP_LEAVE_MESSAGE')}</Typography>
@@ -460,7 +462,7 @@ function GroupDetailsPage() {
           <Button onClick={() => setLeaveOpen(false)}>{t('CANCEL')}</Button>
           <Button color="error" variant="contained" onClick={confirmLeave} disabled={leaveGroup.isPending}>{t('GROUP_LEAVE')}</Button>
         </DialogActions>
-      </Dialog>
+      </AppDialog>
     </Container>
   );
 }

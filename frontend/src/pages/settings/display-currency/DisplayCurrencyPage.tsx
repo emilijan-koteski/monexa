@@ -3,7 +3,7 @@ import { Box, CircularProgress, Container, IconButton, List, ListItem, ListItemB
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { useSettings, useUpdateSettings } from '../../../services/settingService';
 import { Currency } from '../../../enums/Currency';
 import { toast } from 'react-toastify';
@@ -11,12 +11,12 @@ import { currencies } from '../constants/Currencies.ts';
 
 const DisplayCurrencyPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { data: settings, isLoading } = useSettings();
   const updateMutation = useUpdateSettings();
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleCurrencyChange = async (currency: Currency) => {

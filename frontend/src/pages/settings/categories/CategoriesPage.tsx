@@ -4,7 +4,7 @@ import { Box, Button, Chip, CircularProgress, Container, IconButton, List, ListI
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEdit, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import { useCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from '../../../services/categoryService';
 import type { Category } from '../../../types/models';
 import { CategoryType } from '../../../enums/CategoryType';
@@ -14,7 +14,7 @@ import ConfirmationDialog from '../../../components/confirmation-dialog/Confirma
 
 const CategoriesPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { data: categories, isLoading } = useCategories();
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
@@ -26,7 +26,7 @@ const CategoriesPage = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   const handleBack = () => {
-    navigate('/settings');
+    goBack('/settings');
   };
 
   const handleNewCategory = () => {

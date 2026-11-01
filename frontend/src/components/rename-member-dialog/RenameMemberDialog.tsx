@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Button, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import type { GroupMember } from '../../types/groups';
@@ -46,7 +47,7 @@ function RenameMemberDialog({ groupId, member, onClose }: RenameMemberDialogProp
   };
 
   return (
-    <Dialog
+    <AppDialog
       open={!!member}
       onClose={onClose}
       maxWidth="xs"
@@ -77,7 +78,7 @@ function RenameMemberDialog({ groupId, member, onClose }: RenameMemberDialogProp
         <Button onClick={onClose}>{t('CANCEL')}</Button>
         <Button type="submit" form="rename-member-form" variant="contained" disabled={!canSave}>{t('GROUP_SAVE')}</Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

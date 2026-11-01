@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import AppHistoryTracker from '../navigation/AppHistoryTracker';
 import { lazy, Suspense } from 'react';
 import Loader from '../components/loader/Loader.tsx';
 import AppLayout from '../layouts/AppLayout.tsx';
@@ -39,6 +40,7 @@ const OAuthErrorPage = lazy(() => import('../pages/oauth-error/OAuthErrorPage.ts
 function AppRoutes() {
   return (
     <BrowserRouter>
+      <AppHistoryTracker/>
       <Suspense fallback={<Loader/>}>
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace/>}/>

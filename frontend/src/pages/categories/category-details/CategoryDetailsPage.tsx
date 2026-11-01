@@ -1,6 +1,7 @@
 import './category-details-page.scss';
 import { useState, useMemo } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
+import { useAppNavigation } from '../../../navigation/useAppNavigation';
 import {
   Container,
   Box,
@@ -32,7 +33,7 @@ type SortOrder = 'asc' | 'desc';
 
 const CategoryDetailsPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { categoryId } = useParams<{ categoryId: string }>();
   const [searchParams] = useSearchParams();
 
@@ -94,7 +95,7 @@ const CategoryDetailsPage = () => {
   }, [records, sortBy]);
 
   const handleBack = () => {
-    navigate(`/categories?${searchParams.toString()}`);
+    goBack(`/categories?${searchParams.toString()}`);
   };
 
   const getPaymentMethodName = (paymentMethodId: number) => {

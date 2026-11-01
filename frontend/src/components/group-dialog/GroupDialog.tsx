@@ -5,7 +5,6 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -17,6 +16,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { alpha } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -157,7 +157,7 @@ function GroupDialog({ open, onClose, group, onCreated }: GroupDialogProps) {
 
   if (created) {
     return (
-      <Dialog open={open} onClose={handleClose} id="group-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
+      <AppDialog open={open} onClose={handleClose} id="group-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
         <DialogTitle>{t('GROUP_INVITE_PEOPLE')}</DialogTitle>
         <DialogContent>
           <Stack gap={2} className="group-created">
@@ -170,12 +170,12 @@ function GroupDialog({ open, onClose, group, onCreated }: GroupDialogProps) {
         <DialogActions className="dialog-actions">
           <Button variant="contained" onClick={handleClose} className="submit-button">{t('GROUP_DONE')}</Button>
         </DialogActions>
-      </Dialog>
+      </AppDialog>
     );
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} id="group-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
+    <AppDialog open={open} onClose={handleClose} id="group-dialog" maxWidth="sm" fullWidth fullScreen={isMobile}>
       <DialogTitle>{isEdit ? t('GROUP_EDIT') : t('GROUP_NEW')}</DialogTitle>
       <DialogContent>
         <form id="group-form" onSubmit={handleSubmit(onSubmit)} className="group-form">
@@ -333,7 +333,7 @@ function GroupDialog({ open, onClose, group, onCreated }: GroupDialogProps) {
           {isSaving ? <CircularProgress size={24} /> : isEdit ? t('UPDATE') : t('GROUP_CREATE')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 

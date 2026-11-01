@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -19,6 +18,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppDialog from '../app-dialog/AppDialog';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import type { Group } from '../../types/groups';
@@ -90,7 +90,7 @@ function GroupSyncDialog({ open, onClose, group }: GroupSyncDialogProps) {
   };
 
   return (
-    <Dialog open={open} onClose={() => !updateMe.isPending && onClose()} maxWidth="sm" fullWidth fullScreen={isMobile} id="group-sync-dialog">
+    <AppDialog open={open} onClose={() => !updateMe.isPending && onClose()} maxWidth="sm" fullWidth fullScreen={isMobile} id="group-sync-dialog">
       <DialogTitle>{t('GROUP_SYNC_TITLE')}</DialogTitle>
       <DialogContent>
         <Stack gap={2} sx={{ pt: 1 }}>
@@ -154,7 +154,7 @@ function GroupSyncDialog({ open, onClose, group }: GroupSyncDialogProps) {
           {updateMe.isPending ? <CircularProgress size={24} /> : t('GROUP_SAVE')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }
 
