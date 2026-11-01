@@ -637,6 +637,8 @@
   "GROUP_GUEST_NOT_LINKED": "Гостин, уште не е поврзан",
   "GROUP_PERSON_ACTIONS": "Опции за {{name}}",
   "GROUP_RENAME": "Преименувај",
+  "GROUP_RENAME_TITLE": "Преименувај {{name}}",
+  "GROUP_PERSON_NAME": "Име",
   "GROUP_PERSON_RENAMED": "Името е ажурирано",
   "GROUP_MAKE_OWNER": "Направи сопственик",
   "GROUP_OWNER_TRANSFERRED": "Сопственоста е пренесена",

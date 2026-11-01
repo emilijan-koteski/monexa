@@ -637,6 +637,8 @@
   "GROUP_GUEST_NOT_LINKED": "Guest, not linked yet",
   "GROUP_PERSON_ACTIONS": "Options for {{name}}",
   "GROUP_RENAME": "Rename",
+  "GROUP_RENAME_TITLE": "Rename {{name}}",
+  "GROUP_PERSON_NAME": "Name",
   "GROUP_PERSON_RENAMED": "Name updated",
   "GROUP_MAKE_OWNER": "Make owner",
   "GROUP_OWNER_TRANSFERRED": "Ownership transferred",
