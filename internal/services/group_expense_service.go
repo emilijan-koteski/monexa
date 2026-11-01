@@ -367,7 +367,7 @@ func detachChangedTicksTx(tx *gorm.DB, expense *models.GroupExpense, shares []mo
 func previousDescriptions(group *models.Group, expense *models.GroupExpense, shares []models.GroupExpenseShare) map[uint]string {
 	out := map[uint]string{}
 	for _, share := range shares {
-		out[share.MemberID] = syncDescription(group, expense, shareCents(share.Amount))
+		out[share.MemberID] = syncDescription(group, expense)
 	}
 	return out
 }
@@ -923,6 +923,7 @@ func (s *GroupExpenseService) Balances(ctx context.Context, groupID, userID uint
 		ExpenseCount: sheet.ExpenseCount,
 		Members:      []dtoResponses.GroupBalanceMemberResponse{},
 		Suggested:    []dtoResponses.GroupTransferResponse{},
+		Direct:       []dtoResponses.GroupTransferResponse{},
 		WithMe:       []dtoResponses.GroupPairResponse{},
 	}
 	for _, id := range view.memberIDs {
@@ -939,10 +940,17 @@ func (s *GroupExpenseService) Balances(ctx context.Context, groupID, userID uint
 			})
 		}
 	}
-	for _, t := range suggestTransfers(sheet, view.memberIDs, view.group.SimplifyDebts, threshold) {
-		out.Suggested = append(out.Suggested, dtoResponses.GroupTransferResponse{FromMemberID: t.From, ToMemberID: t.To, Amount: utils.FromCents(t.Cents)})
-	}
+	out.Suggested = transferResponses(suggestTransfers(sheet, view.memberIDs, view.group.SimplifyDebts, threshold))
+	out.Direct = transferResponses(suggestTransfers(sheet, view.memberIDs, false, threshold))
 	return out, nil
+}
+
+func transferResponses(transfers []transfer) []dtoResponses.GroupTransferResponse {
+	out := []dtoResponses.GroupTransferResponse{}
+	for _, t := range transfers {
+		out = append(out, dtoResponses.GroupTransferResponse{FromMemberID: t.From, ToMemberID: t.To, Amount: utils.FromCents(t.Cents)})
+	}
+	return out
 }
 
 func (s *GroupExpenseService) Stats(ctx context.Context, groupID, userID uint) (*dtoResponses.GroupStatsResponse, error) {

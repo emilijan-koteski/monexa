@@ -851,6 +851,51 @@ func Migrate(db *gorm.DB) {
 				return nil
 			},
 		},
+		{
+			ID: "20261101120000_sync_records_in_expense_currency",
+			Migrate: func(tx *gorm.DB) error {
+				type syncedRecord struct {
+					RecordID        uint
+					Description     *string
+					GroupName       string
+					BaseCurrency    string
+					Title           string
+					ExpenseCurrency string
+					ShareAmount     float64
+				}
+				var rows []syncedRecord
+				if err := tx.Raw(`
+					select r.id as record_id, r.description, g.name as group_name, g.base_currency,
+						e.title, e.currency as expense_currency, s.amount as share_amount
+					from records r
+					join group_expense_shares s on s.id = r.group_expense_share_id
+					join group_expenses e on e.id = s.expense_id
+					join groups g on g.id = e.group_id
+					where r.deleted_at is null and r.group_sync_detached_at is null
+						and e.deleted_at is null and s.amount is not null
+				`).Scan(&rows).Error; err != nil {
+					return err
+				}
+				for _, row := range rows {
+					amount := utils.FromCents(utils.ToCents(row.ShareAmount))
+					updates := map[string]any{"amount": amount, "currency": row.ExpenseCurrency}
+					plain := row.GroupName + " · " + row.Title
+					if row.ExpenseCurrency != row.BaseCurrency && row.Description != nil {
+						legacy := plain + " (" + strconv.FormatFloat(amount, 'f', 2, 64) + " " + row.ExpenseCurrency + ")"
+						if *row.Description == legacy {
+							updates["description"] = plain
+						}
+					}
+					if err := tx.Model(&models.Record{}).Where("id = ?", row.RecordID).Updates(updates).Error; err != nil {
+						return err
+					}
+				}
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {

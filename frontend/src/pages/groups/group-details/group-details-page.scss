@@ -176,6 +176,38 @@
     }
   }
 
+  .simplify-explainer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: $border-radius-md;
+    border: 1px dashed $color-secondary-alpha-50;
+    background: $color-secondary-alpha-10;
+
+    .direct-toggle {
+      align-self: flex-start;
+      margin-left: -6px;
+    }
+
+    .direct-list {
+      padding-top: 4px;
+    }
+
+    .direct-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .direct-text {
+        flex: 1;
+        min-width: 0;
+        padding-left: 4px;
+        color: $color-text-muted;
+      }
+    }
+  }
+
   .settled-card {
     padding: 1rem;
     text-align: center;

@@ -30,6 +30,7 @@ import {
 } from '../../services/recordService';
 import { useCategories } from '../../services/categoryService';
 import { usePaymentMethods } from '../../services/paymentMethodService';
+import { isManagedRecord } from '../../services/groupService';
 import type { FinancialRecord } from '../../types/models';
 
 function HomePage() {
@@ -240,7 +241,7 @@ function HomePage() {
         onConfirm={handleDeleteConfirm}
         isLoading={deleteRecordMutation.isPending}
         title='DELETE_CONFIRMATION_TITLE'
-        message='DELETE_CONFIRMATION_MESSAGE'
+        message={recordToDelete && isManagedRecord(recordToDelete) ? 'GROUP_SYNCED_RECORD_DELETE_MESSAGE' : 'DELETE_CONFIRMATION_MESSAGE'}
         confirmText='DELETE'
         confirmColor='error'
       />

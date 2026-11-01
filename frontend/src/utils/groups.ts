@@ -22,7 +22,7 @@ import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { format } from 'date-fns';
 import { enGB, mk } from 'date-fns/locale';
 import { GroupExpenseCategory } from '../enums/GroupExpenseCategory';
-import type { GroupMember } from '../types/groups';
+import type { GroupBalances, GroupMember, GroupTransfer } from '../types/groups';
 import { stripCommas } from './amount';
 
 export const GROUP_ICONS: Record<string, IconDefinition> = {
@@ -191,4 +191,65 @@ export const inviteLink = (code: string): string => `${window.location.origin}/j
 export function formatInviteInput(value: string): string {
   const raw = value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 8);
   return raw.length > 4 ? `${raw.slice(0, 4)}-${raw.slice(4)}` : raw;
+}
+
+export interface SimplifyCover {
+  payerId: number;
+  creditorId: number;
+  amount: number;
+}
+
+export interface SimplifyExplanation {
+  owedToMe: number;
+  iOwe: number;
+  net: number;
+  covers: SimplifyCover[];
+}
+
+const transferKey = (from: number, to: number) => `${from}-${to}`;
+
+const transferCents = (transfers: GroupTransfer[]): Map<string, number> =>
+  new Map(transfers.map((transfer) => [transferKey(transfer.fromMemberId, transfer.toMemberId), toCents(transfer.amount)]));
+
+/** Reports whether simplifying changed who pays whom compared with paying each person back directly. */
+export function simplifyChangesPayments(balances: GroupBalances): boolean {
+  if (!balances.simplified) {
+    return false;
+  }
+  const direct = transferCents(balances.direct);
+  const suggested = transferCents(balances.suggested);
+  return direct.size !== suggested.size || [...direct].some(([key, cents]) => suggested.get(key) !== cents);
+}
+
+/** Explains the caller's simplified payments: what they are owed and owe directly, and which simplified payment covers their debts. */
+export function explainSimplified(balances: GroupBalances): SimplifyExplanation | null {
+  const me = balances.myMemberId;
+  const owedToMe = balances.withMe.filter((pair) => pair.amount > 0);
+  const iOwe = balances.withMe.filter((pair) => pair.amount < 0);
+  if (!balances.simplified || owedToMe.length === 0 || iOwe.length === 0) {
+    return null;
+  }
+  const suggested = transferCents(balances.suggested);
+  const sent = (from: number, to: number) => suggested.get(transferKey(from, to)) ?? 0;
+  const redirected = owedToMe
+    .map((pair) => ({ id: pair.memberId, cents: toCents(pair.amount) - sent(pair.memberId, me) }))
+    .filter((entry) => entry.cents > 0);
+  const capacity = new Map(suggested);
+  const covers: SimplifyCover[] = [];
+  for (const pair of iOwe) {
+    let need = toCents(-pair.amount) - sent(me, pair.memberId);
+    for (const payer of redirected) {
+      const key = transferKey(payer.id, pair.memberId);
+      const take = Math.min(need, payer.cents, capacity.get(key) ?? 0);
+      if (take > 0) {
+        covers.push({ payerId: payer.id, creditorId: pair.memberId, amount: fromCents(take) });
+        need -= take;
+        payer.cents -= take;
+        capacity.set(key, (capacity.get(key) ?? 0) - take);
+      }
+    }
+  }
+  const inCents = owedToMe.reduce((sum, pair) => sum + toCents(pair.amount), 0);
+  const outCents = iOwe.reduce((sum, pair) => sum + toCents(-pair.amount), 0);
+  return { owedToMe: fromCents(inCents), iOwe: fromCents(outCents), net: fromCents(inCents - outCents), covers };
 }

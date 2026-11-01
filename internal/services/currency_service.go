@@ -9,7 +9,9 @@ import (
 	"github.com/emilijan-koteski/monexa/internal/clients"
 	"github.com/emilijan-koteski/monexa/internal/models"
 	"github.com/emilijan-koteski/monexa/internal/models/types"
+	"github.com/emilijan-koteski/monexa/internal/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var ErrRateUnavailable = errors.New("exchange rate unavailable")
@@ -123,28 +125,24 @@ func rateLookupError(err error) error {
 	return err
 }
 
+// findHistoricalRate returns the rate fetched on the date's day, or else the one fetched closest to that day in either direction.
+// Rates from the exchange-rate API win over the approximate fallback rates seeded by migrations.
 func (s *CurrencyService) findHistoricalRate(ctx context.Context, date time.Time, fromCurrency, toCurrency types.CurrencyType) (*models.ExchangeRate, error) {
 	var rate models.ExchangeRate
-
 	err := s.db.WithContext(ctx).
-		Where("from_currency = ? AND to_currency = ? AND fetched_at <= ?", fromCurrency, toCurrency, date).
-		Order("fetched_at DESC").
-		First(&rate).
-		Error
-	if err == nil {
-		return &rate, nil
-	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("failed to fetch historical rate: %w", err)
-	}
-
-	err = s.db.WithContext(ctx).
-		Where("from_currency = ? AND to_currency = ? AND fetched_at > ?", fromCurrency, toCurrency, date).
-		Order("fetched_at ASC").
-		First(&rate).
+		Where("from_currency = ? AND to_currency = ?", fromCurrency, toCurrency).
+		Order(clause.OrderBy{Expression: clause.Expr{
+			SQL:                "source = ? ASC, abs(extract(epoch from (fetched_at - ?::timestamptz))) ASC, fetched_at DESC",
+			Vars:               []any{types.Fallback, utils.NoonUTC(date)},
+			WithoutParentheses: true,
+		}}).
+		Take(&rate).
 		Error
 	if err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		return nil, fmt.Errorf("failed to fetch historical rate: %w", err)
 	}
 	return &rate, nil
 }

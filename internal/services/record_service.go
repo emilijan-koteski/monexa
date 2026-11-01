@@ -212,24 +212,9 @@ func sameUTCDay(a, b time.Time) bool {
 	return ay == by && am == bm && ad == bd
 }
 
-// Delete removes a record unless it is still synced from a shared group, in which case it returns ErrRecordManagedByGroup.
+// Delete removes a record. A record synced from a shared group leaves the group untouched and is created again the next time that share syncs.
 func (s *RecordService) Delete(ctx context.Context, recordID uint) error {
-	result := s.db.WithContext(ctx).
-		Where("id = ? AND (group_expense_share_id IS NULL OR group_sync_detached_at IS NOT NULL)", recordID).
-		Delete(&models.Record{})
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		var count int64
-		if err := s.db.WithContext(ctx).Model(&models.Record{}).Where("id = ?", recordID).Count(&count).Error; err != nil {
-			return err
-		}
-		if count > 0 {
-			return ErrRecordManagedByGroup
-		}
-	}
-	return nil
+	return s.db.WithContext(ctx).Where("id = ?", recordID).Delete(&models.Record{}).Error
 }
 
 func (s *RecordService) IsOwner(ctx context.Context, userID uint, recordID uint) (bool, error) {

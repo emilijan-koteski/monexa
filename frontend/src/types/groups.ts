@@ -123,6 +123,12 @@ export interface GroupBalanceMember {
   net: number;
 }
 
+export interface GroupTransfer {
+  fromMemberId: number;
+  toMemberId: number;
+  amount: number;
+}
+
 export interface GroupBalances {
   currency: string;
   simplified: boolean;
@@ -134,7 +140,8 @@ export interface GroupBalances {
   pendingCount: number;
   expenseCount: number;
   members: GroupBalanceMember[];
-  suggested: { fromMemberId: number; toMemberId: number; amount: number }[];
+  suggested: GroupTransfer[];
+  direct: GroupTransfer[];
   withMe: { memberId: number; amount: number }[];
 }
 

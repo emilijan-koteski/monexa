@@ -23,6 +23,7 @@ import { useAddMember, useUnlinkMember, useUpdateMember } from '../../../service
 import { groupErrorMessage } from '../../../utils/groupErrors';
 import MemberAvatar from '../../../components/member-avatar/MemberAvatar';
 import InvitePanel from '../../../components/invite-panel/InvitePanel';
+import RenameMemberDialog from '../../../components/rename-member-dialog/RenameMemberDialog';
 
 interface PeopleTabProps {
   group: Group;
@@ -41,7 +42,7 @@ function PeopleTab({ group, onOpenSync, onRemoveGuest, onLeave }: PeopleTabProps
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [menu, setMenu] = useState<{ anchor: HTMLElement; member: GroupMember } | null>(null);
-  const [renaming, setRenaming] = useState<{ member: GroupMember; value: string } | null>(null);
+  const [renaming, setRenaming] = useState<GroupMember | null>(null);
 
   const run = async (action: () => Promise<unknown>, successKey: string) => {
     try {
@@ -63,17 +64,6 @@ function PeopleTab({ group, onOpenSync, onRemoveGuest, onLeave }: PeopleTabProps
     setAdding(false);
   };
 
-  const rename = async () => {
-    if (!renaming) {
-      return;
-    }
-    const value = renaming.value.trim();
-    if (value && value !== renaming.member.displayName) {
-      await run(() => updateMember.mutateAsync({ groupId: group.id, memberId: renaming.member.id, displayName: value }), 'GROUP_PERSON_RENAMED');
-    }
-    setRenaming(null);
-  };
-
   const closeMenu = () => setMenu(null);
 
   return (
@@ -83,19 +73,7 @@ function PeopleTab({ group, onOpenSync, onRemoveGuest, onLeave }: PeopleTabProps
           <Box key={member.id} className="person-row">
             <MemberAvatar member={member} size={40} showLinkBadge />
             <Box className="person-text">
-              {renaming?.member.id === member.id ? (
-                <TextField
-                  size="small"
-                  value={renaming.value}
-                  autoFocus
-                  onChange={(event) => setRenaming({ member, value: event.target.value })}
-                  onBlur={rename}
-                  onKeyDown={(event) => event.key === 'Enter' && rename()}
-                  aria-label={t('GROUP_RENAME')}
-                />
-              ) : (
-                <Typography fontWeight={600}>{member.isMe ? t('GROUP_YOU') : member.displayName}</Typography>
-              )}
+              <Typography fontWeight={600}>{member.isMe ? t('GROUP_YOU') : member.displayName}</Typography>
               <Typography variant="caption" className="muted">
                 {member.role === GroupMemberRole.OWNER ? `${t('GROUP_OWNER')} · ` : ''}
                 {member.isLinked ? t('GROUP_LINKED_ACCOUNT') : t('GROUP_GUEST_NOT_LINKED')}
@@ -142,9 +120,9 @@ function PeopleTab({ group, onOpenSync, onRemoveGuest, onLeave }: PeopleTabProps
         {t('GROUP_LEAVE')}
       </Button>
 
-      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={closeMenu}>
+      <Menu anchorEl={menu?.anchor} open={!!menu} onClose={closeMenu} disableRestoreFocus>
         {menu && [
-          <MenuItem key="rename" onClick={() => { setRenaming({ member: menu.member, value: menu.member.displayName }); closeMenu(); }}>
+          <MenuItem key="rename" onClick={() => { setRenaming(menu.member); closeMenu(); }}>
             <ListItemIcon><FontAwesomeIcon icon={faPen} /></ListItemIcon>
             <ListItemText>{t('GROUP_RENAME')}</ListItemText>
           </MenuItem>,
@@ -166,6 +144,8 @@ function PeopleTab({ group, onOpenSync, onRemoveGuest, onLeave }: PeopleTabProps
           </MenuItem>,
         ]}
       </Menu>
+
+      <RenameMemberDialog groupId={group.id} member={renaming} onClose={() => setRenaming(null)} />
     </Stack>
   );
 }

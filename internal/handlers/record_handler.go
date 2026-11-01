@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const managedRecordMessage = "this record is synced from a shared group: change its amount, currency or date, or delete it, in the group, or turn off syncing there first"
+const managedRecordMessage = "this record is synced from a shared group: change its amount, currency or date in the group, or turn off syncing there first"
 
 type recordHandler struct {
 	recordService *services.RecordService
@@ -184,9 +184,6 @@ func (h *recordHandler) Delete(c echo.Context) error {
 
 	err = h.recordService.Delete(c.Request().Context(), id)
 	if err != nil {
-		if errors.Is(err, services.ErrRecordManagedByGroup) {
-			return responses.ConflictWithMessage(c, managedRecordMessage)
-		}
 		return responses.FailureWithError(c, fmt.Errorf("error deleting record: %w", err))
 	}
 
