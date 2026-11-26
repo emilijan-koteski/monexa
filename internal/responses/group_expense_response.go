@@ -52,8 +52,10 @@ type GroupTransferResponse struct {
 }
 
 type GroupPairResponse struct {
-	MemberID uint    `json:"memberId"`
-	Amount   float64 `json:"amount"`
+	MemberID  uint    `json:"memberId"`
+	Amount    float64 `json:"amount"`
+	EvenedOut float64 `json:"evenedOut"`
+	Via       []uint  `json:"via"`
 }
 
 type GroupBalancesResponse struct {

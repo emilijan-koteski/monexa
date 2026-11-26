@@ -36,6 +36,11 @@ type debtKey struct {
 	To   uint
 }
 
+type evenedDebt struct {
+	Cents int64
+	Via   map[uint]bool
+}
+
 type balanceSheet struct {
 	Net          map[uint]int64
 	Paid         map[uint]int64
@@ -44,6 +49,8 @@ type balanceSheet struct {
 	ExpenseCount int
 	Total        int64
 	debt         map[debtKey]int64
+	owes         map[debtKey]int64
+	evened       map[debtKey]*evenedDebt
 }
 
 type transfer struct {
@@ -127,12 +134,144 @@ func computeBalances(ledger *groupLedger) *balanceSheet {
 		sheet.Net[settlement.ToMemberID] -= cents
 		sheet.debt[debtKey{From: settlement.FromMemberID, To: settlement.ToMemberID}] -= cents
 	}
+	cancelDebtCycles(sheet)
 	return sheet
 }
 
-// Pair returns how much a owes c after everything between the two of them; negative means c owes a.
-func (b *balanceSheet) Pair(a, c uint) int64 {
+// RawPair returns how much a owes c from the expenses and payments between the two of them alone; negative means c owes a.
+func (b *balanceSheet) RawPair(a, c uint) int64 {
 	return b.debt[debtKey{From: a, To: c}] - b.debt[debtKey{From: c, To: a}]
+}
+
+// Pair returns how much a owes c once debts that run in a circle are evened out; negative means c owes a.
+func (b *balanceSheet) Pair(a, c uint) int64 {
+	return b.owes[debtKey{From: a, To: c}] - b.owes[debtKey{From: c, To: a}]
+}
+
+// Evened returns how much of the debt between a and c was evened out through others, signed like Pair, and through whom.
+func (b *balanceSheet) Evened(a, c uint) (int64, []uint) {
+	cents := int64(0)
+	via := map[uint]bool{}
+	if entry := b.evened[debtKey{From: a, To: c}]; entry != nil {
+		cents += entry.Cents
+		for id := range entry.Via {
+			via[id] = true
+		}
+	}
+	if entry := b.evened[debtKey{From: c, To: a}]; entry != nil {
+		cents -= entry.Cents
+		for id := range entry.Via {
+			via[id] = true
+		}
+	}
+	return cents, sortedIDs(via)
+}
+
+func sortedIDs(set map[uint]bool) []uint {
+	ids := make([]uint, 0, len(set))
+	for id := range set {
+		ids = append(ids, id)
+	}
+	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	return ids
+}
+
+// cancelDebtCycles nets each pair into one debt and removes debts that run in a circle, such as a payment Simplify routed
+// through someone else; everyone's balance stays the same.
+func cancelDebtCycles(sheet *balanceSheet) {
+	sheet.owes = map[debtKey]int64{}
+	sheet.evened = map[debtKey]*evenedDebt{}
+	for key := range sheet.debt {
+		low, high := min(key.From, key.To), max(key.From, key.To)
+		switch net := sheet.RawPair(low, high); {
+		case net > 0:
+			sheet.owes[debtKey{From: low, To: high}] = net
+		case net < 0:
+			sheet.owes[debtKey{From: high, To: low}] = -net
+		}
+	}
+
+	for cycle := findDebtCycle(sheet.owes); cycle != nil; cycle = findDebtCycle(sheet.owes) {
+		smallest := int64(0)
+		for i, from := range cycle {
+			amount := sheet.owes[debtKey{From: from, To: cycle[(i+1)%len(cycle)]}]
+			if i == 0 || amount < smallest {
+				smallest = amount
+			}
+		}
+		for i, from := range cycle {
+			key := debtKey{From: from, To: cycle[(i+1)%len(cycle)]}
+			sheet.owes[key] -= smallest
+			if sheet.owes[key] == 0 {
+				delete(sheet.owes, key)
+			}
+			entry := sheet.evened[key]
+			if entry == nil {
+				entry = &evenedDebt{Via: map[uint]bool{}}
+				sheet.evened[key] = entry
+			}
+			entry.Cents += smallest
+			for _, member := range cycle {
+				if member != key.From && member != key.To {
+					entry.Via[member] = true
+				}
+			}
+		}
+	}
+}
+
+// findDebtCycle returns the members of one circle of debts, each owing the next and the last owing the first, or nil.
+func findDebtCycle(owes map[debtKey]int64) []uint {
+	next := map[uint][]uint{}
+	nodes := map[uint]bool{}
+	for key, amount := range owes {
+		if amount > 0 {
+			next[key.From] = append(next[key.From], key.To)
+			nodes[key.From] = true
+			nodes[key.To] = true
+		}
+	}
+	for _, targets := range next {
+		sort.Slice(targets, func(i, j int) bool { return targets[i] < targets[j] })
+	}
+
+	const (
+		unvisited = iota
+		onPath
+		done
+	)
+	state := map[uint]int{}
+	var path []uint
+	var visit func(node uint) []uint
+	visit = func(node uint) []uint {
+		state[node] = onPath
+		path = append(path, node)
+		for _, target := range next[node] {
+			switch state[target] {
+			case onPath:
+				for i, member := range path {
+					if member == target {
+						return append([]uint(nil), path[i:]...)
+					}
+				}
+			case unvisited:
+				if cycle := visit(target); cycle != nil {
+					return cycle
+				}
+			}
+		}
+		path = path[:len(path)-1]
+		state[node] = done
+		return nil
+	}
+	for _, node := range sortedIDs(nodes) {
+		if state[node] == unvisited {
+			if cycle := visit(node); cycle != nil {
+				return cycle
+			}
+		}
+	}
+	return nil
 }
 
 // settleThreshold is the smallest balance worth paying back; anything below it counts as settled.

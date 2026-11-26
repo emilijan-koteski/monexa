@@ -176,7 +176,9 @@ function BalancesTab({ group, balances, members, onMarkPaid, onOpenLedger, onRec
                     ? t('GROUP_OWES_YOU', { amount: formatCurrencyAmount(pair.amount, currency) })
                     : pair.amount < 0
                       ? t('GROUP_YOU_OWE_THEM', { amount: formatCurrencyAmount(-pair.amount, currency) })
-                      : t('GROUP_ALL_SQUARE')}
+                      : pair.evenedOut !== 0
+                        ? t('GROUP_ALL_SQUARE_VIA', { names: pair.via.map((id) => label(id)).join(', ') })
+                        : t('GROUP_ALL_SQUARE')}
                 </Typography>
               </Box>
               <FontAwesomeIcon icon={faChevronRight} className="muted" />

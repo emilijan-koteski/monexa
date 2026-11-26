@@ -153,7 +153,8 @@ function GroupDetailsPage() {
   const currency = group.baseCurrency;
   const myNet = balances?.myNet ?? 0;
   const pendingCount = balances?.pendingCount ?? expenses.filter((expense) => expense.pending).length;
-  const pairAmount = balances?.withMe.find((pair) => pair.memberId === ledgerMember)?.amount ?? 0;
+  const ledgerPair = balances?.withMe.find((pair) => pair.memberId === ledgerMember);
+  const pairAmount = ledgerPair?.amount ?? 0;
 
   const expensesKey = groupQueryKeys.expenses(group.id);
   const settlementsKey = groupQueryKeys.settlements(group.id);
@@ -429,6 +430,8 @@ function GroupDetailsPage() {
         expenses={expenses}
         settlements={settlements}
         pairAmount={pairAmount}
+        evenedOut={ledgerPair?.evenedOut ?? 0}
+        evenedVia={ledgerPair?.via ?? []}
         onFillAmount={(expense) => { setLedgerMember(null); openExpense(expense, true); }}
         onRecordPayment={(preset) => { setLedgerMember(null); openSettlement(preset); }}
         onUntick={untick}
