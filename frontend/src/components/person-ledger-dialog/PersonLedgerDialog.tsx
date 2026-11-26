@@ -22,6 +22,8 @@ interface PersonLedgerDialogProps {
   expenses: GroupExpense[];
   settlements: GroupSettlement[];
   pairAmount: number;
+  evenedOut: number;
+  evenedVia: number[];
   onFillAmount: (expense: GroupExpense) => void;
   onRecordPayment: (preset: SettlementPreset) => void;
   onUntick: (expense: GroupExpense, share: GroupExpenseShare) => void;
@@ -41,6 +43,8 @@ function PersonLedgerDialog({
   expenses,
   settlements,
   pairAmount,
+  evenedOut,
+  evenedVia,
   onFillAmount,
   onRecordPayment,
   onUntick,
@@ -119,6 +123,10 @@ function PersonLedgerDialog({
     );
 
   const name = member.displayName;
+  const evenedNames = evenedVia
+    .map((id) => group.members.find((m) => m.id === id)?.displayName)
+    .filter(Boolean)
+    .join(', ');
   const netClass = pairAmount > 0 ? 'owed' : pairAmount < 0 ? 'owe' : 'settled';
   const netText = pairAmount > 0
     ? t('GROUP_PAIR_OWES_YOU', { name, amount: formatCurrencyAmount(pairAmount, currency) })
@@ -167,6 +175,19 @@ function PersonLedgerDialog({
                   {!archived && <Button size="small" onClick={() => onRemovePayment(payment)}>{t('GROUP_REMOVE')}</Button>}
                 </Box>
               ))}
+            </Stack>
+          )}
+          {evenedOut !== 0 && (
+            <Stack gap={1}>
+              <Typography variant="overline" className="ledger-muted">{t('GROUP_LEDGER_EVENED_OUT_TITLE')}</Typography>
+              <Box className="ledger-payment">
+                <Box className="ledger-text">
+                  <Typography>
+                    {t('GROUP_LEDGER_EVENED_OUT', { amount: formatCurrencyAmount(Math.abs(evenedOut), currency), names: evenedNames })}
+                  </Typography>
+                  <Typography className="ledger-date">{t('GROUP_LEDGER_EVENED_OUT_HINT')}</Typography>
+                </Box>
+              </Box>
             </Stack>
           )}
         </Stack>

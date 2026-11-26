@@ -934,9 +934,12 @@ func (s *GroupExpenseService) Balances(ctx context.Context, groupID, userID uint
 			Net:      utils.FromCents(roundToSettled(sheet.Net[id], threshold)),
 		})
 		if id != meID {
+			evened, via := sheet.Evened(id, meID)
 			out.WithMe = append(out.WithMe, dtoResponses.GroupPairResponse{
-				MemberID: id,
-				Amount:   utils.FromCents(roundToSettled(sheet.Pair(id, meID), threshold)),
+				MemberID:  id,
+				Amount:    utils.FromCents(roundToSettled(sheet.Pair(id, meID), threshold)),
+				EvenedOut: utils.FromCents(evened),
+				Via:       via,
 			})
 		}
 	}

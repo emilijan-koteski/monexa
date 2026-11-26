@@ -123,6 +123,13 @@ export interface GroupBalanceMember {
   net: number;
 }
 
+export interface GroupPair {
+  memberId: number;
+  amount: number;
+  evenedOut: number;
+  via: number[];
+}
+
 export interface GroupTransfer {
   fromMemberId: number;
   toMemberId: number;
@@ -142,7 +149,7 @@ export interface GroupBalances {
   members: GroupBalanceMember[];
   suggested: GroupTransfer[];
   direct: GroupTransfer[];
-  withMe: { memberId: number; amount: number }[];
+  withMe: GroupPair[];
 }
 
 export interface GroupStats {
